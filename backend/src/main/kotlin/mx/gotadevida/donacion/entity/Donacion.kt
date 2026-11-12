@@ -12,7 +12,7 @@ data class Donacion(
     val hospitalNombre: String,
     val fecha: String,
     val creadaEn: String,
-    val solicitudId: String? = null,
+    val solicitudId: String? = null
 )
 
 @Serializable
@@ -22,12 +22,7 @@ enum class Insignia { PRIMERA_DONACION, TRES_DONACIONES, CINCO_DONACIONES, HEROE
 data class InsigniaRespuesta(val codigo: Insignia, val obtenida: Boolean)
 
 @Serializable
-data class DonacionRespuesta(
-    val id: String,
-    val hospitalNombre: String,
-    val fecha: String,
-    val porUrgencia: Boolean,
-)
+data class DonacionRespuesta(val id: String, val hospitalNombre: String, val fecha: String, val porUrgencia: Boolean)
 
 @Serializable
 data class HistorialRespuesta(
@@ -37,5 +32,5 @@ data class HistorialRespuesta(
     val vidasQuePuedesAyudar: Int,
     val elegible: Boolean,
     val proximaFechaElegible: String? = null,
-    val insignias: List<InsigniaRespuesta>,
+    val insignias: List<InsigniaRespuesta>
 )

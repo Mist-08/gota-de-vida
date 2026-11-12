@@ -25,7 +25,7 @@ data class Cita(
     val codigoQr: String,
     val creadaEn: String,
     val solicitudId: String? = null,
-    val completadaEn: String? = null,
+    val completadaEn: String? = null
 )
 
 @Serializable
@@ -36,7 +36,7 @@ data class AgendarCitaPeticion(
     val hospitalId: String,
     /** Hora local: `2026-11-13T09:30`. */
     val fechaHora: String,
-    val solicitudId: String? = null,
+    val solicitudId: String? = null
 )
 
 @Serializable
@@ -56,13 +56,13 @@ data class CitaRespuesta(
     /** Solo para el donador dueño de la cita. */
     val codigoQr: String? = null,
     /** Solo para el hospital. */
-    val donadorNombre: String? = null,
+    val donadorNombre: String? = null
 )
 
 fun Cita.paraDonador() = CitaRespuesta(
-    id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, fechaHora, estado, solicitudId, codigoQr = codigoQr,
+    id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, fechaHora, estado, solicitudId, codigoQr = codigoQr
 )
 
 fun Cita.paraHospital() = CitaRespuesta(
-    id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, fechaHora, estado, solicitudId, donadorNombre = donadorNombre,
+    id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, fechaHora, estado, solicitudId, donadorNombre = donadorNombre
 )

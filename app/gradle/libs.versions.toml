@@ -30,8 +30,10 @@ firebaseBom = "35.2.0"
 camerax = "1.6.2"
 mlkitBarcode = "17.3.0"
 zxing = "3.5.4"
+glance = "1.2.0"
 
 [libraries]
+androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }

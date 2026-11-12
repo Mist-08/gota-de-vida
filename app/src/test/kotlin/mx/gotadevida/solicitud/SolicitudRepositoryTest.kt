@@ -65,7 +65,9 @@ class SolicitudRepositoryTest {
     fun `si sigue sin red el worker pide reintentar y conserva la accion`() = runTest {
         api.sinRed = true
         val acciones = AccionesDaoFalso()
-        acciones.guardar(AccionPendiente("urgencia:u1", "responder_urgencia", """{"solicitudId":"u1","acepta":true}""", 1))
+        acciones.guardar(
+            AccionPendiente("urgencia:u1", "responder_urgencia", """{"solicitudId":"u1","acepta":true}""", 1)
+        )
         val ejecutor = EjecutorResponderUrgencia(api, dao, json)
         assertEquals(ResultadoEnvio.REINTENTAR, ejecutor.ejecutar(acciones.datos.values.first().datos))
         assertEquals(false, enviarPendientes(acciones, setOf(ejecutor)))

@@ -1,10 +1,10 @@
 package mx.gotadevida.hospital.service
 
+import java.time.Duration
+import java.time.Instant
 import kotlinx.serialization.Serializable
 import mx.gotadevida.core.dominio.DirectorioUrgencias
 import mx.gotadevida.core.errores.Prohibido
-import java.time.Duration
-import java.time.Instant
 
 @Serializable
 data class TipoSolicitado(val etiquetaTipoSangre: String, val urgencias: Int)
@@ -19,14 +19,14 @@ data class Estadisticas(
     val minutosPromedioParaCubrir: Int?,
     val tiposMasSolicitados: List<TipoSolicitado>,
     val donacionesConfirmadas: Int,
-    val citasHoy: Int,
+    val citasHoy: Int
 )
 
 class EstadisticasService(
     private val urgencias: DirectorioUrgencias,
     private val hospitalDeUsuario: suspend (String) -> String?,
     private val donacionesDe: suspend (hospitalId: String) -> Int,
-    private val citasHoyDe: suspend (hospitalId: String) -> Int,
+    private val citasHoyDe: suspend (hospitalId: String) -> Int
 ) {
     suspend fun deMiHospital(usuarioId: String): Estadisticas {
         val hospitalId = hospitalDeUsuario(usuarioId) ?: throw Prohibido("Tu cuenta no pertenece a un hospital.")
@@ -42,7 +42,7 @@ class EstadisticasService(
             tiposMasSolicitados = lista.groupingBy { it.etiquetaTipoSangre }.eachCount()
                 .entries.sortedByDescending { it.value }.take(3).map { TipoSolicitado(it.key, it.value) },
             donacionesConfirmadas = donacionesDe(hospitalId),
-            citasHoy = citasHoyDe(hospitalId),
+            citasHoy = citasHoyDe(hospitalId)
         )
     }
 }

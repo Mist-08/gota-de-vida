@@ -3,6 +3,7 @@ package mx.gotadevida.chatbot.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,6 @@ import mx.gotadevida.chatbot.entity.MensajeChat
 import mx.gotadevida.chatbot.repository.ChatRepository
 import mx.gotadevida.core.network.FalloApp
 import mx.gotadevida.core.network.Resultado
-import javax.inject.Inject
 
 @Serializable
 data object Chat
@@ -27,14 +27,16 @@ data class ChatUiState(
     val enviando: Boolean = false,
     /** Lo último que se intentó mandar sin conexión, para reintentarlo con un toque. */
     val sinEnviar: String? = null,
-    val fallo: FalloApp? = null,
+    val fallo: FalloApp? = null
 )
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(private val repositorio: ChatRepository) : ViewModel() {
     private val local = MutableStateFlow(ChatUiState())
 
-    val estado: StateFlow<ChatUiState> = combine(repositorio.observarMensajes(), local) { mensajes, l -> l.copy(mensajes = mensajes) }
+    val estado: StateFlow<ChatUiState> = combine(repositorio.observarMensajes(), local) { mensajes, l ->
+        l.copy(mensajes = mensajes)
+    }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ChatUiState())
 
     init {

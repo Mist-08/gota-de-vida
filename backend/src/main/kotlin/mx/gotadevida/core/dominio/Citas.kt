@@ -13,7 +13,7 @@ data class UrgenciaResumen(
     val creadaEn: String,
     val cubiertaEn: String?,
     val distanciaKm: Double?,
-    val miRespuesta: Boolean?,
+    val miRespuesta: Boolean?
 )
 
 /** Lo que otras funcionalidades (estadísticas, chatbot) pueden consultar de las urgencias. */
@@ -27,13 +27,7 @@ interface DirectorioUrgencias {
     suspend fun responderUrgencia(donadorId: String, solicitudId: String, acepta: Boolean): UrgenciaResumen
 }
 
-data class CitaResumen(
-    val id: String,
-    val hospitalId: String,
-    val hospitalNombre: String,
-    val fechaHora: String,
-    val estado: String,
-)
+data class CitaResumen(val id: String, val hospitalId: String, val hospitalNombre: String, val fechaHora: String, val estado: String)
 
 /** Lo que el chatbot puede hacer con las citas (las mismas reglas que la app). */
 interface DirectorioCitas {
@@ -56,5 +50,5 @@ data class RequisitosVigentes(
     val horasAyunoMinimo: Int,
     val horasAyunoMaximo: Int,
     val mesesEsperaTatuaje: Int,
-    val requisitos: List<String>,
+    val requisitos: List<String>
 )

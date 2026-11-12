@@ -4,6 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDate
+import java.time.LocalDateTime
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,9 +26,6 @@ import mx.gotadevida.cita.repository.EnvioCita
 import mx.gotadevida.core.network.FalloApp
 import mx.gotadevida.core.network.Resultado
 import mx.gotadevida.core.tiempo.Calendario
-import java.time.LocalDate
-import java.time.LocalDateTime
-import javax.inject.Inject
 
 /** Ruta: agendar en un hospital, opcionalmente por una urgencia aceptada. */
 @Serializable
@@ -44,37 +44,50 @@ data class AgendarUiState(
     val cargandoHorarios: Boolean = false,
     val enviando: Boolean = false,
     val fallo: FalloApp? = null,
-    val resultado: EnvioCita? = null,
+    val resultado: EnvioCita? = null
 )
 
 @HiltViewModel
 class AgendarViewModel @Inject constructor(
     private val repositorio: CitaRepository,
     private val calendario: Calendario,
-    estadoGuardado: SavedStateHandle,
+    estadoGuardado: SavedStateHandle
 ) : ViewModel() {
     private val hospitalId: String = checkNotNull(estadoGuardado["hospitalId"])
     private val solicitudId: String? = estadoGuardado["solicitudId"]
     private val _estado = MutableStateFlow(
         AgendarUiState(
             hospitalNombre = estadoGuardado["hospitalNombre"] ?: "",
-            dias = (0L until 7L).map { calendario.hoy().plusDays(it) },
-        ),
+            dias = (0L until 7L).map { calendario.hoy().plusDays(it) }
+        )
     )
     val estado: StateFlow<AgendarUiState> = _estado.asStateFlow()
 
     init {
         viewModelScope.launch {
-            (repositorio.requisitos() as? Resultado.Exito)?.let { r -> _estado.update { it.copy(requisitos = r.valor) } }
+            (repositorio.requisitos() as? Resultado.Exito)?.let { r ->
+                _estado.update { it.copy(requisitos = r.valor) }
+            }
         }
         onDia(_estado.value.dias.first())
     }
 
     fun onDia(dia: LocalDate) {
-        _estado.update { it.copy(dia = dia, hora = null, horarios = emptyList(), cargandoHorarios = true, fallo = null) }
+        _estado.update {
+            it.copy(dia = dia, hora = null, horarios = emptyList(), cargandoHorarios = true, fallo = null)
+        }
         viewModelScope.launch {
             when (val r = repositorio.horarios(hospitalId, dia.toString())) {
-                is Resultado.Exito -> _estado.update { if (it.dia == dia) it.copy(horarios = r.valor, cargandoHorarios = false) else it }
+                is Resultado.Exito -> _estado.update {
+                    if (it.dia ==
+                        dia
+                    ) {
+                        it.copy(horarios = r.valor, cargandoHorarios = false)
+                    } else {
+                        it
+                    }
+                }
+
                 is Resultado.Fallo -> _estado.update { it.copy(cargandoHorarios = false, fallo = r.fallo) }
             }
         }
@@ -101,21 +114,18 @@ data class MiCitaUiState(
     val cita: Cita? = null,
     val pendiente: Boolean = false,
     val cancelando: Boolean = false,
-    val fallo: FalloApp? = null,
+    val fallo: FalloApp? = null
 )
 
 /** La cita próxima con su QR. Se lee de Room: funciona sin señal dentro del hospital. */
 @HiltViewModel
-class MiCitaViewModel @Inject constructor(
-    private val repositorio: CitaRepository,
-    private val calendario: Calendario,
-) : ViewModel() {
+class MiCitaViewModel @Inject constructor(private val repositorio: CitaRepository, private val calendario: Calendario) : ViewModel() {
     private val local = MutableStateFlow(MiCitaUiState())
 
     val estado: StateFlow<MiCitaUiState> = combine(
         repositorio.observarCitas(),
         repositorio.observarAgendaPendiente(),
-        local,
+        local
     ) { citas, pendiente, l -> l.copy(cita = proxima(citas), pendiente = pendiente) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MiCitaUiState())
 
@@ -125,7 +135,10 @@ class MiCitaViewModel @Inject constructor(
 
     private fun proxima(citas: List<Cita>): Cita? {
         val hoy = calendario.hoy()
-        return citas.filter { it.estado == EstadoCita.AGENDADA && !LocalDateTime.parse(it.fechaHora).toLocalDate().isBefore(hoy) }
+        return citas.filter {
+            it.estado == EstadoCita.AGENDADA &&
+                !LocalDateTime.parse(it.fechaHora).toLocalDate().isBefore(hoy)
+        }
             .minByOrNull { it.fechaHora }
     }
 

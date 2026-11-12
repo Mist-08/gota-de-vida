@@ -41,7 +41,7 @@
 
     <!-- Aviso de privacidad (resumen del prototipo: revisarlo antes de publicar la app) -->
     <string name="aviso_privacidad_titulo">Aviso de privacidad</string>
-    <string name="aviso_privacidad_texto">Gota de Vida guarda tu nombre, correo, celular, tipo de sangre, fecha de nacimiento, peso, sexo para criterios médicos y una ubicación aproximada (unos 100 metros, nunca tu dirección).\n\nLos usamos solo para saber si puedes donar y avisarte de urgencias de sangre compatibles cerca de ti.\n\nUn hospital solo ve qué tan lejos estás. Tu nombre y celular los ve únicamente si aceptas una urgencia.\n\nPuedes corregir tus datos en cualquier momento desde Ajustes → Editar mi perfil.\n\nEste es el aviso del prototipo escolar; antes de usar la app con personas reales debe revisarlo un especialista en protección de datos.</string>
+    <string name="aviso_privacidad_texto">Gota de Vida guarda tu nombre, correo, celular, tipo de sangre, fecha de nacimiento, peso, sexo para criterios médicos y una ubicación aproximada (unos 100 metros, nunca tu dirección).\n\nLos usamos solo para saber si puedes donar y avisarte de urgencias de sangre compatibles cerca de ti.\n\nUn hospital solo ve qué tan lejos estás. Tu nombre y celular los ve únicamente si aceptas una urgencia.\n\nPuedes corregir tus datos desde Ajustes → Editar mi perfil y borrar tu cuenta desde Ajustes → Eliminar mi cuenta.\n\nEste es el aviso del prototipo escolar; antes de usar la app con personas reales debe revisarlo un especialista en protección de datos.</string>
 
     <!-- Registro e inicio de sesión -->
     <string name="registro_paso">Paso 1 de 2</string>
@@ -249,4 +249,17 @@
     <string name="chat_opcion_3">Agendar cita</string>
     <string name="chat_opcion_4">¿Puedo donar?</string>
     <string name="accion_reintentar_envio">Reintentar envío</string>
+
+    <!-- Widget y ajustes -->
+    <string name="widget_nombre">Mi próxima donación</string>
+    <string name="widget_descripcion">Muestra si ya puedes donar o cuántos días faltan.</string>
+    <string name="widget_abre_la_app">Abre la app para ver si puedes donar</string>
+    <string name="widget_gracias">Gracias por estar listo</string>
+    <string name="ajustes_notificaciones">Notificaciones</string>
+    <string name="ajustes_recibir_urgencias">Recibir avisos de urgencias</string>
+    <string name="ajustes_recibir_urgencias_ayuda">Por notificación y WhatsApp, solo si eres compatible y estás cerca.</string>
+    <string name="ajustes_eliminar_cuenta">Eliminar mi cuenta</string>
+    <string name="ajustes_eliminar_titulo">¿Eliminar tu cuenta?</string>
+    <string name="ajustes_eliminar_texto">Se borrarán tu cuenta, tu perfil, tu conversación con Gota y tus citas pendientes. Las donaciones ya confirmadas quedan en el banco de sangre sin tus datos personales. No se puede deshacer.</string>
+    <string name="ajustes_eliminar_confirmar">Eliminar</string>
 </resources>

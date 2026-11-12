@@ -1,17 +1,21 @@
 package mx.gotadevida.solicitud.service
 
+import java.time.Clock
+import java.util.UUID
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
-import kotlinx.serialization.json.add
 import mx.gotadevida.core.dominio.DirectorioDonadores
-import mx.gotadevida.core.dominio.DirectorioUrgencias
-import mx.gotadevida.core.dominio.UrgenciaResumen
 import mx.gotadevida.core.dominio.DirectorioHospitales
+import mx.gotadevida.core.dominio.DirectorioUrgencias
 import mx.gotadevida.core.dominio.PuntoGeo
 import mx.gotadevida.core.dominio.TipoSangre
+import mx.gotadevida.core.dominio.UrgenciaResumen
 import mx.gotadevida.core.errores.Conflicto
 import mx.gotadevida.core.errores.NoEncontrado
 import mx.gotadevida.core.errores.Prohibido
@@ -29,10 +33,6 @@ import mx.gotadevida.solicitud.entity.SolicitudRespuesta
 import mx.gotadevida.solicitud.entity.aRespuesta
 import mx.gotadevida.solicitud.repository.RespuestaRepository
 import mx.gotadevida.solicitud.repository.SolicitudRepository
-import java.time.Clock
-import java.util.UUID
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 
 /**
  * Urgencias: el hospital las publica, los donadores compatibles las ven y responden.
@@ -46,7 +46,7 @@ class SolicitudService(
     private val hospitales: DirectorioHospitales,
     private val hospitalDeUsuario: suspend (usuarioId: String) -> String?,
     private val bus: BusDeEventos,
-    private val reloj: Clock = Clock.systemUTC(),
+    private val reloj: Clock = Clock.systemUTC()
 ) : DirectorioUrgencias {
     suspend fun crear(usuario: UsuarioActual, peticion: CrearSolicitudPeticion): SolicitudRespuesta {
         val hospitalId = hospitalDeUsuario(usuario.id) ?: throw Prohibido("Tu cuenta no pertenece a un hospital.")
@@ -67,7 +67,7 @@ class SolicitudService(
             estado = EstadoSolicitud.ACTIVA,
             creadaEn = ahora,
             actualizadaEn = ahora,
-            nota = nota,
+            nota = nota
         )
         solicitudes.guardar(solicitud)
         bus.publicar(TiposEvento.SOLICITUD_CREADA, buildJsonObject { put("solicitudId", solicitud.id) })
@@ -98,9 +98,10 @@ class SolicitudService(
                 val donador = donadores.resumen(usuario.id)
                 solicitud.aRespuesta(
                     distanciaKm = donador?.ubicacion?.distanciaKmA(solicitud.ubicacion),
-                    miRespuesta = respuestas.buscar(id, usuario.id)?.acepta,
+                    miRespuesta = respuestas.buscar(id, usuario.id)?.acepta
                 )
             }
+
             Rol.HOSPITAL, Rol.ADMIN -> {
                 exigirDueno(usuario, solicitud)
                 solicitud.aRespuesta(aceptaciones = aceptaciones(solicitud))
@@ -139,7 +140,12 @@ class SolicitudService(
             if (solicitud.estado == EstadoSolicitud.CUBIERTA) throw Conflicto("¡Gracias! Esta urgencia ya se cubrió.")
             if (solicitud.estado != EstadoSolicitud.ACTIVA) throw Conflicto("Esta urgencia ya terminó.")
             val tipo = donador.tipoSangre ?: throw Conflicto("Completa tu tipo de sangre para responder urgencias.")
-            if (!tipo.puedeDonarA(solicitud.tipoSangre)) throw Conflicto("Tu tipo de sangre no es compatible con esta urgencia.")
+            if (!tipo.puedeDonarA(
+                    solicitud.tipoSangre
+                )
+            ) {
+                throw Conflicto("Tu tipo de sangre no es compatible con esta urgencia.")
+            }
             if (!donador.elegible) throw Conflicto("Por ahora no puedes donar. Revisa tu elegibilidad en el inicio.")
         }
         val distancia = donador.ubicacion?.distanciaKmA(solicitud.ubicacion)
@@ -150,7 +156,7 @@ class SolicitudService(
                 put("solicitudId", id)
                 put("donadorId", donadorId)
                 put("acepta", acepta)
-            },
+            }
         )
         val comprometidas = respuestas.deSolicitud(id).count { it.acepta }
         return solicitud.copy(unidadesComprometidas = comprometidas).aRespuesta(distancia, acepta)
@@ -164,12 +170,14 @@ class SolicitudService(
 
     override suspend fun responderUrgencia(donadorId: String, solicitudId: String, acepta: Boolean): UrgenciaResumen {
         val r = responder(donadorId, solicitudId, acepta)
-        return buscar(solicitudId).copy(unidadesComprometidas = r.unidadesComprometidas).resumen(r.distanciaKm, r.miRespuesta)
+        return buscar(
+            solicitudId
+        ).copy(unidadesComprometidas = r.unidadesComprometidas).resumen(r.distanciaKm, r.miRespuesta)
     }
 
     private fun Solicitud.resumen(distanciaKm: Double?, miRespuesta: Boolean?) = UrgenciaResumen(
         id, hospitalId, hospitalNombre, tipoSangre.etiqueta, tipoSangre, estado.name, unidades, unidadesComprometidas,
-        creadaEn, cubiertaEn, distanciaKm, miRespuesta,
+        creadaEn, cubiertaEn, distanciaKm, miRespuesta
     )
 
     private suspend fun aceptaciones(solicitud: Solicitud): List<DonadorQueAcepto> =
@@ -180,7 +188,7 @@ class SolicitudService(
                 nombre = d?.nombre ?: "Donador",
                 telefono = d?.telefono,
                 distanciaKm = r.distanciaKm?.let { Math.round(it * 10) / 10.0 },
-                respondioEn = r.creadaEn,
+                respondioEn = r.creadaEn
             )
         }
 
@@ -207,7 +215,7 @@ class MatchingService(
     private val esperaEntreOleadas: Duration = 15.minutes,
     private val radiosKm: List<Double> = listOf(10.0, 25.0, 50.0),
     private val porOleada: Int = 20,
-    private val reloj: Clock = Clock.systemUTC(),
+    private val reloj: Clock = Clock.systemUTC()
 ) {
     suspend fun lanzarOleada(solicitudId: String, oleada: Int) {
         val solicitud = solicitudes.buscarPorId(solicitudId) ?: return
@@ -219,15 +227,15 @@ class MatchingService(
             radioKm = radio,
             tipos = TipoSangre.donadoresCompatiblesCon(solicitud.tipoSangre),
             excluir = solicitud.notificados.toSet(),
-            limite = porOleada,
+            limite = porOleada
         )
         solicitudes.guardar(
             solicitud.copy(
                 oleada = oleada,
                 radioKm = radio,
                 notificados = solicitud.notificados + candidatos.map { it.donador.id },
-                actualizadaEn = reloj.instant().toString(),
-            ),
+                actualizadaEn = reloj.instant().toString()
+            )
         )
         candidatos.forEach { c ->
             bus.publicar(
@@ -241,7 +249,7 @@ class MatchingService(
                         put("hospital", solicitud.hospitalNombre)
                         put("distanciaKm", JsonPrimitive((Math.round(c.distanciaKm * 10) / 10.0).toString()))
                     }
-                },
+                }
             )
         }
         if (oleada < radiosKm.size) {
@@ -251,7 +259,7 @@ class MatchingService(
                     put("solicitudId", solicitud.id)
                     put("oleada", oleada + 1)
                 },
-                esperaEntreOleadas,
+                esperaEntreOleadas
             )
         }
     }
@@ -262,7 +270,7 @@ class AvanceService(
     private val solicitudes: SolicitudRepository,
     private val respuestas: RespuestaRepository,
     private val bus: BusDeEventos,
-    private val reloj: Clock = Clock.systemUTC(),
+    private val reloj: Clock = Clock.systemUTC()
 ) {
     suspend fun actualizar(solicitudId: String, acepta: Boolean) {
         val solicitud = solicitudes.buscarPorId(solicitudId) ?: return
@@ -275,8 +283,8 @@ class AvanceService(
                 unidadesComprometidas = comprometidas,
                 estado = if (cubierta) EstadoSolicitud.CUBIERTA else solicitud.estado,
                 cubiertaEn = if (cubierta) ahora else solicitud.cubiertaEn,
-                actualizadaEn = ahora,
-            ),
+                actualizadaEn = ahora
+            )
         )
         if (acepta) {
             bus.publicar(
@@ -290,7 +298,7 @@ class AvanceService(
                         put("comprometidas", comprometidas.toString())
                         put("unidades", solicitud.unidades.toString())
                     }
-                },
+                }
             )
         }
     }

@@ -3,6 +3,7 @@ package mx.gotadevida.autenticacion.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +17,6 @@ import mx.gotadevida.autenticacion.repository.AutenticacionRepository
 import mx.gotadevida.autenticacion.service.ValidadorCuenta
 import mx.gotadevida.core.network.FalloApp
 import mx.gotadevida.core.network.Resultado
-import javax.inject.Inject
 
 data class RegistroUiState(
     val nombre: String = "",
@@ -27,13 +27,11 @@ data class RegistroUiState(
     val enviando: Boolean = false,
     val fallo: FalloApp? = null,
     val googleNoDisponible: Boolean = false,
-    val listo: Boolean = false,
+    val listo: Boolean = false
 )
 
 @HiltViewModel
-class RegistroViewModel @Inject constructor(
-    private val repositorio: AutenticacionRepository,
-) : ViewModel() {
+class RegistroViewModel @Inject constructor(private val repositorio: AutenticacionRepository) : ViewModel() {
 
     private val _estado = MutableStateFlow(RegistroUiState())
     val estado: StateFlow<RegistroUiState> = _estado.asStateFlow()
@@ -61,8 +59,8 @@ class RegistroViewModel @Inject constructor(
                     email = actual.email.trim().lowercase(),
                     password = actual.password,
                     telefono = actual.telefono,
-                    aceptaAvisoPrivacidad = aceptoAviso,
-                ),
+                    aceptaAvisoPrivacidad = aceptoAviso
+                )
             )
         }
     }
@@ -95,22 +93,18 @@ data class InicioSesionUiState(
     val enviando: Boolean = false,
     val fallo: FalloApp? = null,
     val googleNoDisponible: Boolean = false,
-    val listo: Boolean = false,
+    val listo: Boolean = false
 )
 
 @HiltViewModel
-class InicioSesionViewModel @Inject constructor(
-    private val repositorio: AutenticacionRepository,
-) : ViewModel() {
+class InicioSesionViewModel @Inject constructor(private val repositorio: AutenticacionRepository) : ViewModel() {
 
     private val _estado = MutableStateFlow(InicioSesionUiState())
     val estado: StateFlow<InicioSesionUiState> = _estado.asStateFlow()
 
-    fun onEmail(valor: String) =
-        _estado.update { it.copy(email = valor, errores = it.errores - CampoCuenta.EMAIL, fallo = null) }
+    fun onEmail(valor: String) = _estado.update { it.copy(email = valor, errores = it.errores - CampoCuenta.EMAIL, fallo = null) }
 
-    fun onPassword(valor: String) =
-        _estado.update { it.copy(password = valor, errores = it.errores - CampoCuenta.PASSWORD, fallo = null) }
+    fun onPassword(valor: String) = _estado.update { it.copy(password = valor, errores = it.errores - CampoCuenta.PASSWORD, fallo = null) }
 
     fun entrar() {
         val actual = _estado.value

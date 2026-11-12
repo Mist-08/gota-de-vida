@@ -7,6 +7,13 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import mx.gotadevida.cita.entity.AgendarCitaPeticion
 import mx.gotadevida.cita.entity.CheckinPeticion
 import mx.gotadevida.cita.entity.CitaRespuesta
@@ -23,13 +30,6 @@ import mx.gotadevida.solicitud.entity.ResponderPeticion
 import mx.gotadevida.solicitud.entity.SolicitudRespuesta
 import mx.gotadevida.soporte.conToken
 import mx.gotadevida.soporte.probarApi
-import java.time.LocalDate
-import java.time.ZoneId
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class CitaRoutesTest {
     private val escenario = SolicitudRoutesTest()
@@ -38,19 +38,28 @@ class CitaRoutesTest {
     @Test
     fun `flujo completo - acepta urgencia, agenda, check-in con QR e historial`() = probarApi { cliente, entorno ->
         val hospital = with(escenario) { cliente.crearHospitalYCuenta() }
-        val (donadorId, donador) = with(escenario) { cliente.donador("oneg@correo.mx", TipoSangre.O_NEGATIVO, 3.0, "token-oneg-0000000000000") }
+        val (donadorId, donador) = with(escenario) {
+            cliente.donador("oneg@correo.mx", TipoSangre.O_NEGATIVO, 3.0, "token-oneg-0000000000000")
+        }
         val hospitalId = entorno.hospitales.datos.values.first().id
-        val urgencia = with(escenario) { cliente.publicar(hospital, TipoSangre.O_NEGATIVO, 1) }.body<SolicitudRespuesta>()
+        val urgencia = with(escenario) {
+            cliente.publicar(hospital, TipoSangre.O_NEGATIVO, 1)
+        }.body<SolicitudRespuesta>()
         cliente.post("/api/v1/solicitudes/${urgencia.id}/respuestas") {
-            conToken(donador); contentType(ContentType.Application.Json); setBody(ResponderPeticion(true))
+            conToken(donador)
+            contentType(ContentType.Application.Json)
+            setBody(ResponderPeticion(true))
         }
 
-        val horarios = cliente.get("/api/v1/hospitales/$hospitalId/horarios?fecha=$manana") { conToken(donador) }.body<List<Horario>>()
+        val horarios = cliente.get("/api/v1/hospitales/$hospitalId/horarios?fecha=$manana") {
+            conToken(donador)
+        }.body<List<Horario>>()
         assertEquals(12, horarios.size)
         assertTrue(horarios.all { it.disponible && it.lugares == 3 })
 
         val respuesta = cliente.post("/api/v1/citas") {
-            conToken(donador); contentType(ContentType.Application.Json)
+            conToken(donador)
+            contentType(ContentType.Application.Json)
             setBody(AgendarCitaPeticion(hospitalId, "${manana}T09:30", urgencia.id))
         }
         assertEquals(HttpStatusCode.Created, respuesta.status)
@@ -60,24 +69,34 @@ class CitaRoutesTest {
         assertTrue(entorno.bus.retrasados.any { it.tipo == TiposEvento.CITA_RECORDATORIO })
 
         // El horario ocupado tiene un lugar menos.
-        val despues = cliente.get("/api/v1/hospitales/$hospitalId/horarios?fecha=$manana") { conToken(donador) }.body<List<Horario>>()
+        val despues = cliente.get("/api/v1/hospitales/$hospitalId/horarios?fecha=$manana") {
+            conToken(donador)
+        }.body<List<Horario>>()
         assertEquals(2, despues.first { it.hora == "09:30" }.lugares)
 
         // No puede tener dos citas a la vez.
         val otra = cliente.post("/api/v1/citas") {
-            conToken(donador); contentType(ContentType.Application.Json); setBody(AgendarCitaPeticion(hospitalId, "${manana}T10:00"))
+            conToken(donador)
+            contentType(ContentType.Application.Json)
+            setBody(AgendarCitaPeticion(hospitalId, "${manana}T10:00"))
         }
         assertEquals(HttpStatusCode.Conflict, otra.status)
 
         // El hospital ve la cita y escanea el QR ("gota:<cita>:<código>").
-        val delHospital = cliente.get("/api/v1/hospitales/me/citas?fecha=$manana") { conToken(hospital) }.body<List<CitaRespuesta>>()
+        val delHospital = cliente.get("/api/v1/hospitales/me/citas?fecha=$manana") {
+            conToken(hospital)
+        }.body<List<CitaRespuesta>>()
         assertEquals("Donador O_NEGATIVO", delHospital.single().donadorNombre)
         val malo = cliente.post("/api/v1/citas/checkin-qr") {
-            conToken(hospital); contentType(ContentType.Application.Json); setBody(CheckinPeticion("gota:${cita.id}:codigo-falso"))
+            conToken(hospital)
+            contentType(ContentType.Application.Json)
+            setBody(CheckinPeticion("gota:${cita.id}:codigo-falso"))
         }
         assertEquals(HttpStatusCode.Conflict, malo.status)
         val confirmada = cliente.post("/api/v1/citas/checkin-qr") {
-            conToken(hospital); contentType(ContentType.Application.Json); setBody(CheckinPeticion("gota:${cita.id}:${cita.codigoQr}"))
+            conToken(hospital)
+            contentType(ContentType.Application.Json)
+            setBody(CheckinPeticion("gota:${cita.id}:${cita.codigoQr}"))
         }.body<CitaRespuesta>()
         assertEquals(EstadoCita.COMPLETADA, confirmada.estado)
 
@@ -103,10 +122,14 @@ class CitaRoutesTest {
     @Test
     fun `el recordatorio llega solo si la cita sigue agendada`() = probarApi { cliente, entorno ->
         with(escenario) { cliente.crearHospitalYCuenta() }
-        val (_, donador) = with(escenario) { cliente.donador("oneg@correo.mx", TipoSangre.O_NEGATIVO, 3.0, "token-oneg-0000000000000") }
+        val (_, donador) = with(escenario) {
+            cliente.donador("oneg@correo.mx", TipoSangre.O_NEGATIVO, 3.0, "token-oneg-0000000000000")
+        }
         val hospitalId = entorno.hospitales.datos.values.first().id
         val cita = cliente.post("/api/v1/citas") {
-            conToken(donador); contentType(ContentType.Application.Json); setBody(AgendarCitaPeticion(hospitalId, "${manana}T13:00"))
+            conToken(donador)
+            contentType(ContentType.Application.Json)
+            setBody(AgendarCitaPeticion(hospitalId, "${manana}T13:00"))
         }.body<CitaRespuesta>()
         val cancelada = cliente.post("/api/v1/citas/${cita.id}/cancelar") { conToken(donador) }.body<CitaRespuesta>()
         assertEquals(EstadoCita.CANCELADA, cancelada.estado)
@@ -122,7 +145,9 @@ class CitaRoutesTest {
         val hospitalId = entorno.hospitales.datos.values.first().id
         for (fechaHora in listOf("${manana}T07:15", "2020-01-01T09:00", "mañana")) {
             val r = cliente.post("/api/v1/citas") {
-                conToken(donador); contentType(ContentType.Application.Json); setBody(AgendarCitaPeticion(hospitalId, fechaHora))
+                conToken(donador)
+                contentType(ContentType.Application.Json)
+                setBody(AgendarCitaPeticion(hospitalId, fechaHora))
             }
             assertEquals(HttpStatusCode.BadRequest, r.status, fechaHora)
         }

@@ -1,31 +1,31 @@
 package mx.gotadevida.donador.service
 
+import java.time.Clock
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeParseException
 import mx.gotadevida.core.dominio.Candidato
 import mx.gotadevida.core.dominio.DirectorioDonadores
 import mx.gotadevida.core.dominio.DonadorResumen
 import mx.gotadevida.core.dominio.PuntoGeo
 import mx.gotadevida.core.dominio.TipoSangre
-import mx.gotadevida.donador.entity.Donador as DonadorEntidad
 import mx.gotadevida.core.errores.NoEncontrado
 import mx.gotadevida.core.errores.validar
 import mx.gotadevida.core.validacion.Validaciones
 import mx.gotadevida.donador.entity.ActualizarPerfilSolicitud
 import mx.gotadevida.donador.entity.Donador
+import mx.gotadevida.donador.entity.Donador as DonadorEntidad
 import mx.gotadevida.donador.entity.Elegibilidad
 import mx.gotadevida.donador.entity.PerfilDonadorRespuesta
 import mx.gotadevida.donador.entity.aRespuesta
 import mx.gotadevida.donador.repository.DonadorRepository
 import mx.gotadevida.reglas.service.ReglasService
-import java.time.Clock
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeParseException
 
 class DonadorService(
     private val repositorio: DonadorRepository,
     private val reglas: ReglasService,
     private val elegibilidad: ElegibilidadService,
-    private val reloj: Clock = Clock.systemUTC(),
+    private val reloj: Clock = Clock.systemUTC()
 ) : DirectorioDonadores {
     private fun hoy(): LocalDate = LocalDate.now(reloj.withZone(ZONA_LAGUNA))
 
@@ -79,23 +79,24 @@ class DonadorService(
                 ?: actual.fechaUltimoTatuaje,
             notificacionesActivas = cambios.notificacionesActivas ?: actual.notificacionesActivas,
             radioMaximoKm = cambios.radioMaximoKm ?: actual.radioMaximoKm,
-            actualizadoEn = reloj.instant().toString(),
+            actualizadoEn = reloj.instant().toString()
         )
         repositorio.guardar(actualizado)
         return actualizado.aRespuesta()
     }
 
-    suspend fun evaluarElegibilidad(id: String): Elegibilidad =
-        elegibilidad.evaluar(buscar(id), reglas.vigentes(), hoy())
+    suspend fun evaluarElegibilidad(id: String): Elegibilidad = elegibilidad.evaluar(buscar(id), reglas.vigentes(), hoy())
 
-    override suspend fun resumen(id: String): DonadorResumen? = repositorio.buscarPorId(id)?.let { resumirCon(it, reglas.vigentes()) }
+    override suspend fun resumen(id: String): DonadorResumen? = repositorio.buscarPorId(id)?.let {
+        resumirCon(it, reglas.vigentes())
+    }
 
     override suspend fun candidatos(
         centro: PuntoGeo,
         radioKm: Double,
         tipos: List<TipoSangre>,
         excluir: Set<String>,
-        limite: Int,
+        limite: Int
     ): List<Candidato> {
         val vigentes = reglas.vigentes()
         // Se piden más de los necesarios porque algunos todavía no pueden donar.
@@ -109,6 +110,8 @@ class DonadorService(
             .take(limite)
     }
 
+    suspend fun borrar(id: String) = repositorio.borrar(id)
+
     override suspend fun porTelefono(telefono: String): DonadorResumen? =
         repositorio.buscarPorTelefono(telefono)?.let { resumirCon(it, reglas.vigentes()) }
 
@@ -116,7 +119,10 @@ class DonadorService(
         val actual = buscar(id)
         if (fecha in actual.fechasDonacion) return
         repositorio.guardar(
-            actual.copy(fechasDonacion = (actual.fechasDonacion + fecha).sorted(), actualizadoEn = reloj.instant().toString()),
+            actual.copy(
+                fechasDonacion = (actual.fechasDonacion + fecha).sorted(),
+                actualizadoEn = reloj.instant().toString()
+            )
         )
     }
 
@@ -130,7 +136,7 @@ class DonadorService(
             ubicacion = d.ubicacion,
             radioMaximoKm = d.radioMaximoKm,
             elegible = e.elegible,
-            proximaFechaElegible = e.proximaFechaElegible,
+            proximaFechaElegible = e.proximaFechaElegible
         )
     }
 
