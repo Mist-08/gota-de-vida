@@ -86,3 +86,13 @@ Registro honesto de cómo usamos IA en el proyecto (criterio extra "Vibecoding" 
 - Verificación: 55 pruebas del backend y 58 de la app en verde; Postman con 61 requests y 116 verificaciones en Newman; lint y ktlint sin advertencias.
 - Decisiones y ajustes humanos: <pendiente: ensayo de la demo en teléfonos reales>
 - Lo que aprendimos: <pendiente>
+
+### [2026-11-12] Fase 7: presentación y guion de la demo
+- Integrante: <nombre de quien lo pidió>
+- Herramienta: Claude (artifact de diapositivas con el sistema de diseño de Gota de Vida)
+- Rama / PR: docs/presentacion
+- Prompt: "continua" (reanudar después de la pausa).
+- Resultado: 8 diapositivas para 5 minutos con notas del orador (problema, solución en 4 pasos, arquitectura, asistente Gota, rúbrica, pruebas y pase a la demo) y `docs/presentacion/GUION_DEMO.md` con la preparación, el guion minuto a minuto de 15 minutos, el plan si algo falla y las preguntas difíciles con su respuesta.
+- Decisiones: la diapositiva del problema no trae cifras inventadas; dejamos un espacio para un dato real del banco de sangre aliado. Los nombres del equipo van como `[Nombre]` para que cada quien los llene.
+- Decisiones y ajustes humanos: <pendiente: ensayo cronometrado>
+- Lo que aprendimos: <pendiente>
