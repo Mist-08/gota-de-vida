@@ -42,3 +42,14 @@ Registro honesto de cómo usamos IA en el proyecto (criterio extra "Vibecoding" 
 - Verificación: compilado con Gradle; 32 pruebas unitarias en verde (validadores, cálculo del estado de donación, lectura de errores del backend y los ViewModels de registro, inicio de sesión, perfil e inicio con repositorios falsos); lint sin advertencias; APK de depuración generado. Las pantallas no se vieron en un emulador en esta sesión: falta abrir la app en Android Studio y revisarlas contra el diseño.
 - Decisiones y ajustes humanos: <pendiente: revisión en emulador o teléfono>
 - Lo que aprendimos: <pendiente>
+
+### [2026-11-12] Fase 3: urgencias, cola de mensajes y avisos push
+- Integrante: <nombre de quien lo pidió>
+- Herramienta: Claude
+- Rama / PR: feature/urgencias
+- Prompt: "Acaba con lo que falte de esta fase y continúa con la que sigue, hay que terminar hoy".
+- Resultado: backend con urgencias (publicar, ver cercanas y compatibles, aceptar, cerrar), búsqueda de donadores con `$geoNear`, RabbitMQ con una sola conexión, un canal por consumidor, reintentos, colas de fallidos y colas de retraso para las oleadas (10, 25 y 50 km cada 15 minutos), idempotencia con `eventos_procesados`, y avisos push con Firebase Cloud Messaging HTTP v1. En la app: urgencias cercanas en el inicio, detalle con mapa de OpenStreetMap y contador "2 de 3" en vivo, respuesta sin conexión con cola de salida (Room + WorkManager), panel del hospital (publicar, ver quién aceptó, cerrar) y notificaciones en español e inglés.
+- Decisiones: las funcionalidades se hablan por interfaces en `core/dominio` (`DirectorioDonadores`, `DirectorioHospitales`, `DirectorioUsuarios`) para no importar clases internas de otra. Las notificaciones son mensajes de datos y la app arma el texto con `strings.xml`, así salen en el idioma del teléfono. Firebase se inicializa con datos de `local.properties` en lugar de `google-services.json`, para que el CI compile sin secretos. El contador en vivo se actualiza consultando cada 5 a 10 segundos (más simple que WebSockets y funciona con Render gratis).
+- Verificación: 46 pruebas del backend en verde (incluye oleadas, compatibilidad, contador y permisos); la colección de Postman con 37 requests y 75 verificaciones pasó con Newman contra el servidor local; 45 pruebas unitarias de la app (incluye la cola de salida en modo avión); lint sin advertencias. `$geoNear` contra MongoDB real y RabbitMQ real se prueban en el CI.
+- Decisiones y ajustes humanos: <pendiente: crear CloudAMQP y Firebase, probar el push en un teléfono>
+- Lo que aprendimos: <pendiente>

@@ -18,6 +18,10 @@ import mx.gotadevida.autenticacion.entity.SesionRespuesta
 import mx.gotadevida.autenticacion.service.CuentaGoogle
 import mx.gotadevida.autenticacion.service.VerificadorGoogle
 import mx.gotadevida.core.di.Dependencias
+import mx.gotadevida.core.di.Repositorios
+import mx.gotadevida.core.mensajeria.BusEnMemoria
+import mx.gotadevida.core.mensajeria.EventosProcesadosEnMemoria
+import mx.gotadevida.core.notificaciones.EnviadorPushRegistro
 import mx.gotadevida.core.seguridad.JwtServicio
 import mx.gotadevida.module
 
@@ -36,14 +40,19 @@ class EntornoDePrueba {
     val donadores = DonadoresEnMemoria()
     val hospitales = HospitalesEnMemoria()
     val reglas = ReglasEnMemoria()
+    val solicitudes = SolicitudesEnMemoria()
+    val respuestas = RespuestasEnMemoria()
+
+    /** Bus síncrono: cada evento se procesa antes de que termine la petición. */
+    val bus = BusEnMemoria(EventosProcesadosEnMemoria(), sincrono = true)
+    val push = EnviadorPushRegistro()
     val dependencias: Dependencias = Dependencias.crear(
         jwt = JwtServicio(SECRETO_PRUEBAS, "gota-de-vida-pruebas"),
-        usuarios = usuarios,
-        donadoresRepo = donadores,
-        hospitalesRepo = hospitales,
-        reglasRepo = reglas,
+        repos = Repositorios(usuarios, donadores, hospitales, reglas, solicitudes, respuestas),
         hasher = HasherDePrueba(),
         verificadorGoogle = GoogleDePrueba(),
+        bus = bus,
+        push = push,
     ) { deps ->
         deps.reglas.asegurarReglas()
         deps.autenticacion.asegurarAdministrador(ADMIN_EMAIL, ADMIN_PASSWORD)

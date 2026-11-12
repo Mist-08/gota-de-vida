@@ -22,6 +22,9 @@ tags:
   - name: Donador
   - name: Hospitales
   - name: Reglas de elegibilidad
+  - name: Solicitud
+    description: Urgencias de sangre. Al publicar una, la cola avisa por oleadas a donadores compatibles, cercanos y elegibles.
+  - name: Dispositivos
 paths:
   /health:
     get:
@@ -276,7 +279,152 @@ paths:
         "400": { $ref: "#/components/responses/DatosInvalidos" }
         "403": { $ref: "#/components/responses/Prohibido" }
 
+  /api/v1/usuarios/me/dispositivo:
+    put:
+      tags: [Dispositivos]
+      summary: Registrar el teléfono para recibir avisos
+      description: Guarda el token de Firebase Cloud Messaging del teléfono (máximo 5 por cuenta).
+      operationId: registrarDispositivo
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DispositivoPeticion" }
+      responses:
+        "204": { description: Token guardado }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+
+  /api/v1/solicitudes:
+    get:
+      tags: [Solicitud]
+      summary: Urgencias activas cercanas y compatibles
+      description: >
+        Solo las urgencias cuyo paciente puede recibir del tipo de sangre del donador, dentro del radio indicado
+        (por defecto, la distancia máxima del perfil). Sin lat/lng se usa la zona guardada del donador.
+        Ordenadas de la más cercana a la más lejana.
+      operationId: listarSolicitudesCercanas
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: lat, in: query, schema: { type: number, example: 25.54 } }
+        - { name: lng, in: query, schema: { type: number, example: -103.41 } }
+        - { name: radioKm, in: query, schema: { type: number, minimum: 1, maximum: 100, example: 15 } }
+      responses:
+        "200":
+          description: Urgencias
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Solicitud" } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    post:
+      tags: [Solicitud]
+      summary: Publicar una urgencia (HOSPITAL)
+      description: Guarda la urgencia y publica el evento `solicitud.creada`; el MatchingConsumer avisa a los primeros 20 donadores dentro de 10 km, y si no se cubre en 15 minutos amplía a 25 y luego a 50 km.
+      operationId: publicarSolicitud
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrearSolicitudPeticion" }
+      responses:
+        "201":
+          description: Urgencia publicada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Solicitud" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+
+  /api/v1/solicitudes/{id}:
+    get:
+      tags: [Solicitud]
+      summary: Detalle con unidades cubiertas
+      description: El donador ve su distancia y su respuesta; el hospital dueño ve además quién aceptó (nombre, teléfono y distancia, nunca la ubicación).
+      operationId: obtenerSolicitud
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/IdSolicitud" }]
+      responses:
+        "200":
+          description: Urgencia
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Solicitud" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+
+  /api/v1/solicitudes/{id}/estado:
+    patch:
+      tags: [Solicitud]
+      summary: Cerrar o cancelar una urgencia (HOSPITAL dueño)
+      operationId: cambiarEstadoSolicitud
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/IdSolicitud" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CambiarEstadoPeticion" }
+      responses:
+        "200":
+          description: Urgencia actualizada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Solicitud" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+
+  /api/v1/solicitudes/{id}/respuestas:
+    post:
+      tags: [Solicitud]
+      summary: Aceptar o rechazar una urgencia (DONADOR)
+      description: Para aceptar, el donador debe ser compatible y elegible y la urgencia debe seguir activa. Publica `respuesta.registrada`; el SolicitudConsumer actualiza el contador y avisa al hospital.
+      operationId: responderSolicitud
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/IdSolicitud" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ResponderPeticion" }
+      responses:
+        "200":
+          description: Respuesta registrada; incluye el contador actualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Solicitud" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+
+  /api/v1/hospitales/me/solicitudes:
+    get:
+      tags: [Solicitud]
+      summary: Urgencias de mi hospital (HOSPITAL)
+      operationId: listarSolicitudesDeMiHospital
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Últimas 50 urgencias con quién aceptó
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Solicitud" } }
+        "403": { $ref: "#/components/responses/Prohibido" }
+
 components:
+  parameters:
+    IdSolicitud:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
   securitySchemes:
     bearerAuth:
       type: http
@@ -318,6 +466,63 @@ components:
       description: Demasiados intentos; espera un minuto
 
   schemas:
+    DispositivoPeticion:
+      type: object
+      required: [tokenFcm]
+      properties:
+        tokenFcm: { type: string, example: "dK3x...token-de-firebase" }
+    EstadoSolicitud:
+      type: string
+      enum: [ACTIVA, CUBIERTA, CERRADA, CANCELADA]
+    CrearSolicitudPeticion:
+      type: object
+      required: [tipoSangre, unidades]
+      properties:
+        tipoSangre: { $ref: "#/components/schemas/TipoSangre" }
+        unidades: { type: integer, minimum: 1, maximum: 20, example: 3 }
+        nota: { type: string, maxLength: 200, example: "Paciente en quirófano, piso 3" }
+    CambiarEstadoPeticion:
+      type: object
+      required: [estado]
+      properties:
+        estado: { type: string, enum: [CERRADA, CANCELADA] }
+    ResponderPeticion:
+      type: object
+      required: [acepta]
+      properties:
+        acepta: { type: boolean, example: true }
+    DonadorQueAcepto:
+      type: object
+      properties:
+        donadorId: { type: string }
+        nombre: { type: string, example: "Mariana Rodríguez" }
+        telefono: { type: string, example: "+528711234567" }
+        distanciaKm: { type: number, example: 3.2 }
+        respondioEn: { type: string, format: date-time }
+    Solicitud:
+      type: object
+      properties:
+        id: { type: string }
+        hospitalId: { type: string }
+        hospitalNombre: { type: string, example: "Hospital Universitario de Torreón" }
+        hospitalDireccion: { type: string }
+        latitud: { type: number }
+        longitud: { type: number }
+        tipoSangre: { $ref: "#/components/schemas/TipoSangre" }
+        etiquetaTipoSangre: { type: string, example: "O−" }
+        unidades: { type: integer, example: 3 }
+        unidadesComprometidas: { type: integer, example: 2 }
+        estado: { $ref: "#/components/schemas/EstadoSolicitud" }
+        creadaEn: { type: string, format: date-time }
+        nota: { type: string }
+        distanciaKm: { type: number, description: Solo para el donador, example: 4.1 }
+        miRespuesta: { type: boolean, description: Solo para el donador }
+        oleada: { type: integer, description: Solo para el hospital }
+        donadoresNotificados: { type: integer, description: Solo para el hospital }
+        aceptaciones:
+          type: array
+          description: Solo para el hospital dueño
+          items: { $ref: "#/components/schemas/DonadorQueAcepto" }
     ErrorRespuesta:
       type: object
       required: [error, mensaje]

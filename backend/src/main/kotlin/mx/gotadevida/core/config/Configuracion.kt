@@ -16,6 +16,9 @@ data class Configuracion(
     val adminEmail: String?,
     val adminPassword: String?,
     val cargarDatosDemo: Boolean,
+    val rabbitMqUrl: String? = null,
+    val firebaseCredenciales: String? = null,
+    val minutosEntreOleadas: Long = 15,
 ) {
     companion object {
         fun cargar(): Configuracion {
@@ -38,6 +41,9 @@ data class Configuracion(
                 adminEmail = texto("ADMIN_EMAIL"),
                 adminPassword = texto("ADMIN_PASSWORD"),
                 cargarDatosDemo = texto("CARGAR_DATOS_DEMO")?.lowercase() != "false",
+                rabbitMqUrl = texto("RABBITMQ_URL"),
+                firebaseCredenciales = texto("FIREBASE_CREDENCIALES_JSON"),
+                minutosEntreOleadas = texto("MINUTOS_ENTRE_OLEADAS")?.toLongOrNull() ?: 15,
             )
         }
 

@@ -14,6 +14,7 @@ import mx.gotadevida.core.errores.Conflicto
 import mx.gotadevida.core.errores.DatosInvalidos
 import mx.gotadevida.core.errores.NoAutorizado
 import mx.gotadevida.core.errores.validar
+import mx.gotadevida.core.dominio.DirectorioUsuarios
 import mx.gotadevida.core.seguridad.HasherContrasenas
 import mx.gotadevida.core.seguridad.JwtServicio
 import mx.gotadevida.core.seguridad.Rol
@@ -35,7 +36,7 @@ class AutenticacionService(
     private val verificadorGoogle: VerificadorGoogle?,
     private val crearPerfilDonador: suspend (usuarioId: String, nombre: String, telefono: String?) -> Unit,
     private val reloj: Clock = Clock.systemUTC(),
-) {
+) : DirectorioUsuarios {
 
     suspend fun registrarDonador(solicitud: RegistroSolicitud): SesionRespuesta {
         validar(solicitud.aceptaAvisoPrivacidad) { "Debes aceptar el aviso de privacidad para crear tu cuenta." }
@@ -132,6 +133,30 @@ class AutenticacionService(
                 passwordHash = hasher.hashear(password),
             ),
         )
+    }
+
+    /** Guarda el token de notificaciones del teléfono (máximo 5 teléfonos por cuenta). */
+    suspend fun registrarDispositivo(usuarioId: String, token: String) {
+        val limpio = token.trim()
+        validar(limpio.length in 20..4096) { "El token del dispositivo no es válido." }
+        val usuario = usuarios.buscarPorId(usuarioId) ?: throw NoAutorizado("Tu sesión expiró. Inicia sesión de nuevo.")
+        if (limpio in usuario.tokensFcm) return
+        // Un token pertenece a un solo teléfono: si otra cuenta lo tenía, se le quita.
+        usuarios.conTokenFcm(limpio).filter { it.id != usuarioId }.forEach {
+            usuarios.actualizar(it.copy(tokensFcm = it.tokensFcm - limpio))
+        }
+        usuarios.actualizar(usuario.copy(tokensFcm = (usuario.tokensFcm + limpio).takeLast(5)))
+    }
+
+    suspend fun hospitalDe(usuarioId: String): String? = usuarios.buscarPorId(usuarioId)?.hospitalId
+
+    override suspend fun tokensFcm(usuarioIds: Collection<String>): List<String> =
+        if (usuarioIds.isEmpty()) emptyList() else usuarios.buscarPorIds(usuarioIds).flatMap { it.tokensFcm }.distinct()
+
+    override suspend fun usuariosDeHospital(hospitalId: String): List<String> = usuarios.deHospital(hospitalId).map { it.id }
+
+    override suspend fun quitarTokenFcm(token: String) {
+        usuarios.conTokenFcm(token).forEach { usuarios.actualizar(it.copy(tokensFcm = it.tokensFcm - token)) }
     }
 
     private fun sesion(usuario: Usuario) = SesionRespuesta(

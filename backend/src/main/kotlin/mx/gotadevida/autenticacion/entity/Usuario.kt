@@ -18,7 +18,12 @@ data class Usuario(
     val passwordHash: String? = null,
     val googleId: String? = null,
     val hospitalId: String? = null,
+    val tokensFcm: List<String> = emptyList(),
 )
+
+/** Token de Firebase Cloud Messaging del teléfono, para recibir avisos. */
+@Serializable
+data class DispositivoPeticion(val tokenFcm: String)
 
 /** Lo que la app puede ver de un usuario (sin hash ni ids externos). */
 @Serializable

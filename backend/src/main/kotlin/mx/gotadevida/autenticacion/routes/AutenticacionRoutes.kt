@@ -7,6 +7,9 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
+import mx.gotadevida.autenticacion.entity.DispositivoPeticion
+import mx.gotadevida.core.seguridad.usuarioActual
 import io.ktor.server.routing.route
 import mx.gotadevida.autenticacion.entity.GoogleSolicitud
 import mx.gotadevida.autenticacion.entity.LoginSolicitud
@@ -49,6 +52,11 @@ fun Route.autenticacionRoutes(
 
     // Cuentas del personal de un banco de sangre: solo el ADMIN las crea.
     authenticate(AUTH_JWT) {
+        put("/api/v1/usuarios/me/dispositivo") {
+            val usuario = call.usuarioActual()
+            servicio.registrarDispositivo(usuario.id, call.receive<DispositivoPeticion>().tokenFcm)
+            call.respond(HttpStatusCode.NoContent)
+        }
         post("/api/v1/hospitales/{id}/usuarios") {
             call.exigirRol(Rol.ADMIN)
             val hospitalId = call.parameters["id"]?.takeIf { it.isNotBlank() }

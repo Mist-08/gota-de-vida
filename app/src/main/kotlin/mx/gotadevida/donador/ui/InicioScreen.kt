@@ -53,6 +53,7 @@ import java.time.format.FormatStyle
 fun InicioScreen(
     alAbrirAjustes: () -> Unit,
     alEditarPerfil: () -> Unit,
+    urgencias: @Composable () -> Unit = {},
     viewModel: InicioViewModel = hiltViewModel(),
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -95,17 +96,8 @@ fun InicioScreen(
 
                     TarjetaEstado(estado.estadoDonacion, alEditarPerfil)
 
-                    Column(verticalArrangement = Arrangement.spacedBy(Espacio.x3)) {
-                        Text(stringResource(R.string.inicio_urgencias), style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-                        Row(
-                            modifier = Modifier.fillMaxWidth().background(colores.surfaceSunken, Radio.lg).padding(Espacio.x4),
-                            horizontalArrangement = Arrangement.spacedBy(Espacio.x3),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icono(R.drawable.ic_campana, null, color = colores.inkMuted, tamano = 20.dp)
-                            Text(stringResource(R.string.inicio_urgencias_vacio), style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
-                        }
-                    }
+                    // La lista viene de la funcionalidad `solicitud`; la navegación la conecta aquí.
+                    urgencias()
 
                     if (estado.estadoDonacion !is EstadoDonacion.CompletarPerfil && estado.estadoDonacion !is EstadoDonacion.Cargando) {
                         BotonSecundario(stringResource(R.string.inicio_editar_perfil), alPulsar = alEditarPerfil)

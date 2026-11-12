@@ -11,11 +11,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,6 +31,14 @@ import mx.gotadevida.core.designsystem.GotaTema
 import mx.gotadevida.core.sesion.AlmacenSesion
 import mx.gotadevida.donador.ui.InicioScreen
 import mx.gotadevida.donador.ui.PerfilScreen
+import mx.gotadevida.hospital.ui.CrearUrgenciaScreen
+import mx.gotadevida.hospital.ui.DetalleUrgenciaHospitalScreen
+import mx.gotadevida.hospital.ui.PanelHospitalScreen
+import mx.gotadevida.hospital.viewmodel.DetalleUrgenciaHospital
+import mx.gotadevida.notificaciones.ui.RegistroDeAvisos
+import mx.gotadevida.solicitud.ui.DetalleUrgenciaScreen
+import mx.gotadevida.solicitud.ui.SeccionUrgencias
+import mx.gotadevida.solicitud.viewmodel.DetalleUrgencia
 import javax.inject.Inject
 
 // Rutas con tipo: Navigation Compose las serializa con kotlinx.serialization.
@@ -46,18 +54,30 @@ import javax.inject.Inject
 
 @Serializable data object Ajustes
 
-/** Estado de arranque: todavía leyendo la sesión, sin sesión o con sesión. */
-enum class EstadoArranque { LEYENDO, SIN_SESION, CON_SESION }
+@Serializable data object PanelHospital
+
+@Serializable data object CrearUrgencia
+
+/** Estado de arranque: todavía leyendo la sesión, sin sesión, o con sesión de donador u hospital. */
+enum class EstadoArranque { LEYENDO, SIN_SESION, DONADOR, HOSPITAL }
 
 @HiltViewModel
 class ArranqueViewModel @Inject constructor(almacen: AlmacenSesion) : ViewModel() {
     val estado: StateFlow<EstadoArranque> = almacen.sesion
-        .map { if (it == null) EstadoArranque.SIN_SESION else EstadoArranque.CON_SESION }
+        .map {
+            when {
+                it == null -> EstadoArranque.SIN_SESION
+                it.rol == "HOSPITAL" || it.rol == "ADMIN" -> EstadoArranque.HOSPITAL
+                else -> EstadoArranque.DONADOR
+            }
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, EstadoArranque.LEYENDO)
 }
 
 @Composable
 fun NavegacionGota(
+    solicitudPorAbrir: String? = null,
+    alAbrirSolicitud: () -> Unit = {},
     navController: NavHostController = rememberNavController(),
     arranque: ArranqueViewModel = hiltViewModel(),
 ) {
@@ -67,22 +87,38 @@ fun NavegacionGota(
         Box(Modifier.fillMaxSize().background(GotaTema.colores.surface))
         return
     }
+    val inicio: Any = if (estado == EstadoArranque.HOSPITAL) PanelHospital else Inicio
 
-    // Si la sesión se pierde (cerrar sesión o token de renovación vencido) se vuelve a la bienvenida.
     LaunchedEffect(estado) {
-        if (estado == EstadoArranque.SIN_SESION) {
-            val actual = navController.currentDestination
-            val enZonaPublica = actual == null ||
-                actual.hasRoute<Bienvenida>() || actual.hasRoute<Registro>() || actual.hasRoute<IniciarSesion>()
-            if (!enZonaPublica) {
-                navController.navigate(Bienvenida) { popUpTo(0) { inclusive = true } }
-            }
+        val actual = navController.currentDestination
+        val enZonaPublica = actual == null ||
+            actual.hasRoute<Bienvenida>() || actual.hasRoute<Registro>() || actual.hasRoute<IniciarSesion>()
+        // Si la sesión se pierde (cerrar sesión o token de renovación vencido) se vuelve a la bienvenida.
+        if (estado == EstadoArranque.SIN_SESION && !enZonaPublica) {
+            navController.navigate(Bienvenida) { popUpTo(0) { inclusive = true } }
+        }
+        // Al entrar como hospital se va a su panel (el donador sigue su propio flujo de registro).
+        if (estado == EstadoArranque.HOSPITAL && enZonaPublica && actual != null) {
+            navController.navigate(PanelHospital) { popUpTo(0) { inclusive = true } }
         }
     }
 
+    // Abrir la urgencia de una notificación.
+    LaunchedEffect(solicitudPorAbrir, estado) {
+        val id = solicitudPorAbrir ?: return@LaunchedEffect
+        when (estado) {
+            EstadoArranque.DONADOR -> navController.navigate(DetalleUrgencia(id))
+            EstadoArranque.HOSPITAL -> navController.navigate(DetalleUrgenciaHospital(id))
+            else -> return@LaunchedEffect
+        }
+        alAbrirSolicitud()
+    }
+
+    if (estado != EstadoArranque.SIN_SESION) RegistroDeAvisos()
+
     NavHost(
         navController = navController,
-        startDestination = if (estado == EstadoArranque.CON_SESION) Inicio else Bienvenida,
+        startDestination = if (estado == EstadoArranque.SIN_SESION) Bienvenida else inicio,
         modifier = Modifier.fillMaxSize().background(GotaTema.colores.surface),
     ) {
         composable<Bienvenida> {
@@ -103,39 +139,55 @@ fun NavegacionGota(
         composable<IniciarSesion> {
             InicioSesionScreen(
                 alRegresar = navController::popBackStack,
-                alEntrar = { navController.navigate(Inicio) { popUpTo(0) { inclusive = true } } },
+                // El rol decide a dónde ir: el LaunchedEffect de arriba manda al hospital a su panel.
+                alEntrar = { if (estado != EstadoArranque.HOSPITAL) navController.navigate(Inicio) { popUpTo(0) { inclusive = true } } },
             )
         }
         composable<Perfil> { entrada ->
             val esRegistro = entrada.toRoute<Perfil>().esRegistro
-            PerfilScreen(
-                esRegistro = esRegistro,
-                alRegresar = {
-                    if (esRegistro) {
-                        navController.navigate(Inicio) { popUpTo(0) { inclusive = true } }
-                    } else {
-                        navController.popBackStack()
-                    }
-                },
-                alGuardar = {
-                    if (esRegistro) {
-                        navController.navigate(Inicio) { popUpTo(0) { inclusive = true } }
-                    } else {
-                        navController.popBackStack()
-                    }
-                },
-            )
+            val salir = {
+                if (esRegistro) {
+                    navController.navigate(Inicio) { popUpTo(0) { inclusive = true } }
+                } else {
+                    navController.popBackStack()
+                }
+            }
+            PerfilScreen(esRegistro = esRegistro, alRegresar = { salir() }, alGuardar = { salir() })
         }
         composable<Inicio> {
             InicioScreen(
                 alAbrirAjustes = { navController.navigate(Ajustes) { launchSingleTop = true } },
                 alEditarPerfil = { navController.navigate(Perfil(esRegistro = false)) { launchSingleTop = true } },
+                urgencias = { SeccionUrgencias(alAbrir = { navController.navigate(DetalleUrgencia(it)) }) },
             )
+        }
+        composable<DetalleUrgencia> {
+            DetalleUrgenciaScreen(alRegresar = navController::popBackStack)
+        }
+        composable<PanelHospital> {
+            PanelHospitalScreen(
+                alNuevaUrgencia = { navController.navigate(CrearUrgencia) },
+                alAbrir = { navController.navigate(DetalleUrgenciaHospital(it)) },
+                alAjustes = { navController.navigate(Ajustes) { launchSingleTop = true } },
+            )
+        }
+        composable<CrearUrgencia> {
+            CrearUrgenciaScreen(
+                alRegresar = navController::popBackStack,
+                alPublicar = { id -> navController.navigate(DetalleUrgenciaHospital(id)) { popUpTo(PanelHospital) } },
+            )
+        }
+        composable<DetalleUrgenciaHospital> {
+            DetalleUrgenciaHospitalScreen(alRegresar = navController::popBackStack)
         }
         composable<Ajustes> {
             AjustesScreen(
                 alRegresar = navController::popBackStack,
-                alEditarPerfil = { navController.navigate(Perfil(esRegistro = false)) { launchSingleTop = true } },
+                alEditarPerfil = if (estado == EstadoArranque.DONADOR) {
+                    { navController.navigate(Perfil(esRegistro = false)) { launchSingleTop = true } }
+                } else {
+                    null
+                },
             )
         }
     }
