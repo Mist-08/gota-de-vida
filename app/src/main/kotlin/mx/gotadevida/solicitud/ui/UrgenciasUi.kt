@@ -94,7 +94,11 @@ fun SeccionUrgencias(alAbrir: (String) -> Unit, viewModel: UrgenciasViewModel = 
 }
 
 @Composable
-fun DetalleUrgenciaScreen(alRegresar: () -> Unit, viewModel: DetalleUrgenciaViewModel = hiltViewModel()) {
+fun DetalleUrgenciaScreen(
+    alRegresar: () -> Unit,
+    alAgendar: (hospitalId: String, hospitalNombre: String, solicitudId: String) -> Unit = { _, _, _ -> },
+    viewModel: DetalleUrgenciaViewModel = hiltViewModel(),
+) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val colores = GotaTema.colores
     val contexto = LocalContext.current
@@ -134,7 +138,7 @@ fun DetalleUrgenciaScreen(alRegresar: () -> Unit, viewModel: DetalleUrgenciaView
             BarraUnidades(u.unidadesComprometidas, u.unidades)
             u.nota?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
             estado.fallo?.let { MensajeError(it.texto()) }
-            Acciones(u, estado.pendiente, estado.enviando, estado.acepto, viewModel::responder) {
+            Acciones(u, estado.pendiente, estado.enviando, estado.acepto, viewModel::responder, { alAgendar(u.hospitalId, u.hospitalNombre, u.id) }) {
                 val uri = "geo:0,0?q=${u.latitud},${u.longitud}(${Uri.encode(u.hospitalNombre)})".toUri()
                 runCatching { contexto.startActivity(Intent(Intent.ACTION_VIEW, uri)) }
             }
@@ -151,6 +155,7 @@ private fun Acciones(
     enviando: Boolean,
     acepto: Boolean,
     responder: (Boolean) -> Unit,
+    agendar: () -> Unit,
     abrirRuta: () -> Unit,
 ) {
     val colores = GotaTema.colores
@@ -161,6 +166,7 @@ private fun Acciones(
                     Icono(R.drawable.ic_check_circulo, null, color = colores.vida)
                     Text(stringResource(R.string.urgencia_gracias), style = MaterialTheme.typography.titleMedium, color = colores.vida)
                 }
+                BotonPrincipal(stringResource(R.string.agendar_titulo), alPulsar = agendar)
                 BotonSecundario(stringResource(R.string.urgencia_abrir_ruta), alPulsar = abrirRuta)
             }
         }

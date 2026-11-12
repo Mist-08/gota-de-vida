@@ -54,6 +54,8 @@ fun InicioScreen(
     alAbrirAjustes: () -> Unit,
     alEditarPerfil: () -> Unit,
     urgencias: @Composable () -> Unit = {},
+    cita: @Composable () -> Unit = {},
+    alHistorial: () -> Unit = {},
     viewModel: InicioViewModel = hiltViewModel(),
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -95,11 +97,13 @@ fun InicioScreen(
                     }
 
                     TarjetaEstado(estado.estadoDonacion, alEditarPerfil)
+                    cita()
 
                     // La lista viene de la funcionalidad `solicitud`; la navegación la conecta aquí.
                     urgencias()
 
                     if (estado.estadoDonacion !is EstadoDonacion.CompletarPerfil && estado.estadoDonacion !is EstadoDonacion.Cargando) {
+                        BotonSecundario(stringResource(R.string.historial_titulo), alPulsar = alHistorial)
                         BotonSecundario(stringResource(R.string.inicio_editar_perfil), alPulsar = alEditarPerfil)
                     }
                     Text(stringResource(R.string.aviso_medico), style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)

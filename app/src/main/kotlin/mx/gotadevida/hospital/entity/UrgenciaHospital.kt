@@ -40,5 +40,26 @@ data class UrgenciaHospital(
 @Serializable
 data class CrearUrgenciaPeticion(val tipoSangre: TipoSangrePaciente, val unidades: Int, val nota: String? = null)
 
+/** Cita del día vista por el hospital (sin el código QR). */
+@Serializable
+data class CitaDelDia(val id: String, val fechaHora: String, val donadorNombre: String? = null, val estado: String)
+
+@Serializable
+data class CheckinPeticion(val codigoQr: String)
+
+@Serializable
+data class TipoSolicitado(val etiquetaTipoSangre: String, val urgencias: Int)
+
+@Serializable
+data class Estadisticas(
+    val urgenciasTotales: Int,
+    val urgenciasActivas: Int,
+    val urgenciasCubiertas: Int,
+    val minutosPromedioParaCubrir: Int? = null,
+    val tiposMasSolicitados: List<TipoSolicitado> = emptyList(),
+    val donacionesConfirmadas: Int,
+    val citasHoy: Int,
+)
+
 @Serializable
 data class CambiarEstadoPeticion(val estado: EstadoUrgenciaHospital)

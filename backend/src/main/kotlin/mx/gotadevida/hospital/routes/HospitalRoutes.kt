@@ -14,10 +14,15 @@ import mx.gotadevida.core.seguridad.Rol
 import mx.gotadevida.core.seguridad.exigirRol
 import mx.gotadevida.core.seguridad.usuarioActual
 import mx.gotadevida.hospital.entity.CrearHospitalSolicitud
+import mx.gotadevida.hospital.service.EstadisticasService
 import mx.gotadevida.hospital.service.HospitalService
 
-fun Route.hospitalRoutes(servicio: HospitalService) {
+fun Route.hospitalRoutes(servicio: HospitalService, estadisticas: EstadisticasService) {
     authenticate(AUTH_JWT) {
+        get("/api/v1/hospitales/me/estadisticas") {
+            val usuario = call.exigirRol(Rol.HOSPITAL)
+            call.respond(estadisticas.deMiHospital(usuario.id))
+        }
         route("/api/v1/hospitales") {
             get {
                 call.usuarioActual()

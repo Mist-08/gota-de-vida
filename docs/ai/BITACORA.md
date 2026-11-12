@@ -53,3 +53,14 @@ Registro honesto de cómo usamos IA en el proyecto (criterio extra "Vibecoding" 
 - Verificación: 46 pruebas del backend en verde (incluye oleadas, compatibilidad, contador y permisos); la colección de Postman con 37 requests y 75 verificaciones pasó con Newman contra el servidor local; 45 pruebas unitarias de la app (incluye la cola de salida en modo avión); lint sin advertencias. `$geoNear` contra MongoDB real y RabbitMQ real se prueban en el CI.
 - Decisiones y ajustes humanos: <pendiente: crear CloudAMQP y Firebase, probar el push en un teléfono>
 - Lo que aprendimos: <pendiente>
+
+### [2026-11-12] Fase 4: citas, check-in con QR e historial
+- Integrante: <nombre de quien lo pidió>
+- Herramienta: Claude
+- Rama / PR: feature/citas
+- Prompt: "Acaba con lo que falte de esta fase y continúa con la que sigue, hay que terminar hoy" (continuación automática).
+- Resultado: backend con horarios por hospital (8:00 a 13:30, 3 lugares por media hora), agendar y cancelar cita, check-in con el QR (`gota:<cita>:<código>`), historial con insignias y "vidas que puedes ayudar", estadísticas del hospital, y dos consumidores nuevos: RecordatorioConsumer (avisos 24 h y 2 h antes) e HistorialConsumer (registra la donación, recalcula la próxima fecha y manda el agradecimiento). En la app: agendar desde la urgencia aceptada con requisitos vigentes, "Mi cita" con QR generado en el teléfono, agregar al calendario y ruta al hospital, historial con insignias, y en el panel del hospital escanear el QR con CameraX + ML Kit (o escribir el código), citas de hoy y estadísticas.
+- Decisiones: RabbitMQ no permite "entregar a tal hora", así que los recordatorios "brincan" por colas de retraso fijas de 60, 15, 5 y 1 minutos hasta su hora, para no crear una cola por cada cita. El QR se genera en el teléfono con ZXing y la cita se guarda en Room: el donador puede mostrarlo sin señal dentro del hospital. Agendar sin conexión también va a la cola de salida.
+- Verificación: 49 pruebas del backend en verde; la colección de Postman con 50 requests y 100 verificaciones pasó con Newman (incluye el flujo completo: registrar → urgencia → aceptar → agendar → check-in con QR → historial); 51 pruebas unitarias de la app; lint sin advertencias.
+- Decisiones y ajustes humanos: <pendiente: probar el escaneo con dos teléfonos>
+- Lo que aprendimos: <pendiente>

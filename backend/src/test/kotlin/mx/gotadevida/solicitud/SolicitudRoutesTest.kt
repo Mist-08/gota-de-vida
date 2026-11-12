@@ -34,12 +34,12 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** Hospital Universitario de Torreón (coordenadas aproximadas). */
-private const val LAT_HOSPITAL = 25.5428
-private const val LNG_HOSPITAL = -103.4068
+internal const val LAT_HOSPITAL = 25.5428
+internal const val LNG_HOSPITAL = -103.4068
 
 class SolicitudRoutesTest {
 
-    private suspend fun HttpClient.crearHospitalYCuenta(): String {
+    internal suspend fun HttpClient.crearHospitalYCuenta(): String {
         val admin = iniciarComoAdmin()
         val hospital = post("/api/v1/hospitales") {
             conToken(admin)
@@ -64,7 +64,7 @@ class SolicitudRoutesTest {
     }
 
     /** Registra un donador elegible con su tipo de sangre a `kmAlNorte` del hospital. */
-    private suspend fun HttpClient.donador(email: String, tipo: TipoSangre, kmAlNorte: Double, token: String? = null): Pair<String, String> {
+    internal suspend fun HttpClient.donador(email: String, tipo: TipoSangre, kmAlNorte: Double, token: String? = null): Pair<String, String> {
         val sesion = registrar(email = email, nombre = "Donador ${tipo.name}")
         val acceso = sesion.tokens.tokenAcceso
         put("/api/v1/donadores/me") {
@@ -92,7 +92,7 @@ class SolicitudRoutesTest {
         return sesion.usuario.id to acceso
     }
 
-    private suspend fun HttpClient.publicar(hospital: String, tipo: TipoSangre, unidades: Int) = post("/api/v1/solicitudes") {
+    internal suspend fun HttpClient.publicar(hospital: String, tipo: TipoSangre, unidades: Int) = post("/api/v1/solicitudes") {
         conToken(hospital)
         contentType(ContentType.Application.Json)
         setBody(CrearSolicitudPeticion(tipo, unidades, "Paciente en quirófano"))

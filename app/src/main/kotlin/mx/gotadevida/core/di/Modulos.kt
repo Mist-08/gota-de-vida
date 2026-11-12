@@ -43,6 +43,15 @@ import mx.gotadevida.solicitud.repository.SolicitudApi
 import mx.gotadevida.solicitud.repository.SolicitudDao
 import mx.gotadevida.solicitud.repository.SolicitudRepository
 import mx.gotadevida.solicitud.repository.SolicitudRepositoryLocalYRed
+import mx.gotadevida.cita.repository.CitaApi
+import mx.gotadevida.cita.repository.CitaDao
+import mx.gotadevida.cita.repository.CitaRepository
+import mx.gotadevida.cita.repository.CitaRepositoryLocalYRed
+import mx.gotadevida.cita.repository.EjecutorAgendarCita
+import mx.gotadevida.historial.repository.HistorialApi
+import mx.gotadevida.historial.repository.HistorialDao
+import mx.gotadevida.historial.repository.HistorialRepository
+import mx.gotadevida.historial.repository.HistorialRepositoryLocalYRed
 
 /** Red: un solo Retrofit para toda la app, con token y renovación automática. */
 @Module
@@ -99,6 +108,14 @@ object ModuloRed {
     @Provides
     @Singleton
     fun dispositivoApi(retrofit: Retrofit): DispositivoApi = retrofit.create(DispositivoApi::class.java)
+
+    @Provides
+    @Singleton
+    fun citaApi(retrofit: Retrofit): CitaApi = retrofit.create(CitaApi::class.java)
+
+    @Provides
+    @Singleton
+    fun historialApi(retrofit: Retrofit): HistorialApi = retrofit.create(HistorialApi::class.java)
 }
 
 @Module
@@ -121,6 +138,12 @@ object ModuloBaseDeDatos {
 
     @Provides
     fun accionPendienteDao(baseDeDatos: GotaDatabase): AccionPendienteDao = baseDeDatos.accionPendienteDao()
+
+    @Provides
+    fun citaDao(baseDeDatos: GotaDatabase): CitaDao = baseDeDatos.citaDao()
+
+    @Provides
+    fun historialDao(baseDeDatos: GotaDatabase): HistorialDao = baseDeDatos.historialDao()
 }
 
 /** Une cada interfaz con su implementación. Las pruebas usan versiones falsas de las mismas interfaces. */
@@ -151,4 +174,14 @@ abstract class ModuloEnlaces {
     @Binds
     @IntoSet
     abstract fun ejecutorResponderUrgencia(implementacion: EjecutorResponderUrgencia): EjecutorDeAccion
+
+    @Binds
+    @IntoSet
+    abstract fun ejecutorAgendarCita(implementacion: EjecutorAgendarCita): EjecutorDeAccion
+
+    @Binds
+    abstract fun citaRepository(implementacion: CitaRepositoryLocalYRed): CitaRepository
+
+    @Binds
+    abstract fun historialRepository(implementacion: HistorialRepositoryLocalYRed): HistorialRepository
 }

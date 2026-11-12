@@ -182,4 +182,54 @@
     <string name="push_recordatorio_texto">%1$s at %2$s. Remember your ID.</string>
     <string name="push_gracias_titulo">Thank you for donating!</string>
     <string name="push_gracias_texto">Your donation was recorded. Check your history and your next date.</string>
+
+    <!-- Appointments, history and check-in -->
+    <string name="agendar_titulo">Book appointment</string>
+    <string name="agendar_dia">Day</string>
+    <string name="agendar_hora">Time</string>
+    <string name="agendar_sin_horarios">No times left that day. Try another one.</string>
+    <string name="agendar_requisitos">Before you go</string>
+    <string name="requisito_ayuno" tools:ignore="PluralsCandidate">Fast for %1$d to %2$d hours.</string>
+    <string name="requisito_comida">Avoid fats, eggs and dairy from the day before.</string>
+    <string name="requisito_identificacion">Bring an official photo ID.</string>
+    <string name="requisito_edad_peso" tools:ignore="PluralsCandidate">Be %1$d to %2$d years old and weigh at least %3$d kg.</string>
+    <string name="agendar_confirmar">Confirm appointment</string>
+    <string name="cita_tu_cita">Your donation appointment</string>
+    <string name="cita_ver_qr">See QR</string>
+    <string name="cita_pendiente">Your appointment will be booked as soon as you\'re back online.</string>
+    <string name="cita_titulo">My appointment</string>
+    <string name="cita_sin_cita">No upcoming appointments. Once you accept an emergency you can book one.</string>
+    <string name="cita_muestra_qr">Show this code at the blood bank.</string>
+    <string name="cita_agregar_calendario">Add to my calendar</string>
+    <string name="cita_evento_titulo">Donate blood (Gota de Vida)</string>
+    <string name="cita_evento_descripcion">Bring your ID and fast for 4 to 12 hours before.</string>
+    <string name="cita_cancelar">Cancel appointment</string>
+    <string name="cd_codigo_qr">Your appointment QR code</string>
+    <string name="historial_titulo">My history</string>
+    <string name="historial_donaciones">Donations</string>
+    <string name="historial_vidas">Lives you can help</string>
+    <string name="historial_proxima">You can donate again from %1$s.</string>
+    <string name="historial_insignias">Badges</string>
+    <string name="insignia_primera">First donation</string>
+    <string name="insignia_tres">Three donations</string>
+    <string name="insignia_cinco">Five donations</string>
+    <string name="insignia_heroe">Emergency hero</string>
+    <string name="insignia_obtenida">Earned</string>
+    <string name="insignia_pendiente">Not yet</string>
+    <string name="historial_por_urgencia">%1$s · for an emergency</string>
+    <string name="escanear_titulo">Confirm donation</string>
+    <string name="escanear_confirmada">%1$s\'s donation confirmed. Thank you!</string>
+    <string name="escanear_otra">Scan another</string>
+    <string name="escanear_instrucciones">Point the camera at the donor\'s appointment QR code.</string>
+    <string name="cd_camara">Camera view to read the QR code</string>
+    <string name="escanear_sin_permiso">No camera permission. Type the appointment code.</string>
+    <string name="escanear_o_escribe">or type the code</string>
+    <string name="escanear_codigo">Appointment code</string>
+    <string name="escanear_confirmar">Confirm</string>
+    <string name="panel_escanear">Scan an appointment QR</string>
+    <string name="panel_activas">Active</string>
+    <string name="panel_donaciones">Donations</string>
+    <string name="panel_minutos">Min. to cover</string>
+    <string name="panel_mas_solicitados">Most requested: %1$s</string>
+    <string name="panel_citas_hoy">Today\'s appointments</string>
 </resources>

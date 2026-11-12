@@ -6,7 +6,10 @@ import kotlinx.coroutines.flow.map
 import mx.gotadevida.core.sync.AccionPendiente
 import mx.gotadevida.core.sync.AccionPendienteDao
 import mx.gotadevida.core.sync.ColaDeSalida
+import mx.gotadevida.hospital.entity.CitaDelDia
 import mx.gotadevida.hospital.entity.CrearUrgenciaPeticion
+import mx.gotadevida.hospital.entity.Estadisticas
+import mx.gotadevida.hospital.entity.TipoSolicitado
 import mx.gotadevida.hospital.entity.EstadoUrgenciaHospital
 import mx.gotadevida.hospital.entity.UrgenciaHospital
 import mx.gotadevida.hospital.repository.HospitalRepository
@@ -121,6 +124,18 @@ class HospitalFalso(var respuesta: Resultado<UrgenciaHospital> = Resultado.Exito
     }
 
     override suspend fun detalle(id: String) = respuesta
+
+    var checkins = mutableListOf<String>()
+
+    override suspend fun estadisticas() = Resultado.Exito(Estadisticas(3, 1, 2, 42, listOf(TipoSolicitado("O−", 2)), 5, 1))
+
+    override suspend fun citasDeHoy() = Resultado.Exito(listOf(CitaDelDia("c1", "2026-11-12T09:30", "Mariana", "AGENDADA")))
+
+    override suspend fun checkin(contenidoQr: String): Resultado<CitaDelDia> {
+        checkins += contenidoQr
+        return if (contenidoQr.startsWith("gota:")) Resultado.Exito(CitaDelDia("c1", "2026-11-12T09:30", "Mariana", "COMPLETADA"))
+        else Resultado.Fallo(mx.gotadevida.core.network.FalloApp.Servidor(400, "datos_invalidos", "Ese código QR no es de Gota de Vida."))
+    }
 
     override suspend fun cambiarEstado(id: String, estado: EstadoUrgenciaHospital) =
         (respuesta as? Resultado.Exito)?.let { Resultado.Exito(it.valor.copy(estado = estado)) } ?: respuesta
