@@ -51,8 +51,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import kotlinx.coroutines.launch
 import mx.gotadevida.R
 import mx.gotadevida.core.designsystem.Espacio
@@ -63,6 +61,7 @@ import mx.gotadevida.core.designsystem.componentes.BotonPrincipal
 import mx.gotadevida.core.designsystem.componentes.CampoTexto
 import mx.gotadevida.core.designsystem.componentes.Icono
 import mx.gotadevida.core.designsystem.componentes.MensajeError
+import mx.gotadevida.core.designsystem.componentes.formatoFecha
 import mx.gotadevida.core.designsystem.componentes.texto
 import mx.gotadevida.donador.entity.SexoParaCriteriosMedicos
 import mx.gotadevida.donador.entity.TipoSangre
@@ -323,7 +322,7 @@ private fun Opcion(texto: String, seleccionada: Boolean, alPulsar: () -> Unit, g
 private fun SelectorFecha(fecha: LocalDate?, alElegir: (LocalDate) -> Unit) {
     val colores = GotaTema.colores
     var abierto by rememberSaveable { mutableStateOf(false) }
-    val formato = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG) }
+    val formato = formatoFecha()
     OutlinedButton(
         onClick = { abierto = true },
         modifier = Modifier.fillMaxWidth().height(52.dp),

@@ -285,7 +285,7 @@ private fun MapaHospital(latitud: Double, longitud: Double, nombre: String) {
         Text(
             stringResource(R.string.osm_atribucion),
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp)
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 20.dp, bottom = 8.dp)
         )
     }
 }
