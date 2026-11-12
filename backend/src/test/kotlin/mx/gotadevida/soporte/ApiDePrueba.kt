@@ -19,6 +19,12 @@ import mx.gotadevida.autenticacion.service.CuentaGoogle
 import mx.gotadevida.autenticacion.service.VerificadorGoogle
 import mx.gotadevida.core.di.Dependencias
 import mx.gotadevida.core.di.Repositorios
+import kotlinx.serialization.json.JsonArray
+import mx.gotadevida.chatbot.service.ClienteGemini
+import mx.gotadevida.chatbot.service.CuotaAgotada
+import mx.gotadevida.chatbot.service.RespuestaGemini
+import mx.gotadevida.chatbot.service.TurnoGemini
+import mx.gotadevida.whatsapp.service.WhatsAppRegistro
 import mx.gotadevida.core.mensajeria.BusEnMemoria
 import mx.gotadevida.core.mensajeria.EventosProcesadosEnMemoria
 import mx.gotadevida.core.notificaciones.EnviadorPushRegistro
@@ -28,6 +34,18 @@ import mx.gotadevida.module
 const val SECRETO_PRUEBAS = "secreto-de-pruebas-con-mas-de-32-caracteres"
 const val ADMIN_EMAIL = "admin@gotadevida.mx"
 const val ADMIN_PASSWORD = "admin-segura-123"
+const val SECRETO_META = "secreto-de-la-app-de-meta"
+
+/** Gemini guionado: devuelve en orden las respuestas de la lista y guarda lo que recibió. */
+class GeminiDePrueba(vararg respuestas: RespuestaGemini) : ClienteGemini {
+    private val pendientes = ArrayDeque(respuestas.toList())
+    val recibidos = mutableListOf<List<TurnoGemini>>()
+
+    override suspend fun generar(sistema: String, turnos: List<TurnoGemini>, herramientas: JsonArray): RespuestaGemini {
+        recibidos += turnos.toList()
+        return pendientes.removeFirstOrNull() ?: RespuestaGemini.Texto("Listo.")
+    }
+}
 
 /** Acepta el token "token-valido" como la cuenta de Google de Laura. */
 class GoogleDePrueba : VerificadorGoogle {
@@ -44,18 +62,32 @@ class EntornoDePrueba {
     val respuestas = RespuestasEnMemoria()
     val citas = CitasEnMemoria()
     val donaciones = DonacionesEnMemoria()
+    val conversaciones = ConversacionesEnMemoria()
+    val preguntas = PreguntasEnMemoria()
+    val whatsapp = WhatsAppRegistro()
+
+    /** Gemini falso: las pruebas le dicen qué contestar. Null = sin IA (menú). */
+    var gemini: GeminiDePrueba? = null
 
     /** Bus síncrono: cada evento se procesa antes de que termine la petición. */
     val bus = BusEnMemoria(EventosProcesadosEnMemoria(), sincrono = true)
     val push = EnviadorPushRegistro()
     val dependencias: Dependencias = Dependencias.crear(
         jwt = JwtServicio(SECRETO_PRUEBAS, "gota-de-vida-pruebas"),
-        repos = Repositorios(usuarios, donadores, hospitales, reglas, solicitudes, respuestas, citas, donaciones),
+        repos = Repositorios(usuarios, donadores, hospitales, reglas, solicitudes, respuestas, citas, donaciones, conversaciones, preguntas),
         hasher = HasherDePrueba(),
         verificadorGoogle = GoogleDePrueba(),
         bus = bus,
         push = push,
+        gemini = object : ClienteGemini {
+            override suspend fun generar(sistema: String, turnos: List<TurnoGemini>, herramientas: JsonArray) =
+                gemini?.generar(sistema, turnos, herramientas) ?: throw CuotaAgotada()
+        },
+        whatsapp = whatsapp,
+        whatsappVerificacion = "verificacion-de-prueba",
+        whatsappSecreto = SECRETO_META,
     ) { deps ->
+        deps.asistente.asegurarPreguntasFrecuentes()
         deps.reglas.asegurarReglas()
         deps.autenticacion.asegurarAdministrador(ADMIN_EMAIL, ADMIN_PASSWORD)
     }

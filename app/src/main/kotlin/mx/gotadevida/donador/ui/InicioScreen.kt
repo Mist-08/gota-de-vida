@@ -56,6 +56,7 @@ fun InicioScreen(
     urgencias: @Composable () -> Unit = {},
     cita: @Composable () -> Unit = {},
     alHistorial: () -> Unit = {},
+    alChat: () -> Unit = {},
     viewModel: InicioViewModel = hiltViewModel(),
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -103,6 +104,7 @@ fun InicioScreen(
                     urgencias()
 
                     if (estado.estadoDonacion !is EstadoDonacion.CompletarPerfil && estado.estadoDonacion !is EstadoDonacion.Cargando) {
+                        BotonSecundario(stringResource(R.string.chat_hablar_con_gota), alPulsar = alChat)
                         BotonSecundario(stringResource(R.string.historial_titulo), alPulsar = alHistorial)
                         BotonSecundario(stringResource(R.string.inicio_editar_perfil), alPulsar = alEditarPerfil)
                     }

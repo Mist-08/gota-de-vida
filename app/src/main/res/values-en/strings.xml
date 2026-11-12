@@ -232,4 +232,16 @@
     <string name="panel_minutos">Min. to cover</string>
     <string name="panel_mas_solicitados">Most requested: %1$s</string>
     <string name="panel_citas_hoy">Today\'s appointments</string>
+
+    <!-- Chat -->
+    <string name="chat_titulo">Gota, your assistant</string>
+    <string name="chat_bienvenida">Hi! I\'m Gota 🩸. I can help you answer emergencies, clear up questions about requirements and book your appointment. I\'m on WhatsApp too.</string>
+    <string name="chat_escribe">Type your message</string>
+    <string name="chat_enviar">Send</string>
+    <string name="chat_hablar_con_gota">Talk to Gota</string>
+    <string name="chat_opcion_1">Accept emergency</string>
+    <string name="chat_opcion_2">See requirements</string>
+    <string name="chat_opcion_3">Book appointment</string>
+    <string name="chat_opcion_4">Can I donate?</string>
+    <string name="accion_reintentar_envio">Retry sending</string>
 </resources>

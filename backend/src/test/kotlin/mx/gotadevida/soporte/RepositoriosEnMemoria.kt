@@ -21,6 +21,10 @@ import mx.gotadevida.cita.entity.EstadoCita
 import mx.gotadevida.cita.repository.CitaRepository
 import mx.gotadevida.donacion.entity.Donacion
 import mx.gotadevida.donacion.repository.DonacionRepository
+import mx.gotadevida.chatbot.entity.Conversacion
+import mx.gotadevida.chatbot.entity.PreguntaFrecuente
+import mx.gotadevida.chatbot.repository.ConversacionRepository
+import mx.gotadevida.chatbot.repository.PreguntasFrecuentesRepository
 import mx.gotadevida.reglas.repository.ReglasRepository
 
 class UsuariosEnMemoria : UsuarioRepository {
@@ -66,6 +70,8 @@ class DonadoresEnMemoria : DonadorRepository {
             .sortedBy { it.second }
             .take(limite)
             .map { it.first }
+
+    override suspend fun buscarPorTelefono(telefono: String) = datos.values.firstOrNull { it.telefono == telefono }
 }
 
 class SolicitudesEnMemoria : SolicitudRepository {
@@ -156,4 +162,24 @@ class DonacionesEnMemoria : DonacionRepository {
     override suspend fun deDonador(donadorId: String) = datos.values.filter { it.donadorId == donadorId }.sortedByDescending { it.fecha }
 
     override suspend fun deHospital(hospitalId: String) = datos.values.filter { it.hospitalId == hospitalId }
+}
+
+class ConversacionesEnMemoria : ConversacionRepository {
+    val datos = linkedMapOf<String, Conversacion>()
+
+    override suspend fun buscar(donadorId: String) = datos[donadorId]
+
+    override suspend fun guardar(conversacion: Conversacion) {
+        datos[conversacion.id] = conversacion
+    }
+}
+
+class PreguntasEnMemoria : PreguntasFrecuentesRepository {
+    val datos = linkedMapOf<String, PreguntaFrecuente>()
+
+    override suspend fun todas() = datos.values.toList()
+
+    override suspend fun guardar(pregunta: PreguntaFrecuente) {
+        datos[pregunta.id] = pregunta
+    }
 }

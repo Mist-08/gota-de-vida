@@ -26,8 +26,8 @@ android {
         applicationId = "mx.gotadevida"
         minSdk = 26
         targetSdk = 37
-        versionCode = 4
-        versionName = "0.4.0"
+        versionCode = 5
+        versionName = "0.5.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // En el emulador, localhost de la computadora es 10.0.2.2.

@@ -37,6 +37,9 @@ interface DirectorioDonadores {
         limite: Int,
     ): List<Candidato>
 
+    /** El donador con ese celular (10 dígitos), para el chatbot de WhatsApp. */
+    suspend fun porTelefono(telefono: String): DonadorResumen?
+
     /** Registra una donación confirmada (fecha ISO) en el perfil del donador. */
     suspend fun registrarDonacion(id: String, fecha: String)
 }

@@ -10,6 +10,8 @@ import mx.gotadevida.cita.entity.Horario
 import mx.gotadevida.cita.entity.paraDonador
 import mx.gotadevida.cita.entity.paraHospital
 import mx.gotadevida.cita.repository.CitaRepository
+import mx.gotadevida.core.dominio.CitaResumen
+import mx.gotadevida.core.dominio.DirectorioCitas
 import mx.gotadevida.core.dominio.DirectorioDonadores
 import mx.gotadevida.core.dominio.DirectorioHospitales
 import mx.gotadevida.core.errores.Conflicto
@@ -41,7 +43,7 @@ class CitaService(
     private val hospitalDeUsuario: suspend (usuarioId: String) -> String?,
     private val bus: BusDeEventos,
     private val reloj: Clock = Clock.systemUTC(),
-) {
+) : DirectorioCitas {
     private fun ahora(): LocalDateTime = LocalDateTime.now(reloj.withZone(ZONA))
 
     /** Horarios de 8:00 a 13:30 cada media hora, con [CUPO_POR_HORARIO] lugares cada uno. */
@@ -149,6 +151,22 @@ class CitaService(
     }
 
     suspend fun buscar(id: String): Cita? = citas.buscarPorId(id)
+
+    override suspend fun horasLibres(hospitalId: String, fecha: String): List<String> =
+        horarios(hospitalId, fecha).filter { it.disponible }.map { it.hora }
+
+    override suspend fun agendar(donadorId: String, hospitalId: String, fechaHora: String, solicitudId: String?): CitaResumen =
+        agendar(donadorId, AgendarCitaPeticion(hospitalId, fechaHora, solicitudId)).resumen()
+
+    override suspend fun cancelarCita(donadorId: String, citaId: String): CitaResumen = cancelar(donadorId, citaId).let { r ->
+        CitaResumen(r.id, r.hospitalId, r.hospitalNombre, r.fechaHora, r.estado.name)
+    }
+
+    override suspend fun proximas(donadorId: String): List<CitaResumen> =
+        citas.deDonador(donadorId).filter { it.estado == EstadoCita.AGENDADA && LocalDateTime.parse(it.fechaHora).isAfter(ahora()) }
+            .map { CitaResumen(it.id, it.hospitalId, it.hospitalNombre, it.fechaHora, it.estado.name) }
+
+    private fun CitaRespuesta.resumen() = CitaResumen(id, hospitalId, hospitalNombre, fechaHora, estado.name)
 
     suspend fun horariosOcupadosHoy(hospitalId: String): Int = citas.agendadasDeHospital(hospitalId, ahora().toLocalDate().toString()).size
 

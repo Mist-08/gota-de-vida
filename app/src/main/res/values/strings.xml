@@ -237,4 +237,16 @@
     <string name="panel_minutos">Min. para cubrir</string>
     <string name="panel_mas_solicitados">Más solicitados: %1$s</string>
     <string name="panel_citas_hoy">Citas de hoy</string>
+
+    <!-- Chat -->
+    <string name="chat_titulo">Gota, tu asistente</string>
+    <string name="chat_bienvenida">¡Hola! Soy Gota 🩸. Te ayudo a responder urgencias, resolver dudas sobre requisitos y agendar tu cita. También estoy en WhatsApp.</string>
+    <string name="chat_escribe">Escribe tu mensaje</string>
+    <string name="chat_enviar">Enviar</string>
+    <string name="chat_hablar_con_gota">Hablar con Gota</string>
+    <string name="chat_opcion_1">Aceptar urgencia</string>
+    <string name="chat_opcion_2">Ver requisitos</string>
+    <string name="chat_opcion_3">Agendar cita</string>
+    <string name="chat_opcion_4">¿Puedo donar?</string>
+    <string name="accion_reintentar_envio">Reintentar envío</string>
 </resources>

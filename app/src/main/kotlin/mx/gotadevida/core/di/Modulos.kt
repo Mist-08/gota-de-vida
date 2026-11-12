@@ -49,6 +49,10 @@ import mx.gotadevida.cita.repository.CitaRepository
 import mx.gotadevida.cita.repository.CitaRepositoryLocalYRed
 import mx.gotadevida.cita.repository.EjecutorAgendarCita
 import mx.gotadevida.historial.repository.HistorialApi
+import mx.gotadevida.chatbot.repository.ChatApi
+import mx.gotadevida.chatbot.repository.ChatDao
+import mx.gotadevida.chatbot.repository.ChatRepository
+import mx.gotadevida.chatbot.repository.ChatRepositoryLocalYRed
 import mx.gotadevida.historial.repository.HistorialDao
 import mx.gotadevida.historial.repository.HistorialRepository
 import mx.gotadevida.historial.repository.HistorialRepositoryLocalYRed
@@ -116,6 +120,10 @@ object ModuloRed {
     @Provides
     @Singleton
     fun historialApi(retrofit: Retrofit): HistorialApi = retrofit.create(HistorialApi::class.java)
+
+    @Provides
+    @Singleton
+    fun chatApi(retrofit: Retrofit): ChatApi = retrofit.create(ChatApi::class.java)
 }
 
 @Module
@@ -144,6 +152,9 @@ object ModuloBaseDeDatos {
 
     @Provides
     fun historialDao(baseDeDatos: GotaDatabase): HistorialDao = baseDeDatos.historialDao()
+
+    @Provides
+    fun chatDao(baseDeDatos: GotaDatabase): ChatDao = baseDeDatos.chatDao()
 }
 
 /** Une cada interfaz con su implementación. Las pruebas usan versiones falsas de las mismas interfaces. */
@@ -184,4 +195,7 @@ abstract class ModuloEnlaces {
 
     @Binds
     abstract fun historialRepository(implementacion: HistorialRepositoryLocalYRed): HistorialRepository
+
+    @Binds
+    abstract fun chatRepository(implementacion: ChatRepositoryLocalYRed): ChatRepository
 }

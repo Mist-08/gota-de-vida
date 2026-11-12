@@ -23,6 +23,8 @@ import mx.gotadevida.reglas.routes.reglasRoutes
 import mx.gotadevida.solicitud.routes.solicitudRoutes
 import mx.gotadevida.cita.routes.citaRoutes
 import mx.gotadevida.donacion.routes.donacionRoutes
+import mx.gotadevida.chatbot.routes.chatRoutes
+import mx.gotadevida.whatsapp.routes.webhookRoutes
 import io.ktor.server.application.ApplicationStopped
 
 /**
@@ -65,6 +67,8 @@ fun Application.module(dependencias: Dependencias) {
         solicitudRoutes(dependencias.solicitudes)
         citaRoutes(dependencias.citas)
         donacionRoutes(dependencias.historial)
+        chatRoutes(dependencias.asistente)
+        webhookRoutes(dependencias.whatsappVerificacion, dependencias.whatsappSecreto, dependencias.bus)
     }
     monitor.subscribe(ApplicationStopped) { dependencias.bus.cerrar() }
 }

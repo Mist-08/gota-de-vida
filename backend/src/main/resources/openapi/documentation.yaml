@@ -27,6 +27,10 @@ tags:
   - name: Dispositivos
   - name: Cita
     description: Horarios, agenda, cancelación y check-in con código QR.
+  - name: Chatbot
+    description: Gota, la asistente. Preguntas frecuentes sin IA, Gemini con function calling y menú de respaldo si se acaba la cuota.
+  - name: WhatsApp
+    description: Webhook de WhatsApp Cloud API (Meta).
   - name: Donación
     description: Historial, insignias y estadísticas del hospital.
 paths:
@@ -574,6 +578,84 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Estadisticas" }
 
+  /api/v1/chat/mensajes:
+    post:
+      tags: [Chatbot]
+      summary: Mandar un mensaje a Gota (DONADOR)
+      description: >
+        Orden para ahorrar cuota: opciones del menú y botones sin IA, luego preguntas frecuentes de la base,
+        luego Gemini con function calling. Si Gemini no está configurado o responde 429, contesta con el menú.
+        A Gemini nunca se le mandan nombres, teléfonos, correos ni ubicaciones.
+      operationId: mandarMensaje
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [texto]
+              properties:
+                texto: { type: string, example: "¿Tengo que ir en ayunas?" }
+      responses:
+        "200":
+          description: Respuesta de Gota
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RespuestaChat" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    get:
+      tags: [Chatbot]
+      summary: Historial de la conversación (DONADOR)
+      operationId: historialChat
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Últimos 30 mensajes (app y WhatsApp)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensajes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        autor: { type: string, enum: [DONADOR, GOTA] }
+                        texto: { type: string }
+                        en: { type: string, format: date-time }
+
+  /api/v1/webhooks/whatsapp:
+    get:
+      tags: [WhatsApp]
+      summary: Verificación del webhook (Meta)
+      operationId: verificarWebhook
+      parameters:
+        - { name: hub.mode, in: query, schema: { type: string, example: subscribe } }
+        - { name: hub.verify_token, in: query, schema: { type: string } }
+        - { name: hub.challenge, in: query, schema: { type: string } }
+      responses:
+        "200": { description: Devuelve hub.challenge }
+        "403": { description: Token de verificación incorrecto }
+    post:
+      tags: [WhatsApp]
+      summary: Mensajes entrantes (Meta)
+      description: Verifica la firma `X-Hub-Signature-256`, publica `whatsapp.mensaje.recibido` y responde 200 de inmediato; el ChatbotConsumer contesta por WhatsApp.
+      operationId: recibirWhatsApp
+      parameters:
+        - { name: X-Hub-Signature-256, in: header, required: true, schema: { type: string, example: "sha256=ab12..." } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200": { description: Recibido }
+        "401": { description: Firma inválida }
+        "429": { $ref: "#/components/responses/DemasiadasPeticiones" }
+
 components:
   parameters:
     IdSolicitud:
@@ -622,6 +704,12 @@ components:
       description: Demasiados intentos; espera un minuto
 
   schemas:
+    RespuestaChat:
+      type: object
+      properties:
+        respuesta: { type: string, example: "Llega con 4 a 12 horas de ayuno y evita grasas, huevo y lácteos desde un día antes." }
+        opciones: { type: array, items: { type: string }, example: ["08:00", "09:30", "11:00"] }
+        origen: { type: string, enum: [MENU, PREGUNTA_FRECUENTE, GEMINI] }
     Horario:
       type: object
       properties:
