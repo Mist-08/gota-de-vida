@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Solo lo que necesita Android fuera de Compose. Fuente: docs/design/TOKENS.md -->
+    <color name="icono_fondo">#B4161F</color>
+    <color name="fondo_ventana">#FFFBFA</color>
+</resources>
