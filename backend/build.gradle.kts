@@ -3,6 +3,7 @@ val ktorVersion = "3.1.3"
 val logbackVersion = "1.5.18"
 val mongoVersion = "5.4.0"
 val bcryptVersion = "0.10.2"
+val amqpVersion = "5.37.1"
 
 plugins {
     kotlin("jvm") version "2.4.21"
@@ -42,6 +43,9 @@ dependencies {
     // Base de datos
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:$mongoVersion")
     implementation("org.mongodb:bson-kotlinx:$mongoVersion")
+
+    // Cola de mensajes (RabbitMQ en CloudAMQP)
+    implementation("com.rabbitmq:amqp-client:$amqpVersion")
 
     // Seguridad y registros
     implementation("at.favre.lib:bcrypt:$bcryptVersion")

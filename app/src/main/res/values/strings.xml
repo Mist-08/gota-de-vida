@@ -122,4 +122,69 @@
     <string name="ajustes_confirmar_cierre_titulo">¿Cerrar sesión?</string>
     <string name="ajustes_confirmar_cierre_texto">Se borrarán de este teléfono tus datos guardados. Tu cuenta sigue activa.</string>
     <string name="ajustes_version">Gota de Vida %1$s</string>
+    <!-- Urgencias (donador) -->
+    <plurals name="unidades_cubiertas">
+        <item quantity="one">%1$d de %2$d unidad cubierta</item>
+        <item quantity="many">%1$d de %2$d unidades cubiertas</item>
+        <item quantity="other">%1$d de %2$d unidades cubiertas</item>
+    </plurals>
+    <string name="distancia_km">a %1$.1f km</string>
+    <string name="urgencia_titulo">Urgencia</string>
+    <string name="urgencia_pendiente_enviar">Pendiente de enviar</string>
+    <string name="urgencia_pendiente_texto">Sin conexión. Tu respuesta se enviará en cuanto vuelva la señal.</string>
+    <string name="urgencia_ya_aceptaste">Ya aceptaste</string>
+    <string name="cd_mapa_hospital">Mapa con la ubicación de %1$s</string>
+    <string name="osm_atribucion">© OpenStreetMap</string>
+    <string name="urgencia_si_puedo">Sí puedo donar</string>
+    <string name="urgencia_no_puedo">No puedo esta vez</string>
+    <string name="urgencia_dijiste_no">Dijiste que no podías. Si cambias de opinión, toca "Sí puedo donar".</string>
+    <string name="urgencia_gracias">¡Gracias! El hospital ya sabe que vas.</string>
+    <string name="urgencia_abrir_ruta">Abrir ruta al hospital</string>
+    <string name="urgencia_cubierta">Esta urgencia ya se cubrió. ¡Gracias por estar pendiente!</string>
+    <string name="urgencia_terminada">Esta urgencia ya terminó.</string>
+
+    <!-- Panel del hospital -->
+    <string name="estado_activa">Activa</string>
+    <string name="estado_cubierta">Cubierta</string>
+    <string name="estado_cerrada">Cerrada</string>
+    <string name="estado_cancelada">Cancelada</string>
+    <string name="panel_titulo">Urgencias de tu hospital</string>
+    <string name="panel_nueva_urgencia">Publicar urgencia</string>
+    <string name="panel_vacio">Todavía no hay urgencias publicadas.</string>
+    <plurals name="panel_avisados">
+        <item quantity="one">%d donador avisado</item>
+        <item quantity="many">%d donadores avisados</item>
+        <item quantity="other">%d donadores avisados</item>
+    </plurals>
+    <plurals name="panel_oleada">
+        <item quantity="one">Oleada %1$d: %2$d donador avisado. Si no se cubre, se amplía el radio en 15 minutos.</item>
+        <item quantity="many">Oleada %1$d: %2$d donadores avisados. Si no se cubre, se amplía el radio en 15 minutos.</item>
+        <item quantity="other">Oleada %1$d: %2$d donadores avisados. Si no se cubre, se amplía el radio en 15 minutos.</item>
+    </plurals>
+    <string name="panel_aceptaron">Donadores que aceptaron</string>
+    <string name="panel_nadie_acepto">Aún nadie acepta. Te avisaremos en cuanto alguien responda.</string>
+    <string name="panel_llamar">Llamar</string>
+    <string name="panel_cerrar">Cerrar urgencia</string>
+    <string name="panel_cancelar">Cancelar urgencia</string>
+    <string name="crear_titulo">Nueva urgencia</string>
+    <string name="crear_tipo_paciente">Tipo de sangre del paciente</string>
+    <string name="crear_unidades">Unidades necesarias</string>
+    <string name="crear_nota">Nota para los donadores (opcional)</string>
+    <string name="crear_nota_ayuda">Por ejemplo: "Preguntar por el banco de sangre, planta baja". Sin datos del paciente.</string>
+    <string name="crear_publicar">Publicar y avisar</string>
+    <string name="crear_ayuda_oleadas">Avisaremos primero a los 20 donadores compatibles más cercanos y, si no se cubre, ampliaremos el radio.</string>
+
+    <!-- Notificaciones -->
+    <string name="canal_urgencias">Urgencias de sangre</string>
+    <string name="canal_respuestas">Respuestas y recordatorios</string>
+    <string name="push_urgencia_titulo">Urgencia: se necesita %1$s</string>
+    <string name="push_urgencia_texto">%1$s, a %2$s km de ti. ¿Puedes donar?</string>
+    <string name="push_respuesta_titulo">Un donador aceptó</string>
+    <string name="push_respuesta_texto">%1$s de %2$s unidades de %3$s comprometidas.</string>
+    <string name="push_cubierta_titulo">¡Urgencia cubierta!</string>
+    <string name="push_cubierta_texto">Se comprometieron las %1$s unidades de %2$s.</string>
+    <string name="push_recordatorio_titulo">Tu cita para donar</string>
+    <string name="push_recordatorio_texto">%1$s a las %2$s. Recuerda tu identificación.</string>
+    <string name="push_gracias_titulo">¡Gracias por donar!</string>
+    <string name="push_gracias_texto">Tu donación quedó registrada. Mira tu historial y tu próxima fecha.</string>
 </resources>

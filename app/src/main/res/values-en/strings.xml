@@ -120,4 +120,66 @@
     <string name="ajustes_confirmar_cierre_titulo">Log out?</string>
     <string name="ajustes_confirmar_cierre_texto">Your saved data will be removed from this phone. Your account stays active.</string>
     <string name="ajustes_version">Gota de Vida %1$s</string>
+    <!-- Emergencies (donor) -->
+    <plurals name="unidades_cubiertas">
+        <item quantity="one">%1$d of %2$d unit covered</item>
+        <item quantity="other">%1$d of %2$d units covered</item>
+    </plurals>
+    <string name="distancia_km">%1$.1f km away</string>
+    <string name="urgencia_titulo">Emergency</string>
+    <string name="urgencia_pendiente_enviar">Waiting to send</string>
+    <string name="urgencia_pendiente_texto">You\'re offline. Your answer will be sent as soon as you\'re back online.</string>
+    <string name="urgencia_ya_aceptaste">You accepted</string>
+    <string name="cd_mapa_hospital">Map showing where %1$s is</string>
+    <string name="osm_atribucion">© OpenStreetMap</string>
+    <string name="urgencia_si_puedo">Yes, I can donate</string>
+    <string name="urgencia_no_puedo">I can\'t this time</string>
+    <string name="urgencia_dijiste_no">You said you couldn\'t. If you change your mind, tap "Yes, I can donate".</string>
+    <string name="urgencia_gracias">Thank you! The hospital knows you\'re coming.</string>
+    <string name="urgencia_abrir_ruta">Get directions to the hospital</string>
+    <string name="urgencia_cubierta">This emergency is already covered. Thanks for being there!</string>
+    <string name="urgencia_terminada">This emergency has ended.</string>
+
+    <!-- Hospital dashboard -->
+    <string name="estado_activa">Active</string>
+    <string name="estado_cubierta">Covered</string>
+    <string name="estado_cerrada">Closed</string>
+    <string name="estado_cancelada">Cancelled</string>
+    <string name="panel_titulo">Your hospital\'s emergencies</string>
+    <string name="panel_nueva_urgencia">Post emergency</string>
+    <string name="panel_vacio">No emergencies posted yet.</string>
+    <plurals name="panel_avisados">
+        <item quantity="one">%d donor notified</item>
+        <item quantity="other">%d donors notified</item>
+    </plurals>
+    <plurals name="panel_oleada">
+        <item quantity="one">Wave %1$d: %2$d donor notified. If it isn\'t covered, the radius grows in 15 minutes.</item>
+        <item quantity="other">Wave %1$d: %2$d donors notified. If it isn\'t covered, the radius grows in 15 minutes.</item>
+    </plurals>
+    <string name="panel_aceptaron">Donors who accepted</string>
+    <string name="panel_nadie_acepto">No one has accepted yet. We\'ll let you know as soon as someone does.</string>
+    <string name="panel_llamar">Call</string>
+    <string name="panel_cerrar">Close emergency</string>
+    <string name="panel_cancelar">Cancel emergency</string>
+    <string name="crear_titulo">New emergency</string>
+    <string name="crear_tipo_paciente">Patient\'s blood type</string>
+    <string name="crear_unidades">Units needed</string>
+    <string name="crear_nota">Note for donors (optional)</string>
+    <string name="crear_nota_ayuda">For example: "Ask for the blood bank, ground floor". No patient details.</string>
+    <string name="crear_publicar">Post and notify</string>
+    <string name="crear_ayuda_oleadas">We\'ll notify the 20 closest compatible donors first and, if it isn\'t covered, widen the radius.</string>
+
+    <!-- Notifications -->
+    <string name="canal_urgencias">Blood emergencies</string>
+    <string name="canal_respuestas">Answers and reminders</string>
+    <string name="push_urgencia_titulo">Emergency: %1$s needed</string>
+    <string name="push_urgencia_texto">%1$s, %2$s km from you. Can you donate?</string>
+    <string name="push_respuesta_titulo">A donor accepted</string>
+    <string name="push_respuesta_texto">%1$s of %2$s units of %3$s committed.</string>
+    <string name="push_cubierta_titulo">Emergency covered!</string>
+    <string name="push_cubierta_texto">All %1$s units of %2$s are committed.</string>
+    <string name="push_recordatorio_titulo">Your donation appointment</string>
+    <string name="push_recordatorio_texto">%1$s at %2$s. Remember your ID.</string>
+    <string name="push_gracias_titulo">Thank you for donating!</string>
+    <string name="push_gracias_texto">Your donation was recorded. Check your history and your next date.</string>
 </resources>

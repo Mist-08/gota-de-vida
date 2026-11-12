@@ -20,6 +20,8 @@ import mx.gotadevida.core.seguridad.configurarSeguridad
 import mx.gotadevida.donador.routes.donadorRoutes
 import mx.gotadevida.hospital.routes.hospitalRoutes
 import mx.gotadevida.reglas.routes.reglasRoutes
+import mx.gotadevida.solicitud.routes.solicitudRoutes
+import io.ktor.server.application.ApplicationStopped
 
 /**
  * Arranca el servidor. Render asigna el puerto en la variable PORT; en local se usa 8080.
@@ -58,5 +60,7 @@ fun Application.module(dependencias: Dependencias) {
         donadorRoutes(dependencias.donadores)
         hospitalRoutes(dependencias.hospitales)
         reglasRoutes(dependencias.reglas)
+        solicitudRoutes(dependencias.solicitudes)
     }
+    monitor.subscribe(ApplicationStopped) { dependencias.bus.cerrar() }
 }

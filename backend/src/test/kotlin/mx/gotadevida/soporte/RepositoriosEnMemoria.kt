@@ -9,6 +9,13 @@ import mx.gotadevida.donador.repository.DonadorRepository
 import mx.gotadevida.hospital.entity.Hospital
 import mx.gotadevida.hospital.repository.HospitalRepository
 import mx.gotadevida.reglas.entity.ReglasElegibilidad
+import mx.gotadevida.core.dominio.PuntoGeo
+import mx.gotadevida.core.dominio.TipoSangre
+import mx.gotadevida.solicitud.entity.EstadoSolicitud
+import mx.gotadevida.solicitud.entity.Respuesta
+import mx.gotadevida.solicitud.entity.Solicitud
+import mx.gotadevida.solicitud.repository.RespuestaRepository
+import mx.gotadevida.solicitud.repository.SolicitudRepository
 import mx.gotadevida.reglas.repository.ReglasRepository
 
 class UsuariosEnMemoria : UsuarioRepository {
@@ -28,6 +35,12 @@ class UsuariosEnMemoria : UsuarioRepository {
     override suspend fun actualizar(usuario: Usuario) {
         datos[usuario.id] = usuario
     }
+
+    override suspend fun buscarPorIds(ids: Collection<String>) = ids.mapNotNull { datos[it] }
+
+    override suspend fun deHospital(hospitalId: String) = datos.values.filter { it.hospitalId == hospitalId }
+
+    override suspend fun conTokenFcm(token: String) = datos.values.filter { token in it.tokensFcm }
 }
 
 class DonadoresEnMemoria : DonadorRepository {
@@ -38,6 +51,45 @@ class DonadoresEnMemoria : DonadorRepository {
     override suspend fun guardar(donador: Donador) {
         datos[donador.id] = donador
     }
+
+    /** Igual que `$geoNear`: filtra por tipo, notificaciones y radio, y ordena por distancia. */
+    override suspend fun cercanos(centro: PuntoGeo, radioKm: Double, tipos: List<TipoSangre>, excluir: Set<String>, limite: Int) =
+        datos.values
+            .filter { it.tipoSangre in tipos && it.notificacionesActivas && it.id !in excluir && it.ubicacion != null }
+            .map { it to it.ubicacion!!.distanciaKmA(centro) }
+            .filter { it.second <= radioKm }
+            .sortedBy { it.second }
+            .take(limite)
+            .map { it.first }
+}
+
+class SolicitudesEnMemoria : SolicitudRepository {
+    val datos = linkedMapOf<String, Solicitud>()
+
+    override suspend fun guardar(solicitud: Solicitud) {
+        datos[solicitud.id] = solicitud
+    }
+
+    override suspend fun buscarPorId(id: String) = datos[id]
+
+    override suspend fun activasCerca(centro: PuntoGeo, radioKm: Double, tipos: List<TipoSangre>) =
+        datos.values.filter { it.estado == EstadoSolicitud.ACTIVA && it.tipoSangre in tipos && it.ubicacion.distanciaKmA(centro) <= radioKm }
+
+    override suspend fun delHospital(hospitalId: String) = datos.values.filter { it.hospitalId == hospitalId }.sortedByDescending { it.creadaEn }
+}
+
+class RespuestasEnMemoria : RespuestaRepository {
+    val datos = linkedMapOf<String, Respuesta>()
+
+    override suspend fun guardar(respuesta: Respuesta) {
+        datos[respuesta.id] = respuesta
+    }
+
+    override suspend fun buscar(solicitudId: String, donadorId: String) = datos["$solicitudId:$donadorId"]
+
+    override suspend fun deSolicitud(solicitudId: String) = datos.values.filter { it.solicitudId == solicitudId }
+
+    override suspend fun deDonador(donadorId: String) = datos.values.filter { it.donadorId == donadorId }
 }
 
 class HospitalesEnMemoria : HospitalRepository {

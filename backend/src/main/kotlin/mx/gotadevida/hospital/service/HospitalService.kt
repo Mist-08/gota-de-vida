@@ -1,5 +1,7 @@
 package mx.gotadevida.hospital.service
 
+import mx.gotadevida.core.dominio.DirectorioHospitales
+import mx.gotadevida.core.dominio.HospitalResumen
 import mx.gotadevida.core.dominio.PuntoGeo
 import mx.gotadevida.core.errores.NoEncontrado
 import mx.gotadevida.core.errores.validar
@@ -14,7 +16,7 @@ import java.util.UUID
 class HospitalService(
     private val repositorio: HospitalRepository,
     private val reloj: Clock = Clock.systemUTC(),
-) {
+) : DirectorioHospitales {
     suspend fun crear(solicitud: CrearHospitalSolicitud, esDemostracion: Boolean = false): HospitalRespuesta {
         val nombre = solicitud.nombre.trim()
         val direccion = solicitud.direccion.trim()
@@ -45,4 +47,8 @@ class HospitalService(
     suspend fun hayHospitales(): Boolean = repositorio.contar() > 0
 
     suspend fun existe(id: String): Boolean = repositorio.buscarPorId(id) != null
+
+    override suspend fun resumen(id: String): HospitalResumen? = repositorio.buscarPorId(id)?.let {
+        HospitalResumen(it.id, it.nombre, it.direccion, it.ubicacion, it.telefono)
+    }
 }

@@ -48,7 +48,7 @@ import mx.gotadevida.core.designsystem.componentes.Icono
 @Composable
 fun AjustesScreen(
     alRegresar: () -> Unit,
-    alEditarPerfil: () -> Unit,
+    alEditarPerfil: (() -> Unit)?,
     viewModel: AjustesViewModel = hiltViewModel(),
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -91,7 +91,7 @@ fun AjustesScreen(
             HorizontalDivider(color = colores.outline)
 
             Titulo(stringResource(R.string.ajustes_privacidad))
-            Opcion(R.drawable.ic_persona, stringResource(R.string.ajustes_editar_perfil), alEditarPerfil)
+            alEditarPerfil?.let { Opcion(R.drawable.ic_persona, stringResource(R.string.ajustes_editar_perfil), it) }
             Opcion(R.drawable.ic_escudo, stringResource(R.string.ajustes_ver_aviso)) { verAviso = true }
             HorizontalDivider(color = colores.outline)
 

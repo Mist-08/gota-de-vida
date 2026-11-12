@@ -8,19 +8,27 @@ import kotlinx.serialization.json.Json
 import mx.gotadevida.donador.entity.ElegibilidadEntity
 import mx.gotadevida.donador.entity.PerfilEntity
 import mx.gotadevida.donador.repository.DonadorDao
+import mx.gotadevida.core.sync.AccionPendiente
+import mx.gotadevida.core.sync.AccionPendienteDao
+import mx.gotadevida.solicitud.entity.UrgenciaEntity
+import mx.gotadevida.solicitud.repository.SolicitudDao
 
 /**
  * Base local (Room). Guarda copia de lo que viene de la API para que la app funcione sin señal.
  * Cada funcionalidad aporta sus entidades y su DAO; aquí solo se juntan.
  */
 @Database(
-    entities = [PerfilEntity::class, ElegibilidadEntity::class],
-    version = 1,
+    entities = [PerfilEntity::class, ElegibilidadEntity::class, UrgenciaEntity::class, AccionPendiente::class],
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(Convertidores::class)
 abstract class GotaDatabase : RoomDatabase() {
     abstract fun donadorDao(): DonadorDao
+
+    abstract fun solicitudDao(): SolicitudDao
+
+    abstract fun accionPendienteDao(): AccionPendienteDao
 
     companion object {
         const val NOMBRE = "gota_de_vida.db"
