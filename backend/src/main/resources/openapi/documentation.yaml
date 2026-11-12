@@ -1,0 +1,522 @@
+openapi: 3.0.3
+info:
+  title: Gota de Vida API
+  description: |
+    API de Gota de Vida: conecta bancos de sangre de la Comarca Lagunera con donadores
+    compatibles y cercanos.
+
+    **Cómo probar aquí:** usa `POST /api/v1/auth/registro` o `POST /api/v1/auth/login`, copia
+    `tokens.tokenAcceso` de la respuesta y pégalo en **Authorize**.
+
+    Cada endpoint nuevo se documenta aquí y en la colección de Postman (`backend/postman`) en el mismo
+    Pull Request. Los errores siempre tienen la forma `ErrorRespuesta`.
+  version: 0.2.0
+servers:
+  - url: http://localhost:8080
+    description: Local
+  - url: https://SU-SERVICIO.onrender.com
+    description: Render (cambien SU-SERVICIO por el nombre de su servicio)
+tags:
+  - name: Salud
+  - name: Autenticación
+  - name: Donador
+  - name: Hospitales
+  - name: Reglas de elegibilidad
+paths:
+  /health:
+    get:
+      tags: [Salud]
+      summary: Estado del servicio
+      description: Úsenlo para despertar el servidor de Render antes de la demo.
+      operationId: obtenerSalud
+      responses:
+        "200":
+          description: El servidor está funcionando
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EstadoSalud" }
+
+  /api/v1/auth/registro:
+    post:
+      tags: [Autenticación]
+      summary: Registrar un donador
+      description: Crea la cuenta y el perfil de donador vacío. Requiere aceptar el aviso de privacidad.
+      operationId: registrarDonador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegistroSolicitud" }
+      responses:
+        "201":
+          description: Cuenta creada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SesionRespuesta" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+        "429": { $ref: "#/components/responses/DemasiadasPeticiones" }
+
+  /api/v1/auth/login:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión con correo y contraseña
+      operationId: iniciarSesion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginSolicitud" }
+      responses:
+        "200":
+          description: Sesión iniciada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SesionRespuesta" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+        "429": { $ref: "#/components/responses/DemasiadasPeticiones" }
+
+  /api/v1/auth/google:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión con Google
+      description: |
+        Recibe el `idToken` que obtiene la app con Credential Manager. El servidor lo verifica con
+        Google y crea la cuenta de donador la primera vez. Requiere `GOOGLE_CLIENT_ID` en el servidor.
+      operationId: iniciarSesionConGoogle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GoogleSolicitud" }
+      responses:
+        "200":
+          description: Sesión iniciada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SesionRespuesta" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+
+  /api/v1/auth/refrescar:
+    post:
+      tags: [Autenticación]
+      summary: Renovar la sesión con el token de refresco
+      operationId: refrescarSesion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefrescoSolicitud" }
+      responses:
+        "200":
+          description: Tokens nuevos
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SesionRespuesta" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+
+  /api/v1/donadores/me:
+    get:
+      tags: [Donador]
+      summary: Ver mi perfil de donador
+      operationId: obtenerMiPerfil
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Perfil del donador
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PerfilDonador" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    put:
+      tags: [Donador]
+      summary: Actualizar mi perfil de donador
+      description: |
+        Solo cambian los campos que se manden. La ubicación se guarda redondeada a 3 decimales
+        (unos 100 m). `fechaUltimaDonacion` se agrega al historial si no estaba.
+      operationId: actualizarMiPerfil
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ActualizarPerfilSolicitud" }
+      responses:
+        "200":
+          description: Perfil actualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PerfilDonador" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+
+  /api/v1/donadores/me/elegibilidad:
+    get:
+      tags: [Donador]
+      summary: ¿Puedo donar hoy?
+      description: Evalúa el perfil contra las reglas vigentes. La decisión final siempre es del personal médico.
+      operationId: obtenerMiElegibilidad
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Resultado de la evaluación
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Elegibilidad" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+
+  /api/v1/hospitales:
+    get:
+      tags: [Hospitales]
+      summary: Listar hospitales
+      operationId: listarHospitales
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Hospitales registrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Hospital" }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+    post:
+      tags: [Hospitales]
+      summary: Registrar un hospital (ADMIN)
+      operationId: crearHospital
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrearHospitalSolicitud" }
+      responses:
+        "201":
+          description: Hospital creado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Hospital" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+
+  /api/v1/hospitales/{id}:
+    get:
+      tags: [Hospitales]
+      summary: Ver un hospital
+      operationId: obtenerHospital
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Hospital
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Hospital" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+
+  /api/v1/hospitales/{id}/usuarios:
+    post:
+      tags: [Hospitales]
+      summary: Crear la cuenta del banco de sangre de un hospital (ADMIN)
+      operationId: crearUsuarioHospital
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UsuarioHospitalSolicitud" }
+      responses:
+        "201":
+          description: Cuenta creada con rol HOSPITAL
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UsuarioPublico" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+
+  /api/v1/reglas-elegibilidad:
+    get:
+      tags: [Reglas de elegibilidad]
+      summary: Reglas vigentes para donar
+      description: Públicas. La app y el asistente las usan para explicar los requisitos.
+      operationId: obtenerReglas
+      responses:
+        "200":
+          description: Reglas vigentes
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReglasElegibilidad" }
+    put:
+      tags: [Reglas de elegibilidad]
+      summary: Cambiar las reglas (ADMIN)
+      description: |
+        Las reglas viven en la base de datos porque la NOM-253-SSA1-2025 remite los criterios
+        a una guía nacional que puede cambiar. Solo cambian los campos que se manden.
+      operationId: actualizarReglas
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ActualizarReglasSolicitud" }
+      responses:
+        "200":
+          description: Reglas actualizadas
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReglasElegibilidad" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "`tokens.tokenAcceso` de la respuesta de login o registro. Dura 1 hora."
+
+  responses:
+    DatosInvalidos:
+      description: Los datos enviados no son válidos
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorRespuesta" }
+          example: { error: datos_invalidos, mensaje: "El celular debe tener 10 dígitos." }
+    NoAutorizado:
+      description: Falta iniciar sesión o las credenciales son incorrectas
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorRespuesta" }
+          example: { error: no_autorizado, mensaje: "Inicia sesión para continuar." }
+    Prohibido:
+      description: El rol del usuario no permite esta acción
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorRespuesta" }
+          example: { error: prohibido, mensaje: "No tienes permiso para esta acción." }
+    NoEncontrado:
+      description: No existe el recurso
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorRespuesta" }
+    Conflicto:
+      description: Ya existe
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorRespuesta" }
+          example: { error: conflicto, mensaje: "Ya existe una cuenta con ese correo." }
+    DemasiadasPeticiones:
+      description: Demasiados intentos; espera un minuto
+
+  schemas:
+    ErrorRespuesta:
+      type: object
+      required: [error, mensaje]
+      properties:
+        error: { type: string, example: datos_invalidos }
+        mensaje: { type: string, example: "Escribe un correo válido." }
+
+    EstadoSalud:
+      type: object
+      required: [estado, servicio, version]
+      properties:
+        estado: { type: string, example: ok }
+        servicio: { type: string, example: gota-de-vida-backend }
+        version: { type: string, example: 0.1.0 }
+
+    Rol:
+      type: string
+      enum: [DONADOR, HOSPITAL, ADMIN]
+
+    TipoSangre:
+      type: string
+      enum: [O_NEGATIVO, O_POSITIVO, A_NEGATIVO, A_POSITIVO, B_NEGATIVO, B_POSITIVO, AB_NEGATIVO, AB_POSITIVO]
+
+    SexoParaCriteriosMedicos:
+      type: string
+      description: Solo se usa para calcular intervalos y máximos anuales.
+      enum: [FEMENINO, MASCULINO]
+
+    RegistroSolicitud:
+      type: object
+      required: [nombre, email, password, telefono, aceptaAvisoPrivacidad]
+      properties:
+        nombre: { type: string, example: Mariana Rodríguez }
+        email: { type: string, format: email, example: mariana@correo.mx }
+        password: { type: string, minLength: 8, example: contrasena-segura }
+        telefono: { type: string, description: "Celular de México, 10 dígitos", example: "871 123 4567" }
+        aceptaAvisoPrivacidad: { type: boolean, example: true }
+
+    LoginSolicitud:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, example: mariana@correo.mx }
+        password: { type: string, example: contrasena-segura }
+
+    GoogleSolicitud:
+      type: object
+      required: [idToken]
+      properties:
+        idToken: { type: string }
+
+    RefrescoSolicitud:
+      type: object
+      required: [tokenRefresco]
+      properties:
+        tokenRefresco: { type: string }
+
+    UsuarioHospitalSolicitud:
+      type: object
+      required: [nombre, email, password]
+      properties:
+        nombre: { type: string, example: Banco de sangre HU }
+        email: { type: string, format: email, example: banco@hu.mx }
+        password: { type: string, minLength: 8 }
+
+    Tokens:
+      type: object
+      required: [tokenAcceso, tokenRefresco, expiraEnSegundos]
+      properties:
+        tokenAcceso: { type: string }
+        tokenRefresco: { type: string }
+        expiraEnSegundos: { type: integer, example: 3600 }
+
+    UsuarioPublico:
+      type: object
+      required: [id, nombre, email, rol]
+      properties:
+        id: { type: string }
+        nombre: { type: string }
+        email: { type: string }
+        rol: { $ref: "#/components/schemas/Rol" }
+        hospitalId: { type: string, nullable: true }
+
+    SesionRespuesta:
+      type: object
+      required: [usuario, tokens]
+      properties:
+        usuario: { $ref: "#/components/schemas/UsuarioPublico" }
+        tokens: { $ref: "#/components/schemas/Tokens" }
+
+    ActualizarPerfilSolicitud:
+      type: object
+      properties:
+        nombre: { type: string }
+        telefono: { type: string }
+        tipoSangre: { $ref: "#/components/schemas/TipoSangre" }
+        fechaNacimiento: { type: string, format: date, example: "2001-03-14" }
+        pesoKg: { type: number, example: 68 }
+        sexoParaCriteriosMedicos: { $ref: "#/components/schemas/SexoParaCriteriosMedicos" }
+        latitud: { type: number, example: 25.5412 }
+        longitud: { type: number, example: -103.4068 }
+        zona: { type: string, example: "Torreón Jardín, Torreón" }
+        fechaUltimaDonacion: { type: string, format: date, example: "2026-07-12" }
+        fechaUltimoTatuaje: { type: string, format: date }
+        notificacionesActivas: { type: boolean }
+        radioMaximoKm: { type: integer, minimum: 1, maximum: 100, example: 15 }
+
+    PerfilDonador:
+      type: object
+      required: [id, nombre, notificacionesActivas, radioMaximoKm, totalDonaciones, perfilCompleto]
+      properties:
+        id: { type: string }
+        nombre: { type: string }
+        notificacionesActivas: { type: boolean }
+        radioMaximoKm: { type: integer }
+        totalDonaciones: { type: integer }
+        perfilCompleto: { type: boolean }
+        telefono: { type: string }
+        tipoSangre: { $ref: "#/components/schemas/TipoSangre" }
+        etiquetaTipoSangre: { type: string, example: "O−" }
+        fechaNacimiento: { type: string, format: date }
+        pesoKg: { type: number }
+        sexoParaCriteriosMedicos: { $ref: "#/components/schemas/SexoParaCriteriosMedicos" }
+        latitud: { type: number, description: "Redondeada a 3 decimales" }
+        longitud: { type: number, description: "Redondeada a 3 decimales" }
+        zona: { type: string }
+        ultimaDonacion: { type: string, format: date }
+
+    Elegibilidad:
+      type: object
+      required: [elegible, faltanDatos, motivos, aviso]
+      properties:
+        elegible: { type: boolean, example: false }
+        faltanDatos: { type: boolean, example: false }
+        motivos:
+          type: array
+          items: { type: string }
+          example: ["Deben pasar 60 días entre donaciones."]
+        aviso: { type: string, example: "La decisión final de donar la toma el personal médico del banco de sangre." }
+        proximaFechaElegible: { type: string, format: date, example: "2027-01-11" }
+        diasParaVolverADonar: { type: integer, example: 60 }
+
+    CrearHospitalSolicitud:
+      type: object
+      required: [nombre, direccion, municipio, latitud, longitud]
+      properties:
+        nombre: { type: string, example: Hospital Universitario de Torreón }
+        direccion: { type: string, example: "Centro, Torreón" }
+        municipio: { type: string, example: Torreón }
+        latitud: { type: number, example: 25.5428 }
+        longitud: { type: number, example: -103.4068 }
+        telefono: { type: string }
+
+    Hospital:
+      type: object
+      required: [id, nombre, direccion, municipio, latitud, longitud, esDemostracion]
+      properties:
+        id: { type: string }
+        nombre: { type: string }
+        direccion: { type: string }
+        municipio: { type: string }
+        latitud: { type: number }
+        longitud: { type: number }
+        telefono: { type: string }
+        esDemostracion: { type: boolean, description: "Datos de ejemplo cargados al arrancar" }
+
+    ReglasElegibilidad:
+      type: object
+      properties:
+        _id: { type: string, example: vigentes }
+        edadMinima: { type: integer, example: 18 }
+        edadMaxima: { type: integer, example: 65 }
+        pesoMinimoKg: { type: number, example: 50 }
+        diasEntreDonaciones: { type: integer, example: 60 }
+        maxDonacionesAnualesMasculino: { type: integer, example: 4 }
+        maxDonacionesAnualesFemenino: { type: integer, example: 3 }
+        horasAyunoMinimo: { type: integer, example: 4 }
+        horasAyunoMaximo: { type: integer, example: 12 }
+        mesesEsperaTatuaje: { type: integer, example: 12 }
+        requisitos:
+          type: array
+          items: { type: string }
+        fuente: { type: string }
+        actualizadoEn: { type: string, format: date-time }
+
+    ActualizarReglasSolicitud:
+      type: object
+      description: Solo cambian los campos que se manden.
+      properties:
+        edadMinima: { type: integer }
+        edadMaxima: { type: integer }
+        pesoMinimoKg: { type: number }
+        diasEntreDonaciones: { type: integer, minimum: 28, maximum: 365 }
+        maxDonacionesAnualesMasculino: { type: integer }
+        maxDonacionesAnualesFemenino: { type: integer }
+        horasAyunoMinimo: { type: integer }
+        horasAyunoMaximo: { type: integer }
+        mesesEsperaTatuaje: { type: integer }
+        requisitos:
+          type: array
+          items: { type: string }
+        fuente: { type: string }
