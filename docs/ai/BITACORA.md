@@ -64,3 +64,14 @@ Registro honesto de cómo usamos IA en el proyecto (criterio extra "Vibecoding" 
 - Verificación: 49 pruebas del backend en verde; la colección de Postman con 50 requests y 100 verificaciones pasó con Newman (incluye el flujo completo: registrar → urgencia → aceptar → agendar → check-in con QR → historial); 51 pruebas unitarias de la app; lint sin advertencias.
 - Decisiones y ajustes humanos: <pendiente: probar el escaneo con dos teléfonos>
 - Lo que aprendimos: <pendiente>
+
+### [2026-11-12] Fase 5: chatbot "Gota" con Gemini y WhatsApp
+- Integrante: <nombre de quien lo pidió>
+- Herramienta: Claude
+- Rama / PR: feature/chatbot
+- Prompt: "Acaba con lo que falte de esta fase y continúa con la que sigue, hay que terminar hoy" (continuación automática).
+- Resultado: backend con el asistente "Gota" (mismo cerebro para la app y WhatsApp): opciones del menú y botones sin IA, preguntas frecuentes guardadas en `preguntas_frecuentes` con los valores de las reglas vigentes, Gemini con function calling (8 herramientas que llaman a los services existentes) y menú de respaldo si se acaba la cuota. Webhook de WhatsApp con verificación de Meta, firma `X-Hub-Signature-256`, límite de peticiones y respuesta inmediata (el ChatbotConsumer contesta desde la cola). Las urgencias también salen por WhatsApp con la plantilla `urgencia_donacion`, y "Sí puedo" acepta la urgencia y ofrece horarios. En la app: pantalla de chat con burbujas, respuestas rápidas y la conversación guardada en Room.
+- Decisiones: a Gemini solo se le manda el texto y resultados con ids internos y distancias (una prueba verifica que no lleguen nombre, teléfono ni coordenadas). El flujo sin IA guarda en la conversación de qué urgencia se habla, así WhatsApp funciona aunque no haya cuota. El modelo por defecto es `gemini-3.5-flash-lite`, verificado en la documentación de Google; se puede cambiar con `GEMINI_MODEL`.
+- Verificación: 53 pruebas del backend (incluye el flujo completo por WhatsApp con firma y el function calling con un Gemini falso); la colección de Postman con 57 requests y 112 verificaciones pasó con Newman; 54 pruebas unitarias de la app; lint sin advertencias. No se probó contra Gemini ni Meta reales: falta crear las llaves y la plantilla (docs/DESPLIEGUE.md, secciones 6 y 7).
+- Decisiones y ajustes humanos: <pendiente>
+- Lo que aprendimos: <pendiente>

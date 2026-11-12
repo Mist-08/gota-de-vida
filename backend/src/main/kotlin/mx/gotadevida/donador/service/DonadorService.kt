@@ -109,6 +109,9 @@ class DonadorService(
             .take(limite)
     }
 
+    override suspend fun porTelefono(telefono: String): DonadorResumen? =
+        repositorio.buscarPorTelefono(telefono)?.let { resumirCon(it, reglas.vigentes()) }
+
     override suspend fun registrarDonacion(id: String, fecha: String) {
         val actual = buscar(id)
         if (fecha in actual.fechasDonacion) return

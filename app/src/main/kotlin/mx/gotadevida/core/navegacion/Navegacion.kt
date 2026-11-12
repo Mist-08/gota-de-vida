@@ -46,6 +46,8 @@ import mx.gotadevida.cita.ui.TarjetaMiCita
 import mx.gotadevida.cita.viewmodel.AgendarCita
 import mx.gotadevida.cita.viewmodel.MiCita
 import mx.gotadevida.historial.ui.HistorialScreen
+import mx.gotadevida.chatbot.ui.ChatScreen
+import mx.gotadevida.chatbot.viewmodel.Chat
 import mx.gotadevida.historial.viewmodel.HistorialRuta
 import mx.gotadevida.hospital.ui.EscanearQrScreen
 import mx.gotadevida.hospital.viewmodel.EscanearQr
@@ -170,6 +172,7 @@ fun NavegacionGota(
                 urgencias = { SeccionUrgencias(alAbrir = { navController.navigate(DetalleUrgencia(it)) }) },
                 cita = { TarjetaMiCita(alAbrir = { navController.navigate(MiCita) }) },
                 alHistorial = { navController.navigate(HistorialRuta) },
+                alChat = { navController.navigate(Chat) },
             )
         }
         composable<DetalleUrgencia> {
@@ -186,6 +189,7 @@ fun NavegacionGota(
         }
         composable<MiCita> { MiCitaScreen(alRegresar = navController::popBackStack) }
         composable<HistorialRuta> { HistorialScreen(alRegresar = navController::popBackStack) }
+        composable<Chat> { ChatScreen(alRegresar = navController::popBackStack) }
         composable<EscanearQr> { EscanearQrScreen(alRegresar = navController::popBackStack) }
         composable<PanelHospital> {
             PanelHospitalScreen(

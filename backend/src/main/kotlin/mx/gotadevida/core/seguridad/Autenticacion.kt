@@ -47,6 +47,9 @@ fun Application.configurarSeguridad(jwtServicio: JwtServicio) {
         register(LIMITE_AUTENTICACION) {
             rateLimiter(limit = 30, refillPeriod = 1.minutes)
         }
+        register(io.ktor.server.plugins.ratelimit.RateLimitName("webhook")) {
+            rateLimiter(limit = 300, refillPeriod = 1.minutes)
+        }
     }
 }
 

@@ -27,6 +27,8 @@ interface DonadorRepository {
      * al más lejano (`$geoNear`, usa el índice 2dsphere). La elegibilidad se revisa después.
      */
     suspend fun cercanos(centro: PuntoGeo, radioKm: Double, tipos: List<TipoSangre>, excluir: Set<String>, limite: Int): List<Donador>
+
+    suspend fun buscarPorTelefono(telefono: String): Donador?
 }
 
 class MongoDonadorRepository(db: MongoDatabase) : DonadorRepository {
@@ -40,6 +42,17 @@ class MongoDonadorRepository(db: MongoDatabase) : DonadorRepository {
     }
 
     override suspend fun cercanos(
+        centro: PuntoGeo,
+        radioKm: Double,
+        tipos: List<TipoSangre>,
+        excluir: Set<String>,
+        limite: Int,
+    ): List<Donador> = buscarCercanos(centro, radioKm, tipos, excluir, limite)
+
+    override suspend fun buscarPorTelefono(telefono: String): Donador? =
+        coleccion.find(Filters.eq("telefono", telefono)).firstOrNull()
+
+    private suspend fun buscarCercanos(
         centro: PuntoGeo,
         radioKm: Double,
         tipos: List<TipoSangre>,

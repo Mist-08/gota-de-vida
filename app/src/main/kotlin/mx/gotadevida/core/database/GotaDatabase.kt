@@ -16,14 +16,16 @@ import mx.gotadevida.cita.entity.CitaEntity
 import mx.gotadevida.cita.repository.CitaDao
 import mx.gotadevida.historial.entity.HistorialEntity
 import mx.gotadevida.historial.repository.HistorialDao
+import mx.gotadevida.chatbot.entity.MensajeEntity
+import mx.gotadevida.chatbot.repository.ChatDao
 
 /**
  * Base local (Room). Guarda copia de lo que viene de la API para que la app funcione sin señal.
  * Cada funcionalidad aporta sus entidades y su DAO; aquí solo se juntan.
  */
 @Database(
-    entities = [PerfilEntity::class, ElegibilidadEntity::class, UrgenciaEntity::class, AccionPendiente::class, CitaEntity::class, HistorialEntity::class],
-    version = 3,
+    entities = [PerfilEntity::class, ElegibilidadEntity::class, UrgenciaEntity::class, AccionPendiente::class, CitaEntity::class, HistorialEntity::class, MensajeEntity::class],
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(Convertidores::class)
@@ -37,6 +39,8 @@ abstract class GotaDatabase : RoomDatabase() {
     abstract fun citaDao(): CitaDao
 
     abstract fun historialDao(): HistorialDao
+
+    abstract fun chatDao(): ChatDao
 
     companion object {
         const val NOMBRE = "gota_de_vida.db"
