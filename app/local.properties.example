@@ -1,0 +1,11 @@
+# Copia este archivo como local.properties (no se sube al repositorio).
+# Android Studio agrega sdk.dir solo al abrir el proyecto.
+
+# URL del backend. En el emulador, localhost de tu computadora es 10.0.2.2.
+API_BASE_URL=http://10.0.2.2:8080/
+
+# Notificaciones: google-services.json va en app/ y tampoco se sube.
+
+# Inicio con Google (opcional). Es el "ID de cliente web" de Google Cloud Console,
+# no el de Android. Si se deja vacío, el botón de Google se oculta.
+GOOGLE_WEB_CLIENT_ID=
