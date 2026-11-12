@@ -1,0 +1,32 @@
+# Gradle y compilación
+.gradle/
+build/
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.fleet/
+
+# Android
+local.properties
+*.apk
+*.aab
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Secretos: nunca al repositorio
+.env
+*.jks
+*.keystore
+google-services.json
+service-account*.json
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Cachés de Python
+__pycache__/
