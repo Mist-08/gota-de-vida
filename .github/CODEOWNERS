@@ -1,0 +1,8 @@
+# Quién revisa cada parte del repositorio.
+# Reemplacen USUARIO_X por los usuarios de GitHub de cada integrante y quiten el # de cada línea.
+#
+# *                      @USUARIO_1 @USUARIO_2 @USUARIO_3
+# /backend/              @USUARIO_1
+# /app/                  @USUARIO_2
+# /.github/              @USUARIO_3
+# /docs/                 @USUARIO_1 @USUARIO_2 @USUARIO_3
