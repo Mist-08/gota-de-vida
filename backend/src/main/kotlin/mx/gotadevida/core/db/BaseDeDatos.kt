@@ -31,6 +31,12 @@ class BaseDeDatos(uri: String, nombre: String) {
             .createIndex(Indexes.ascending("donadorId"))
         db.getCollection<Document>(Colecciones.USUARIOS)
             .createIndex(Indexes.ascending("hospitalId"))
+        db.getCollection<Document>(Colecciones.CITAS)
+            .createIndex(Indexes.compoundIndex(Indexes.ascending("hospitalId"), Indexes.ascending("fechaHora")))
+        db.getCollection<Document>(Colecciones.CITAS)
+            .createIndex(Indexes.ascending("donadorId"))
+        db.getCollection<Document>(Colecciones.DONACIONES)
+            .createIndex(Indexes.ascending("donadorId"))
     }
 
     fun cerrar() = cliente.close()

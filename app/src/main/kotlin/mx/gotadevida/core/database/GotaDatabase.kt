@@ -12,14 +12,18 @@ import mx.gotadevida.core.sync.AccionPendiente
 import mx.gotadevida.core.sync.AccionPendienteDao
 import mx.gotadevida.solicitud.entity.UrgenciaEntity
 import mx.gotadevida.solicitud.repository.SolicitudDao
+import mx.gotadevida.cita.entity.CitaEntity
+import mx.gotadevida.cita.repository.CitaDao
+import mx.gotadevida.historial.entity.HistorialEntity
+import mx.gotadevida.historial.repository.HistorialDao
 
 /**
  * Base local (Room). Guarda copia de lo que viene de la API para que la app funcione sin señal.
  * Cada funcionalidad aporta sus entidades y su DAO; aquí solo se juntan.
  */
 @Database(
-    entities = [PerfilEntity::class, ElegibilidadEntity::class, UrgenciaEntity::class, AccionPendiente::class],
-    version = 2,
+    entities = [PerfilEntity::class, ElegibilidadEntity::class, UrgenciaEntity::class, AccionPendiente::class, CitaEntity::class, HistorialEntity::class],
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(Convertidores::class)
@@ -29,6 +33,10 @@ abstract class GotaDatabase : RoomDatabase() {
     abstract fun solicitudDao(): SolicitudDao
 
     abstract fun accionPendienteDao(): AccionPendienteDao
+
+    abstract fun citaDao(): CitaDao
+
+    abstract fun historialDao(): HistorialDao
 
     companion object {
         const val NOMBRE = "gota_de_vida.db"

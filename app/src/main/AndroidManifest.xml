@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Android 13+: permiso para mostrar avisos de urgencias. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Solo la cuenta del hospital la usa, para escanear el QR de la cita. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- allowBackup en false: la app guarda datos de salud (tipo de sangre).
          Eso basta en Android 8–11; dataExtractionRules lo repite para Android 12+. -->

@@ -48,6 +48,7 @@ import mx.gotadevida.core.designsystem.Radio
 import mx.gotadevida.core.designsystem.componentes.BarraSuperior
 import mx.gotadevida.core.designsystem.componentes.BarraUnidades
 import mx.gotadevida.core.designsystem.componentes.BotonPrincipal
+import mx.gotadevida.core.designsystem.componentes.BotonSecundario
 import mx.gotadevida.core.designsystem.componentes.BotonTexto
 import mx.gotadevida.core.designsystem.componentes.CampoTexto
 import mx.gotadevida.core.designsystem.componentes.ChipTipoSangre
@@ -79,7 +80,7 @@ fun PanelHospitalScreen(
     alNuevaUrgencia: () -> Unit,
     alAbrir: (String) -> Unit,
     alAjustes: () -> Unit,
-    extras: @Composable () -> Unit = {},
+    alEscanear: () -> Unit = {},
     viewModel: PanelHospitalViewModel = hiltViewModel(),
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -103,7 +104,27 @@ fun PanelHospitalScreen(
             }
             Text(stringResource(R.string.panel_titulo), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
             BotonPrincipal(stringResource(R.string.panel_nueva_urgencia), alPulsar = alNuevaUrgencia)
-            extras()
+            BotonSecundario(stringResource(R.string.panel_escanear), alPulsar = alEscanear)
+            estado.estadisticas?.let { e ->
+                Row(horizontalArrangement = Arrangement.spacedBy(Espacio.x2)) {
+                    Dato(e.urgenciasActivas.toString(), stringResource(R.string.panel_activas), Modifier.weight(1f))
+                    Dato(e.donacionesConfirmadas.toString(), stringResource(R.string.panel_donaciones), Modifier.weight(1f))
+                    Dato(e.minutosPromedioParaCubrir?.let { "$it" } ?: "—", stringResource(R.string.panel_minutos), Modifier.weight(1f))
+                }
+                if (e.tiposMasSolicitados.isNotEmpty()) {
+                    Text(
+                        stringResource(R.string.panel_mas_solicitados, e.tiposMasSolicitados.joinToString { it.etiquetaTipoSangre }),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = GotaTema.colores.inkMuted,
+                    )
+                }
+            }
+            if (estado.citasHoy.isNotEmpty()) {
+                Text(stringResource(R.string.panel_citas_hoy), style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
+                estado.citasHoy.forEach { c ->
+                    Text("${c.fechaHora.takeLast(5)} · ${c.donadorNombre.orEmpty()}", style = MaterialTheme.typography.bodyLarge)
+                }
+            }
             estado.fallo?.let { MensajeError(it.texto()) }
             when {
                 estado.cargando -> CircularProgressIndicator(color = GotaTema.colores.sangre)
@@ -121,6 +142,15 @@ fun PanelHospitalScreen(
             }
             Spacer(Modifier.height(Espacio.x4))
         }
+    }
+}
+
+@Composable
+private fun Dato(valor: String, etiqueta: String, modifier: Modifier) {
+    val colores = GotaTema.colores
+    Column(modifier.background(colores.surfaceSunken, Radio.md).padding(Espacio.x3)) {
+        Text(valor, style = MaterialTheme.typography.headlineSmall)
+        Text(etiqueta, style = MaterialTheme.typography.labelLarge, color = colores.inkMuted)
     }
 }
 

@@ -39,6 +39,16 @@ import mx.gotadevida.solicitud.service.AvanceService
 import mx.gotadevida.solicitud.service.MatchingService
 import mx.gotadevida.solicitud.service.SolicitudService
 import java.time.Clock
+import mx.gotadevida.cita.consumidores.RecordatorioService
+import mx.gotadevida.cita.consumidores.consumidorRecordatorios
+import mx.gotadevida.cita.repository.CitaRepository
+import mx.gotadevida.cita.repository.MongoCitaRepository
+import mx.gotadevida.cita.service.CitaService
+import mx.gotadevida.donacion.repository.DonacionRepository
+import mx.gotadevida.donacion.repository.MongoDonacionRepository
+import mx.gotadevida.donacion.service.HistorialService
+import mx.gotadevida.donacion.service.consumidorHistorial
+import mx.gotadevida.hospital.service.EstadisticasService
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -50,6 +60,8 @@ class Repositorios(
     val reglas: ReglasRepository,
     val solicitudes: SolicitudRepository,
     val respuestas: RespuestaRepository,
+    val citas: CitaRepository,
+    val donaciones: DonacionRepository,
 )
 
 /**
@@ -63,6 +75,9 @@ class Dependencias(
     val hospitales: HospitalService,
     val reglas: ReglasService,
     val solicitudes: SolicitudService,
+    val citas: CitaService,
+    val historial: HistorialService,
+    val estadisticas: EstadisticasService,
     val bus: BusDeEventos,
     private val alPreparar: suspend () -> Unit,
 ) {
@@ -105,13 +120,24 @@ class Dependencias(
                 reloj = reloj,
             )
 
+            val citas = CitaService(repos.citas, donadores, hospitales, autenticacion::hospitalDe, bus, reloj)
+            val historial = HistorialService(repos.donaciones, donadores, bus, reloj)
+            val estadisticas = EstadisticasService(
+                urgencias = solicitudes,
+                hospitalDeUsuario = autenticacion::hospitalDe,
+                donacionesDe = historial::contarDeHospital,
+                citasHoyDe = { id -> citas.horariosOcupadosHoy(id) },
+            )
+
             // Consumidores de la cola, todos en este mismo proceso.
             bus.registrar(consumidorMatching(MatchingService(repos.solicitudes, donadores, bus, esperaEntreOleadas, reloj = reloj)))
             bus.registrar(consumidorAvance(AvanceService(repos.solicitudes, repos.respuestas, bus, reloj)))
             bus.registrar(consumidorNotificaciones(autenticacion, push))
+            bus.registrar(consumidorRecordatorios(RecordatorioService(citas, bus, reloj)))
+            bus.registrar(consumidorHistorial(historial))
 
             lateinit var dependencias: Dependencias
-            dependencias = Dependencias(jwt, autenticacion, donadores, hospitales, reglas, solicitudes, bus) {
+            dependencias = Dependencias(jwt, autenticacion, donadores, hospitales, reglas, solicitudes, citas, historial, estadisticas, bus) {
                 alPreparar(dependencias)
             }
             return dependencias
@@ -130,6 +156,8 @@ class Dependencias(
                     reglas = MongoReglasRepository(base.db),
                     solicitudes = MongoSolicitudRepository(base.db),
                     respuestas = MongoRespuestaRepository(base.db),
+                    citas = MongoCitaRepository(base.db),
+                    donaciones = MongoDonacionRepository(base.db),
                 ),
                 hasher = BCryptHasher(),
                 verificadorGoogle = config.googleClientId?.let { VerificadorGoogleTokenInfo(it) },

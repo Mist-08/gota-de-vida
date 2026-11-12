@@ -7,6 +7,8 @@ import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 import kotlinx.serialization.json.add
 import mx.gotadevida.core.dominio.DirectorioDonadores
+import mx.gotadevida.core.dominio.DirectorioUrgencias
+import mx.gotadevida.core.dominio.UrgenciaResumen
 import mx.gotadevida.core.dominio.DirectorioHospitales
 import mx.gotadevida.core.dominio.PuntoGeo
 import mx.gotadevida.core.dominio.TipoSangre
@@ -45,7 +47,7 @@ class SolicitudService(
     private val hospitalDeUsuario: suspend (usuarioId: String) -> String?,
     private val bus: BusDeEventos,
     private val reloj: Clock = Clock.systemUTC(),
-) {
+) : DirectorioUrgencias {
     suspend fun crear(usuario: UsuarioActual, peticion: CrearSolicitudPeticion): SolicitudRespuesta {
         val hospitalId = hospitalDeUsuario(usuario.id) ?: throw Prohibido("Tu cuenta no pertenece a un hospital.")
         val hospital = hospitales.resumen(hospitalId) ?: throw NoEncontrado("No existe tu hospital.")
@@ -153,6 +155,22 @@ class SolicitudService(
         val comprometidas = respuestas.deSolicitud(id).count { it.acepta }
         return solicitud.copy(unidadesComprometidas = comprometidas).aRespuesta(distancia, acepta)
     }
+
+    override suspend fun deHospital(hospitalId: String): List<UrgenciaResumen> =
+        solicitudes.delHospital(hospitalId).map { it.resumen(null, null) }
+
+    override suspend fun paraDonador(donadorId: String): List<UrgenciaResumen> =
+        cercanas(donadorId, null, null, null).map { r -> buscar(r.id).resumen(r.distanciaKm, r.miRespuesta) }
+
+    override suspend fun responderUrgencia(donadorId: String, solicitudId: String, acepta: Boolean): UrgenciaResumen {
+        val r = responder(donadorId, solicitudId, acepta)
+        return buscar(solicitudId).copy(unidadesComprometidas = r.unidadesComprometidas).resumen(r.distanciaKm, r.miRespuesta)
+    }
+
+    private fun Solicitud.resumen(distanciaKm: Double?, miRespuesta: Boolean?) = UrgenciaResumen(
+        id, hospitalId, hospitalNombre, tipoSangre.etiqueta, tipoSangre, estado.name, unidades, unidadesComprometidas,
+        creadaEn, cubiertaEn, distanciaKm, miRespuesta,
+    )
 
     private suspend fun aceptaciones(solicitud: Solicitud): List<DonadorQueAcepto> =
         respuestas.deSolicitud(solicitud.id).filter { it.acepta }.map { r ->

@@ -16,6 +16,11 @@ import mx.gotadevida.solicitud.entity.Respuesta
 import mx.gotadevida.solicitud.entity.Solicitud
 import mx.gotadevida.solicitud.repository.RespuestaRepository
 import mx.gotadevida.solicitud.repository.SolicitudRepository
+import mx.gotadevida.cita.entity.Cita
+import mx.gotadevida.cita.entity.EstadoCita
+import mx.gotadevida.cita.repository.CitaRepository
+import mx.gotadevida.donacion.entity.Donacion
+import mx.gotadevida.donacion.repository.DonacionRepository
 import mx.gotadevida.reglas.repository.ReglasRepository
 
 class UsuariosEnMemoria : UsuarioRepository {
@@ -121,4 +126,34 @@ class HasherDePrueba : HasherContrasenas {
     override fun hashear(contrasena: String) = "hash:$contrasena"
 
     override fun verificar(contrasena: String, hash: String) = hash == "hash:$contrasena"
+}
+
+class CitasEnMemoria : CitaRepository {
+    val datos = linkedMapOf<String, Cita>()
+
+    override suspend fun guardar(cita: Cita) {
+        datos[cita.id] = cita
+    }
+
+    override suspend fun buscarPorId(id: String) = datos[id]
+
+    override suspend fun deDonador(donadorId: String) = datos.values.filter { it.donadorId == donadorId }.sortedByDescending { it.fechaHora }
+
+    override suspend fun agendadasDeHospital(hospitalId: String, prefijo: String) =
+        datos.values.filter { it.hospitalId == hospitalId && it.estado == EstadoCita.AGENDADA && it.fechaHora.startsWith(prefijo) }
+
+    override suspend fun contarCompletadas(hospitalId: String) =
+        datos.values.count { it.hospitalId == hospitalId && it.estado == EstadoCita.COMPLETADA }
+}
+
+class DonacionesEnMemoria : DonacionRepository {
+    val datos = linkedMapOf<String, Donacion>()
+
+    override suspend fun guardar(donacion: Donacion) {
+        datos[donacion.id] = donacion
+    }
+
+    override suspend fun deDonador(donadorId: String) = datos.values.filter { it.donadorId == donadorId }.sortedByDescending { it.fecha }
+
+    override suspend fun deHospital(hospitalId: String) = datos.values.filter { it.hospitalId == hospitalId }
 }

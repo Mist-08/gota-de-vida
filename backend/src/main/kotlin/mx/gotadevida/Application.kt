@@ -21,6 +21,8 @@ import mx.gotadevida.donador.routes.donadorRoutes
 import mx.gotadevida.hospital.routes.hospitalRoutes
 import mx.gotadevida.reglas.routes.reglasRoutes
 import mx.gotadevida.solicitud.routes.solicitudRoutes
+import mx.gotadevida.cita.routes.citaRoutes
+import mx.gotadevida.donacion.routes.donacionRoutes
 import io.ktor.server.application.ApplicationStopped
 
 /**
@@ -58,9 +60,11 @@ fun Application.module(dependencias: Dependencias) {
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         autenticacionRoutes(dependencias.autenticacion, existeHospital = dependencias.hospitales::existe)
         donadorRoutes(dependencias.donadores)
-        hospitalRoutes(dependencias.hospitales)
+        hospitalRoutes(dependencias.hospitales, dependencias.estadisticas)
         reglasRoutes(dependencias.reglas)
         solicitudRoutes(dependencias.solicitudes)
+        citaRoutes(dependencias.citas)
+        donacionRoutes(dependencias.historial)
     }
     monitor.subscribe(ApplicationStopped) { dependencias.bus.cerrar() }
 }

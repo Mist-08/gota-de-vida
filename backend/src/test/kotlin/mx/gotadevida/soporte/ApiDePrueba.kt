@@ -42,13 +42,15 @@ class EntornoDePrueba {
     val reglas = ReglasEnMemoria()
     val solicitudes = SolicitudesEnMemoria()
     val respuestas = RespuestasEnMemoria()
+    val citas = CitasEnMemoria()
+    val donaciones = DonacionesEnMemoria()
 
     /** Bus síncrono: cada evento se procesa antes de que termine la petición. */
     val bus = BusEnMemoria(EventosProcesadosEnMemoria(), sincrono = true)
     val push = EnviadorPushRegistro()
     val dependencias: Dependencias = Dependencias.crear(
         jwt = JwtServicio(SECRETO_PRUEBAS, "gota-de-vida-pruebas"),
-        repos = Repositorios(usuarios, donadores, hospitales, reglas, solicitudes, respuestas),
+        repos = Repositorios(usuarios, donadores, hospitales, reglas, solicitudes, respuestas, citas, donaciones),
         hasher = HasherDePrueba(),
         verificadorGoogle = GoogleDePrueba(),
         bus = bus,
