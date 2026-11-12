@@ -36,13 +36,12 @@ object ValidadorCuenta {
         return if (nacional.length == 10) null else ErrorCampo.TELEFONO_INVALIDO
     }
 
-    fun registro(nombre: String, email: String, password: String, telefono: String): Map<CampoCuenta, ErrorCampo> =
-        buildMap {
-            nombre(nombre)?.let { put(CampoCuenta.NOMBRE, it) }
-            email(email)?.let { put(CampoCuenta.EMAIL, it) }
-            password(password)?.let { put(CampoCuenta.PASSWORD, it) }
-            telefono(telefono)?.let { put(CampoCuenta.TELEFONO, it) }
-        }
+    fun registro(nombre: String, email: String, password: String, telefono: String): Map<CampoCuenta, ErrorCampo> = buildMap {
+        nombre(nombre)?.let { put(CampoCuenta.NOMBRE, it) }
+        email(email)?.let { put(CampoCuenta.EMAIL, it) }
+        password(password)?.let { put(CampoCuenta.PASSWORD, it) }
+        telefono(telefono)?.let { put(CampoCuenta.TELEFONO, it) }
+    }
 
     fun inicioSesion(email: String, password: String): Map<CampoCuenta, ErrorCampo> = buildMap {
         email(email)?.let { put(CampoCuenta.EMAIL, it) }

@@ -75,3 +75,14 @@ Registro honesto de cómo usamos IA en el proyecto (criterio extra "Vibecoding" 
 - Verificación: 53 pruebas del backend (incluye el flujo completo por WhatsApp con firma y el function calling con un Gemini falso); la colección de Postman con 57 requests y 112 verificaciones pasó con Newman; 54 pruebas unitarias de la app; lint sin advertencias. No se probó contra Gemini ni Meta reales: falta crear las llaves y la plantilla (docs/DESPLIEGUE.md, secciones 6 y 7).
 - Decisiones y ajustes humanos: <pendiente>
 - Lo que aprendimos: <pendiente>
+
+### [2026-11-12] Fase 6: pulido
+- Integrante: <nombre de quien lo pidió>
+- Herramienta: Claude
+- Rama / PR: feature/pulido
+- Prompt: "continua" (reanudar después de la pausa).
+- Resultado: widget de la pantalla de inicio con Jetpack Glance ("Puedes donar" o "Podrás volver a donar en N días", lee Room y funciona sin señal); en Ajustes, interruptor para recibir o no avisos de urgencias y "Eliminar mi cuenta" (nuevo `DELETE /api/v1/usuarios/me`, derecho de cancelación); datos de demo (cuentas de banco de sangre y 12 donadores ficticios en Torreón, Gómez Palacio y Lerdo, activados con `DEMO_PASSWORD`); vistas previas en claro y oscuro de los componentes del sistema de diseño; ktlint en los dos CI y todo el código formateado.
+- Decisiones: ktlint con el estilo `android_studio` y una excepción para que los `@Composable` empiecen con mayúscula. El seed se puede repetir sin duplicar cuentas. Al borrar una cuenta se conservan las donaciones confirmadas solo con un id interno, porque son registro del banco de sangre.
+- Verificación: 55 pruebas del backend y 58 de la app en verde; Postman con 61 requests y 116 verificaciones en Newman; lint y ktlint sin advertencias.
+- Decisiones y ajustes humanos: <pendiente: ensayo de la demo en teléfonos reales>
+- Lo que aprendimos: <pendiente>

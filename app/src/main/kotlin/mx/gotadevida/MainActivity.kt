@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
             GotaDeVidaTema(oscuro = isSystemInDarkTheme()) {
                 NavegacionGota(
                     solicitudPorAbrir = solicitudAbierta.value,
-                    alAbrirSolicitud = { solicitudAbierta.value = null },
+                    alAbrirSolicitud = { solicitudAbierta.value = null }
                 )
             }
         }

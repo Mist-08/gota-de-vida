@@ -11,14 +11,14 @@ import mx.gotadevida.R
 /** Bricolage Grotesque: números y encabezados. Figtree: todo lo demás. Ambas con licencia OFL. */
 val Bricolage = FontFamily(
     Font(R.font.bricolage_bold, FontWeight.Bold),
-    Font(R.font.bricolage_extrabold, FontWeight.ExtraBold),
+    Font(R.font.bricolage_extrabold, FontWeight.ExtraBold)
 )
 
 val Figtree = FontFamily(
     Font(R.font.figtree_regular, FontWeight.Normal),
     Font(R.font.figtree_medium, FontWeight.Medium),
     Font(R.font.figtree_semibold, FontWeight.SemiBold),
-    Font(R.font.figtree_bold, FontWeight.Bold),
+    Font(R.font.figtree_bold, FontWeight.Bold)
 )
 
 /** Cifras de ancho fijo para que "1 de 3" o "23 días" no brinquen al cambiar. */
@@ -38,7 +38,7 @@ val TipografiaGota: Typography = Typography().let { base ->
             fontSize = 44.sp,
             lineHeight = 48.sp,
             letterSpacing = (-0.5).sp,
-            fontFeatureSettings = CIFRAS_TABULARES,
+            fontFeatureSettings = CIFRAS_TABULARES
         ),
         displaySmall = base.displaySmall.copy(fontFamily = Bricolage, fontWeight = FontWeight.Bold),
         headlineLarge = TextStyle(
@@ -46,7 +46,7 @@ val TipografiaGota: Typography = Typography().let { base ->
             fontWeight = FontWeight.Bold,
             fontSize = 32.sp,
             lineHeight = 38.sp,
-            letterSpacing = (-0.4).sp,
+            letterSpacing = (-0.4).sp
         ),
         headlineMedium = base.headlineMedium.copy(fontFamily = Bricolage, fontWeight = FontWeight.Bold),
         headlineSmall = TextStyle(
@@ -54,20 +54,35 @@ val TipografiaGota: Typography = Typography().let { base ->
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
             lineHeight = 30.sp,
-            letterSpacing = (-0.2).sp,
+            letterSpacing = (-0.2).sp
         ),
         titleLarge = base.titleLarge.copy(fontFamily = Figtree, fontWeight = FontWeight.SemiBold),
-        titleMedium = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp),
+        titleMedium = TextStyle(
+            fontFamily = Figtree,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 18.sp,
+            lineHeight = 24.sp
+        ),
         titleSmall = base.titleSmall.copy(fontFamily = Figtree, fontWeight = FontWeight.SemiBold),
-        bodyLarge = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 24.sp),
-        bodyMedium = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
+        bodyLarge = TextStyle(
+            fontFamily = Figtree,
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp,
+            lineHeight = 24.sp
+        ),
+        bodyMedium = TextStyle(
+            fontFamily = Figtree,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            lineHeight = 20.sp
+        ),
         bodySmall = base.bodySmall.copy(fontFamily = Figtree),
         labelLarge = TextStyle(
             fontFamily = Figtree,
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
             lineHeight = 20.sp,
-            letterSpacing = 0.1.sp,
+            letterSpacing = 0.1.sp
         ),
         labelMedium = base.labelMedium.copy(fontFamily = Figtree, fontWeight = FontWeight.SemiBold),
         labelSmall = TextStyle(
@@ -75,7 +90,7 @@ val TipografiaGota: Typography = Typography().let { base ->
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
             lineHeight = 16.sp,
-            letterSpacing = 0.2.sp,
-        ),
+            letterSpacing = 0.2.sp
+        )
     )
 }

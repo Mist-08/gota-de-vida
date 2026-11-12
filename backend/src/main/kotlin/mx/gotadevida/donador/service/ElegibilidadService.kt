@@ -1,12 +1,12 @@
 package mx.gotadevida.donador.service
 
+import java.time.LocalDate
+import java.time.Period
+import java.time.temporal.ChronoUnit
 import mx.gotadevida.donador.entity.Donador
 import mx.gotadevida.donador.entity.Elegibilidad
 import mx.gotadevida.donador.entity.SexoParaCriteriosMedicos
 import mx.gotadevida.reglas.entity.ReglasElegibilidad
-import java.time.LocalDate
-import java.time.Period
-import java.time.temporal.ChronoUnit
 
 /**
  * Decide si un donador puede donar en una fecha, según las reglas vigentes.
@@ -72,7 +72,8 @@ class ElegibilidadService {
         donador.fechaUltimoTatuaje?.let(LocalDate::parse)?.let { tatuaje ->
             val desde = tatuaje.plusMonths(reglas.mesesEsperaTatuaje.toLong())
             if (desde.isAfter(hoy)) {
-                impedimentos += "Después de un tatuaje o perforación hay que esperar ${reglas.mesesEsperaTatuaje} meses."
+                impedimentos +=
+                    "Después de un tatuaje o perforación hay que esperar ${reglas.mesesEsperaTatuaje} meses."
                 proximaFecha = maxOf(proximaFecha, desde)
             }
         }
@@ -93,12 +94,11 @@ class ElegibilidadService {
             motivos = faltantes + impedimentos,
             aviso = AVISO_MEDICO,
             proximaFechaElegible = fecha?.toString(),
-            diasParaVolverADonar = fecha?.let { ChronoUnit.DAYS.between(hoy, it) },
+            diasParaVolverADonar = fecha?.let { ChronoUnit.DAYS.between(hoy, it) }
         )
     }
 
-    private fun formatearKg(valor: Double): String =
-        if (valor % 1.0 == 0.0) valor.toInt().toString() else valor.toString()
+    private fun formatearKg(valor: Double): String = if (valor % 1.0 == 0.0) valor.toInt().toString() else valor.toString()
 
     companion object {
         const val AVISO_MEDICO = "La decisión final de donar la toma el personal médico del banco de sangre."

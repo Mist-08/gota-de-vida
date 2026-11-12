@@ -2,30 +2,30 @@ package mx.gotadevida.soporte
 
 import mx.gotadevida.autenticacion.entity.Usuario
 import mx.gotadevida.autenticacion.repository.UsuarioRepository
+import mx.gotadevida.chatbot.entity.Conversacion
+import mx.gotadevida.chatbot.entity.PreguntaFrecuente
+import mx.gotadevida.chatbot.repository.ConversacionRepository
+import mx.gotadevida.chatbot.repository.PreguntasFrecuentesRepository
+import mx.gotadevida.cita.entity.Cita
+import mx.gotadevida.cita.entity.EstadoCita
+import mx.gotadevida.cita.repository.CitaRepository
+import mx.gotadevida.core.dominio.PuntoGeo
+import mx.gotadevida.core.dominio.TipoSangre
 import mx.gotadevida.core.errores.Conflicto
 import mx.gotadevida.core.seguridad.HasherContrasenas
+import mx.gotadevida.donacion.entity.Donacion
+import mx.gotadevida.donacion.repository.DonacionRepository
 import mx.gotadevida.donador.entity.Donador
 import mx.gotadevida.donador.repository.DonadorRepository
 import mx.gotadevida.hospital.entity.Hospital
 import mx.gotadevida.hospital.repository.HospitalRepository
 import mx.gotadevida.reglas.entity.ReglasElegibilidad
-import mx.gotadevida.core.dominio.PuntoGeo
-import mx.gotadevida.core.dominio.TipoSangre
+import mx.gotadevida.reglas.repository.ReglasRepository
 import mx.gotadevida.solicitud.entity.EstadoSolicitud
 import mx.gotadevida.solicitud.entity.Respuesta
 import mx.gotadevida.solicitud.entity.Solicitud
 import mx.gotadevida.solicitud.repository.RespuestaRepository
 import mx.gotadevida.solicitud.repository.SolicitudRepository
-import mx.gotadevida.cita.entity.Cita
-import mx.gotadevida.cita.entity.EstadoCita
-import mx.gotadevida.cita.repository.CitaRepository
-import mx.gotadevida.donacion.entity.Donacion
-import mx.gotadevida.donacion.repository.DonacionRepository
-import mx.gotadevida.chatbot.entity.Conversacion
-import mx.gotadevida.chatbot.entity.PreguntaFrecuente
-import mx.gotadevida.chatbot.repository.ConversacionRepository
-import mx.gotadevida.chatbot.repository.PreguntasFrecuentesRepository
-import mx.gotadevida.reglas.repository.ReglasRepository
 
 class UsuariosEnMemoria : UsuarioRepository {
     val datos = linkedMapOf<String, Usuario>()
@@ -50,6 +50,10 @@ class UsuariosEnMemoria : UsuarioRepository {
     override suspend fun deHospital(hospitalId: String) = datos.values.filter { it.hospitalId == hospitalId }
 
     override suspend fun conTokenFcm(token: String) = datos.values.filter { token in it.tokensFcm }
+
+    override suspend fun borrar(id: String) {
+        datos.remove(id)
+    }
 }
 
 class DonadoresEnMemoria : DonadorRepository {
@@ -72,6 +76,10 @@ class DonadoresEnMemoria : DonadorRepository {
             .map { it.first }
 
     override suspend fun buscarPorTelefono(telefono: String) = datos.values.firstOrNull { it.telefono == telefono }
+
+    override suspend fun borrar(id: String) {
+        datos.remove(id)
+    }
 }
 
 class SolicitudesEnMemoria : SolicitudRepository {
@@ -83,10 +91,14 @@ class SolicitudesEnMemoria : SolicitudRepository {
 
     override suspend fun buscarPorId(id: String) = datos[id]
 
-    override suspend fun activasCerca(centro: PuntoGeo, radioKm: Double, tipos: List<TipoSangre>) =
-        datos.values.filter { it.estado == EstadoSolicitud.ACTIVA && it.tipoSangre in tipos && it.ubicacion.distanciaKmA(centro) <= radioKm }
+    override suspend fun activasCerca(centro: PuntoGeo, radioKm: Double, tipos: List<TipoSangre>) = datos.values.filter {
+        it.estado == EstadoSolicitud.ACTIVA && it.tipoSangre in tipos &&
+            it.ubicacion.distanciaKmA(centro) <= radioKm
+    }
 
-    override suspend fun delHospital(hospitalId: String) = datos.values.filter { it.hospitalId == hospitalId }.sortedByDescending { it.creadaEn }
+    override suspend fun delHospital(hospitalId: String) = datos.values.filter {
+        it.hospitalId == hospitalId
+    }.sortedByDescending { it.creadaEn }
 }
 
 class RespuestasEnMemoria : RespuestaRepository {
@@ -143,10 +155,14 @@ class CitasEnMemoria : CitaRepository {
 
     override suspend fun buscarPorId(id: String) = datos[id]
 
-    override suspend fun deDonador(donadorId: String) = datos.values.filter { it.donadorId == donadorId }.sortedByDescending { it.fechaHora }
+    override suspend fun deDonador(donadorId: String) = datos.values.filter {
+        it.donadorId == donadorId
+    }.sortedByDescending { it.fechaHora }
 
-    override suspend fun agendadasDeHospital(hospitalId: String, prefijo: String) =
-        datos.values.filter { it.hospitalId == hospitalId && it.estado == EstadoCita.AGENDADA && it.fechaHora.startsWith(prefijo) }
+    override suspend fun agendadasDeHospital(hospitalId: String, prefijo: String) = datos.values.filter {
+        it.hospitalId == hospitalId && it.estado == EstadoCita.AGENDADA &&
+            it.fechaHora.startsWith(prefijo)
+    }
 
     override suspend fun contarCompletadas(hospitalId: String) =
         datos.values.count { it.hospitalId == hospitalId && it.estado == EstadoCita.COMPLETADA }
@@ -159,7 +175,9 @@ class DonacionesEnMemoria : DonacionRepository {
         datos[donacion.id] = donacion
     }
 
-    override suspend fun deDonador(donadorId: String) = datos.values.filter { it.donadorId == donadorId }.sortedByDescending { it.fecha }
+    override suspend fun deDonador(donadorId: String) = datos.values.filter {
+        it.donadorId == donadorId
+    }.sortedByDescending { it.fecha }
 
     override suspend fun deHospital(hospitalId: String) = datos.values.filter { it.hospitalId == hospitalId }
 }
@@ -171,6 +189,10 @@ class ConversacionesEnMemoria : ConversacionRepository {
 
     override suspend fun guardar(conversacion: Conversacion) {
         datos[conversacion.id] = conversacion
+    }
+
+    override suspend fun borrar(donadorId: String) {
+        datos.remove(donadorId)
     }
 }
 

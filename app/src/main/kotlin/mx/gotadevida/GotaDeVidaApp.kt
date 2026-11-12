@@ -4,15 +4,17 @@ import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 import mx.gotadevida.core.sync.ColaDeSalidaRoom
 import mx.gotadevida.notificaciones.service.AvisosPush
-import javax.inject.Inject
 
 /**
  * Aplicación: Hilt, WorkManager con inyección (para la cola de salida) y avisos push.
  */
 @HiltAndroidApp
-class GotaDeVidaApp : Application(), Configuration.Provider {
+class GotaDeVidaApp :
+    Application(),
+    Configuration.Provider {
     @Inject lateinit var fabricaWorkers: HiltWorkerFactory
 
     override val workManagerConfiguration: Configuration

@@ -13,6 +13,8 @@ interface ConversacionRepository {
     suspend fun buscar(donadorId: String): Conversacion?
 
     suspend fun guardar(conversacion: Conversacion)
+
+    suspend fun borrar(donadorId: String)
 }
 
 interface PreguntasFrecuentesRepository {
@@ -28,6 +30,10 @@ class MongoConversacionRepository(db: MongoDatabase) : ConversacionRepository {
 
     override suspend fun guardar(conversacion: Conversacion) {
         coleccion.replaceOne(Filters.eq("_id", conversacion.id), conversacion, ReplaceOptions().upsert(true))
+    }
+
+    override suspend fun borrar(donadorId: String) {
+        coleccion.deleteOne(Filters.eq("_id", donadorId))
     }
 }
 

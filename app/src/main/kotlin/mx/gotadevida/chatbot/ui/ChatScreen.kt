@@ -53,45 +53,57 @@ fun ChatScreen(alRegresar: () -> Unit, viewModel: ChatViewModel = hiltViewModel(
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val colores = GotaTema.colores
     val lista = rememberLazyListState()
-    LaunchedEffect(estado.mensajes.size) { if (estado.mensajes.isNotEmpty()) lista.animateScrollToItem(estado.mensajes.size) }
+    LaunchedEffect(estado.mensajes.size) {
+        if (estado.mensajes.isNotEmpty()) lista.animateScrollToItem(estado.mensajes.size)
+    }
 
     Scaffold(containerColor = colores.surface) { relleno ->
         Column(Modifier.fillMaxSize().padding(relleno).imePadding()) {
             BarraSuperior(
                 modifier = Modifier.padding(horizontal = Espacio.x4),
                 alRegresar = alRegresar,
-                titulo = stringResource(R.string.chat_titulo),
+                titulo = stringResource(R.string.chat_titulo)
             )
             LazyColumn(
                 state = lista,
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(Espacio.x2),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(Espacio.x4),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(Espacio.x4)
             ) {
                 item { Burbuja(MensajeChat(Autor.GOTA, stringResource(R.string.chat_bienvenida), "")) }
                 items(estado.mensajes) { Burbuja(it) }
-                if (estado.enviando) item { CircularProgressIndicator(Modifier.padding(Espacio.x2), color = colores.sangre) }
+                if (estado.enviando) {
+                    item {
+                        CircularProgressIndicator(Modifier.padding(Espacio.x2), color = colores.sangre)
+                    }
+                }
             }
             estado.fallo?.let { f ->
                 Column(Modifier.padding(horizontal = Espacio.x4)) {
                     MensajeError(f.texto())
-                    estado.sinEnviar?.let { BotonTexto(stringResource(R.string.accion_reintentar_envio), alPulsar = { viewModel.enviar(it) }) }
+                    estado.sinEnviar?.let {
+                        BotonTexto(stringResource(R.string.accion_reintentar_envio), alPulsar = {
+                            viewModel.enviar(it)
+                        })
+                    }
                 }
             }
             if (estado.opciones.isNotEmpty()) {
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(Espacio.x2),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = Espacio.x4),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = Espacio.x4)
                 ) {
                     items(estado.opciones) { o ->
-                        AssistChip(onClick = { viewModel.enviar(o) }, label = { Text(textoOpcion(o)) }, enabled = !estado.enviando)
+                        AssistChip(onClick = {
+                            viewModel.enviar(o)
+                        }, label = { Text(textoOpcion(o)) }, enabled = !estado.enviando)
                     }
                 }
             }
             Row(
                 Modifier.fillMaxWidth().padding(Espacio.x4),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Espacio.x2),
+                horizontalArrangement = Arrangement.spacedBy(Espacio.x2)
             ) {
                 Box(Modifier.weight(1f)) {
                     CampoTexto(
@@ -99,10 +111,12 @@ fun ChatScreen(alRegresar: () -> Unit, viewModel: ChatViewModel = hiltViewModel(
                         alCambiar = viewModel::onBorrador,
                         etiqueta = stringResource(R.string.chat_escribe),
                         accionTeclado = ImeAction.Send,
-                        alConfirmar = { viewModel.enviar() },
+                        alConfirmar = { viewModel.enviar() }
                     )
                 }
-                IconButton(onClick = { viewModel.enviar() }, enabled = estado.borrador.isNotBlank() && !estado.enviando) {
+                IconButton(onClick = {
+                    viewModel.enviar()
+                }, enabled = estado.borrador.isNotBlank() && !estado.enviando) {
                     Icono(R.drawable.ic_enviar, stringResource(R.string.chat_enviar), color = colores.sangre)
                 }
             }
@@ -110,7 +124,7 @@ fun ChatScreen(alRegresar: () -> Unit, viewModel: ChatViewModel = hiltViewModel(
                 stringResource(R.string.aviso_medico),
                 style = MaterialTheme.typography.labelSmall,
                 color = colores.inkMuted,
-                modifier = Modifier.padding(start = Espacio.x4, end = Espacio.x4, bottom = Espacio.x2),
+                modifier = Modifier.padding(start = Espacio.x4, end = Espacio.x4, bottom = Espacio.x2)
             )
         }
     }
@@ -138,10 +152,15 @@ private fun Burbuja(mensaje: MensajeChat) {
                 .widthIn(max = 300.dp)
                 .background(
                     if (mio) colores.sangre else colores.surfaceSunken,
-                    RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = if (mio) 16.dp else 4.dp, bottomEnd = if (mio) 4.dp else 16.dp),
+                    RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp,
+                        bottomStart = if (mio) 16.dp else 4.dp,
+                        bottomEnd = if (mio) 4.dp else 16.dp
+                    )
                 )
                 .padding(horizontal = Espacio.x3, vertical = 10.dp)
-                .semantics { if (!mio) liveRegion = LiveRegionMode.Polite },
+                .semantics { if (!mio) liveRegion = LiveRegionMode.Polite }
         )
     }
 }

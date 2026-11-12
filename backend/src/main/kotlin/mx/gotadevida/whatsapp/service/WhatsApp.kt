@@ -8,6 +8,9 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import java.security.MessageDigest
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -18,9 +21,6 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 import org.slf4j.LoggerFactory
-import java.security.MessageDigest
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
 
 /** Mensaje de texto (o botón) que llegó por WhatsApp. */
 data class MensajeEntrante(val mensajeId: String, val telefono: String, val texto: String)
@@ -53,11 +53,8 @@ class WhatsAppRegistro : ClienteWhatsApp {
  * WhatsApp Cloud API de Meta con el número de prueba gratuito (sin método de pago).
  * Solo puede escribir a los números verificados en Meta (los del equipo y el profesor).
  */
-class ClienteWhatsAppMeta(
-    private val token: String,
-    private val idNumero: String,
-    private val versionApi: String = "v23.0",
-) : ClienteWhatsApp {
+class ClienteWhatsAppMeta(private val token: String, private val idNumero: String, private val versionApi: String = "v23.0") :
+    ClienteWhatsApp {
     private val log = LoggerFactory.getLogger(ClienteWhatsAppMeta::class.java)
     private val cliente = HttpClient(CIO)
 
@@ -87,14 +84,17 @@ class ClienteWhatsAppMeta(
                             opciones.forEach { o ->
                                 addJsonObject {
                                     put("type", "reply")
-                                    putJsonObject("reply") { put("id", o.take(256)); put("title", o.take(20)) }
+                                    putJsonObject("reply") {
+                                        put("id", o.take(256))
+                                        put("title", o.take(20))
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        },
+        }
     )
 
     override suspend fun enviarUrgencia(telefono: String, tipoSangre: String, hospital: String, distanciaKm: String) = enviar(
@@ -109,12 +109,17 @@ class ClienteWhatsAppMeta(
                     addJsonObject {
                         put("type", "body")
                         putJsonArray("parameters") {
-                            listOf(tipoSangre, hospital, distanciaKm).forEach { v -> addJsonObject { put("type", "text"); put("text", v) } }
+                            listOf(tipoSangre, hospital, distanciaKm).forEach { v ->
+                                addJsonObject {
+                                    put("type", "text")
+                                    put("text", v)
+                                }
+                            }
                         }
                     }
                 }
             }
-        },
+        }
     )
 
     /** Los celulares se guardan con 10 dígitos; WhatsApp los quiere con lada de país. */
@@ -137,20 +142,21 @@ object FirmaMeta {
 }
 
 /** Saca los mensajes de texto y respuestas de botón del JSON que manda Meta. */
-fun extraerMensajes(cuerpo: JsonObject): List<MensajeEntrante> =
-    cuerpo["entry"]?.jsonArray.orEmpty().flatMap { e ->
-        e.jsonObject["changes"]?.jsonArray.orEmpty().flatMap { c ->
-            c.jsonObject["value"]?.jsonObject?.get("messages")?.jsonArray.orEmpty().mapNotNull { m ->
-                val o = m.jsonObject
-                val texto = o["text"]?.jsonObject?.get("body")?.jsonPrimitive?.content
-                    ?: o["button"]?.jsonObject?.get("text")?.jsonPrimitive?.content
-                    ?: o["interactive"]?.jsonObject?.get("button_reply")?.jsonObject?.get("title")?.jsonPrimitive?.content
-                    ?: return@mapNotNull null
-                MensajeEntrante(
-                    mensajeId = o["id"]?.jsonPrimitive?.content.orEmpty(),
-                    telefono = o["from"]?.jsonPrimitive?.content.orEmpty().filter { it.isDigit() }.takeLast(10),
-                    texto = texto,
-                )
-            }
+fun extraerMensajes(cuerpo: JsonObject): List<MensajeEntrante> = cuerpo["entry"]?.jsonArray.orEmpty().flatMap { e ->
+    e.jsonObject["changes"]?.jsonArray.orEmpty().flatMap { c ->
+        c.jsonObject["value"]?.jsonObject?.get("messages")?.jsonArray.orEmpty().mapNotNull { m ->
+            val o = m.jsonObject
+            val texto = o["text"]?.jsonObject?.get("body")?.jsonPrimitive?.content
+                ?: o["button"]?.jsonObject?.get("text")?.jsonPrimitive?.content
+                ?: o["interactive"]?.jsonObject?.get(
+                    "button_reply"
+                )?.jsonObject?.get("title")?.jsonPrimitive?.content
+                ?: return@mapNotNull null
+            MensajeEntrante(
+                mensajeId = o["id"]?.jsonPrimitive?.content.orEmpty(),
+                telefono = o["from"]?.jsonPrimitive?.content.orEmpty().filter { it.isDigit() }.takeLast(10),
+                texto = texto
+            )
         }
     }
+}

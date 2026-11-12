@@ -20,7 +20,8 @@ fun Route.citaRoutes(servicio: CitaService) {
     authenticate(AUTH_JWT) {
         get("/api/v1/hospitales/{id}/horarios") {
             call.exigirRol(Rol.DONADOR, Rol.HOSPITAL, Rol.ADMIN)
-            val id = call.parameters["id"]?.takeIf { it.isNotBlank() } ?: throw DatosInvalidos("Falta el id del hospital.")
+            val id =
+                call.parameters["id"]?.takeIf { it.isNotBlank() } ?: throw DatosInvalidos("Falta el id del hospital.")
             call.respond(servicio.horarios(id, call.request.queryParameters["fecha"]))
         }
         get("/api/v1/hospitales/me/citas") {
