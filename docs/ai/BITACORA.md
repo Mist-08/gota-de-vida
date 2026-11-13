@@ -96,3 +96,14 @@ Registro honesto de cómo usamos IA en el proyecto (criterio extra "Vibecoding" 
 - Decisiones: la diapositiva del problema no trae cifras inventadas; dejamos un espacio para un dato real del banco de sangre aliado. Los nombres del equipo van como `[Nombre]` para que cada quien los llene.
 - Decisiones y ajustes humanos: <pendiente: ensayo cronometrado>
 - Lo que aprendimos: <pendiente>
+
+### [2026-11-12] Prueba de punta a punta en emulador
+- Integrante: <nombre de quien lo pidió>
+- Herramienta: Claude
+- Rama / PR: fix/detalles-emulador
+- Prompt: "correlo aqui"
+- Resultado: backend local y la app en un emulador Android 10. Se recorrió el flujo completo: bienvenida, login, inicio con "Puedes donar", detalle de urgencia, aceptar sin conexión (banner pendiente y sincronización), agendar cita, Mi cita con QR, chat con Gota, panel del hospital, escaneo con código manual y donación confirmada (historial con próxima fecha e insignias).
+- Errores encontrados y corregidos: las fechas salían en inglés aunque la app estaba en español (los formatos usaban el idioma del sistema y no el de la app); el texto de Mi cita no estaba centrado; la atribución de OpenStreetMap quedaba cortada por la esquina redondeada del mapa; el teclado tapaba el campo del código en el escáner.
+- Límites del entorno: sin internet no cargan los mosaicos del mapa, y la cola de salida tuvo que forzarse porque Android no considera "validada" la red del emulador. En un teléfono real ambas cosas funcionan solas; hay que comprobarlo en el ensayo.
+- Decisiones y ajustes humanos: <pendiente: repetir el flujo en teléfonos reales>
+- Lo que aprendimos: <pendiente>

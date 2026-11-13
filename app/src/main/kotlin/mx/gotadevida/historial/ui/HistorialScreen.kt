@@ -26,8 +26,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import mx.gotadevida.R
 import mx.gotadevida.core.designsystem.Espacio
 import mx.gotadevida.core.designsystem.GotaTema
@@ -36,6 +34,7 @@ import mx.gotadevida.core.designsystem.componentes.BannerAviso
 import mx.gotadevida.core.designsystem.componentes.BarraSuperior
 import mx.gotadevida.core.designsystem.componentes.EstadoVacio
 import mx.gotadevida.core.designsystem.componentes.Icono
+import mx.gotadevida.core.designsystem.componentes.formatoFecha
 import mx.gotadevida.historial.entity.Insignia
 import mx.gotadevida.historial.viewmodel.HistorialViewModel
 
@@ -53,7 +52,7 @@ private fun Insignia.nombre(): String = stringResource(
 fun HistorialScreen(alRegresar: () -> Unit, viewModel: HistorialViewModel = hiltViewModel()) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val colores = GotaTema.colores
-    val formato = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+    val formato = formatoFecha()
     Scaffold(containerColor = colores.surface) { relleno ->
         Column(
             Modifier
