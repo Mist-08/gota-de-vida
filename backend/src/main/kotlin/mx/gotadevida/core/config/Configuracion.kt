@@ -25,7 +25,9 @@ data class Configuracion(
     val whatsappToken: String? = null,
     val whatsappIdNumero: String? = null,
     val whatsappTokenVerificacion: String? = null,
-    val whatsappSecretoApp: String? = null
+    val whatsappSecretoApp: String? = null,
+    val brevoLlave: String? = null,
+    val correoRemitente: String? = null
 ) {
     companion object {
         fun cargar(): Configuracion {
@@ -57,7 +59,9 @@ data class Configuracion(
                 whatsappToken = texto("WHATSAPP_TOKEN"),
                 whatsappIdNumero = texto("WHATSAPP_PHONE_NUMBER_ID"),
                 whatsappTokenVerificacion = texto("WHATSAPP_VERIFY_TOKEN"),
-                whatsappSecretoApp = texto("WHATSAPP_APP_SECRET")
+                whatsappSecretoApp = texto("WHATSAPP_APP_SECRET"),
+                brevoLlave = texto("BREVO_API_KEY"),
+                correoRemitente = texto("CORREO_REMITENTE")
             )
         }
 

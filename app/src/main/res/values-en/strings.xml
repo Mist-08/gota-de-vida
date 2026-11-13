@@ -20,6 +20,7 @@
     <string name="error_email_invalido">Enter a valid email, like name@email.com.</string>
     <string name="error_password_corta">Your password must be at least 8 characters.</string>
     <string name="error_telefono_invalido">Your phone number must have 10 digits.</string>
+    <string name="error_codigo_invalido">The code has 6 digits.</string>
     <string name="error_elige_opcion">Choose an option.</string>
     <string name="error_peso_invalido">Enter a weight between 30 and 250 kg.</string>
     <string name="error_fecha_futura">The date can\'t be in the future.</string>
@@ -57,6 +58,17 @@
     <string name="inicio_sesion_titulo">Log in</string>
     <string name="inicio_sesion_subtitulo">Good to see you again.</string>
     <string name="accion_entrar">Log in</string>
+    <string name="olvide_contrasena">Forgot your password?</string>
+    <string name="recuperar_titulo">Reset your password</string>
+    <string name="recuperar_subtitulo">Enter your account email and we\'ll send you a code to create a new password.</string>
+    <string name="recuperar_enviar_codigo">Send code</string>
+    <string name="recuperar_codigo_titulo">Check your email</string>
+    <string name="recuperar_codigo_subtitulo">If %1$s has an account, you got a 6-digit code. It expires in 15 minutes; if you don\'t see it, check your spam folder too.</string>
+    <string name="campo_codigo">Code</string>
+    <string name="campo_contrasena_nueva">New password</string>
+    <string name="recuperar_cambiar">Change password</string>
+    <string name="recuperar_reenviar">Resend code</string>
+    <string name="recuperar_codigo_reenviado">We sent you a new code. The previous one no longer works.</string>
 
     <!-- Profile -->
     <string name="perfil_paso">Step 2 of 2</string>

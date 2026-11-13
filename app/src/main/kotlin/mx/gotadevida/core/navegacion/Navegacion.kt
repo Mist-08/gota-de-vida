@@ -27,6 +27,7 @@ import kotlinx.serialization.Serializable
 import mx.gotadevida.ajustes.ui.AjustesScreen
 import mx.gotadevida.autenticacion.ui.BienvenidaScreen
 import mx.gotadevida.autenticacion.ui.InicioSesionScreen
+import mx.gotadevida.autenticacion.ui.RecuperarContrasenaScreen
 import mx.gotadevida.autenticacion.ui.RegistroScreen
 import mx.gotadevida.chatbot.ui.ChatScreen
 import mx.gotadevida.chatbot.viewmodel.Chat
@@ -58,6 +59,8 @@ import mx.gotadevida.solicitud.viewmodel.DetalleUrgencia
 @Serializable data class Registro(val aceptoAviso: Boolean)
 
 @Serializable data object IniciarSesion
+
+@Serializable data class RecuperarContrasena(val email: String = "")
 
 @Serializable data class Perfil(val esRegistro: Boolean)
 
@@ -103,7 +106,8 @@ fun NavegacionGota(
     LaunchedEffect(estado) {
         val actual = navController.currentDestination
         val enZonaPublica = actual == null ||
-            actual.hasRoute<Bienvenida>() || actual.hasRoute<Registro>() || actual.hasRoute<IniciarSesion>()
+            actual.hasRoute<Bienvenida>() || actual.hasRoute<Registro>() || actual.hasRoute<IniciarSesion>() ||
+            actual.hasRoute<RecuperarContrasena>()
         // Si la sesión se pierde (cerrar sesión o token de renovación vencido) se vuelve a la bienvenida.
         if (estado == EstadoArranque.SIN_SESION && !enZonaPublica) {
             navController.navigate(Bienvenida) { popUpTo(0) { inclusive = true } }
@@ -155,6 +159,18 @@ fun NavegacionGota(
                     if (estado !=
                         EstadoArranque.HOSPITAL
                     ) {
+                        navController.navigate(Inicio) { popUpTo(0) { inclusive = true } }
+                    }
+                },
+                alOlvideContrasena = { email -> navController.navigate(RecuperarContrasena(email)) }
+            )
+        }
+        composable<RecuperarContrasena> { entrada ->
+            RecuperarContrasenaScreen(
+                emailInicial = entrada.toRoute<RecuperarContrasena>().email,
+                alRegresar = navController::popBackStack,
+                alEntrar = {
+                    if (estado != EstadoArranque.HOSPITAL) {
                         navController.navigate(Inicio) { popUpTo(0) { inclusive = true } }
                     }
                 }

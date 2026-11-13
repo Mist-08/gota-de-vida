@@ -43,6 +43,13 @@ object ValidadorCuenta {
         telefono(telefono)?.let { put(CampoCuenta.TELEFONO, it) }
     }
 
+    /** El código del correo: 6 dígitos. */
+    fun codigo(valor: String): ErrorCampo? = when {
+        valor.isBlank() -> ErrorCampo.VACIO
+        valor.filter { it.isDigit() }.length != 6 -> ErrorCampo.CODIGO_INVALIDO
+        else -> null
+    }
+
     fun inicioSesion(email: String, password: String): Map<CampoCuenta, ErrorCampo> = buildMap {
         email(email)?.let { put(CampoCuenta.EMAIL, it) }
         if (password.isEmpty()) put(CampoCuenta.PASSWORD, ErrorCampo.VACIO)

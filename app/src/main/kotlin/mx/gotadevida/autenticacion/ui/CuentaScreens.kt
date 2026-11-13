@@ -1,5 +1,6 @@
 package mx.gotadevida.autenticacion.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,12 +49,15 @@ import mx.gotadevida.autenticacion.entity.ErrorCampo
 import mx.gotadevida.autenticacion.service.CuentaGoogleResultado
 import mx.gotadevida.autenticacion.service.InicioConGoogle
 import mx.gotadevida.autenticacion.viewmodel.InicioSesionViewModel
+import mx.gotadevida.autenticacion.viewmodel.PasoRecuperacion
+import mx.gotadevida.autenticacion.viewmodel.RecuperarContrasenaViewModel
 import mx.gotadevida.autenticacion.viewmodel.RegistroViewModel
 import mx.gotadevida.core.designsystem.Espacio
 import mx.gotadevida.core.designsystem.GotaTema
 import mx.gotadevida.core.designsystem.componentes.BarraSuperior
 import mx.gotadevida.core.designsystem.componentes.BotonPrincipal
 import mx.gotadevida.core.designsystem.componentes.BotonSecundario
+import mx.gotadevida.core.designsystem.componentes.BotonTexto
 import mx.gotadevida.core.designsystem.componentes.CampoTexto
 import mx.gotadevida.core.designsystem.componentes.Icono
 import mx.gotadevida.core.designsystem.componentes.MensajeError
@@ -239,7 +243,12 @@ fun RegistroScreen(
 // ---------- Inicio de sesión ----------
 
 @Composable
-fun InicioSesionScreen(alRegresar: () -> Unit, alEntrar: () -> Unit, viewModel: InicioSesionViewModel = hiltViewModel()) {
+fun InicioSesionScreen(
+    alRegresar: () -> Unit,
+    alEntrar: () -> Unit,
+    alOlvideContrasena: (email: String) -> Unit,
+    viewModel: InicioSesionViewModel = hiltViewModel()
+) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     LaunchedEffect(estado.listo) { if (estado.listo) alEntrar() }
 
@@ -270,7 +279,88 @@ fun InicioSesionScreen(alRegresar: () -> Unit, alEntrar: () -> Unit, viewModel: 
         estado.fallo?.let { MensajeError(it.texto()) }
         if (estado.googleNoDisponible) MensajeError(stringResource(R.string.error_google_no_disponible))
         Spacer(Modifier.height(Espacio.x2))
-        BotonPrincipal(stringResource(R.string.accion_entrar), alPulsar = viewModel::entrar, cargando = estado.enviando)
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+            BotonPrincipal(stringResource(R.string.accion_entrar), alPulsar = viewModel::entrar, cargando = estado.enviando)
+            BotonTexto(stringResource(R.string.olvide_contrasena), alPulsar = { alOlvideContrasena(estado.email) })
+        }
+    }
+}
+
+// ---------- Recuperar contraseña ----------
+
+@Composable
+fun RecuperarContrasenaScreen(
+    emailInicial: String,
+    alRegresar: () -> Unit,
+    alEntrar: () -> Unit,
+    viewModel: RecuperarContrasenaViewModel = hiltViewModel()
+) {
+    val estado by viewModel.estado.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) { viewModel.usarCorreoInicial(emailInicial) }
+    LaunchedEffect(estado.listo) { if (estado.listo) alEntrar() }
+    val enCodigo = estado.paso == PasoRecuperacion.CODIGO
+    BackHandler(enabled = enCodigo) { viewModel.cambiarCorreo() }
+
+    PantallaFormulario(alRegresar = if (enCodigo) viewModel::cambiarCorreo else alRegresar) {
+        if (!enCodigo) {
+            Encabezado(stringResource(R.string.recuperar_titulo), stringResource(R.string.recuperar_subtitulo))
+            CampoTexto(
+                valor = estado.email,
+                alCambiar = viewModel::onEmail,
+                etiqueta = stringResource(R.string.campo_correo),
+                error = estado.errores[CampoCuenta.EMAIL]?.texto(),
+                tipoTeclado = KeyboardType.Email,
+                accionTeclado = ImeAction.Done,
+                alConfirmar = viewModel::enviarCodigo
+            )
+            estado.fallo?.let { MensajeError(it.texto()) }
+            Spacer(Modifier.height(Espacio.x2))
+            BotonPrincipal(
+                stringResource(R.string.recuperar_enviar_codigo),
+                alPulsar = viewModel::enviarCodigo,
+                cargando = estado.enviando
+            )
+        } else {
+            Encabezado(
+                stringResource(R.string.recuperar_codigo_titulo),
+                stringResource(R.string.recuperar_codigo_subtitulo, estado.email.trim().lowercase())
+            )
+            CampoTexto(
+                valor = estado.codigo,
+                alCambiar = viewModel::onCodigo,
+                etiqueta = stringResource(R.string.campo_codigo),
+                error = estado.errores[CampoCuenta.CODIGO]?.texto(),
+                tipoTeclado = KeyboardType.NumberPassword
+            )
+            CampoTexto(
+                valor = estado.password,
+                alCambiar = viewModel::onPassword,
+                etiqueta = stringResource(R.string.campo_contrasena_nueva),
+                ayuda = stringResource(R.string.campo_contrasena_ayuda),
+                error = estado.errores[CampoCuenta.PASSWORD]?.texto(),
+                tipoTeclado = KeyboardType.Password,
+                accionTeclado = ImeAction.Done,
+                alConfirmar = viewModel::cambiarContrasena,
+                esContrasena = true
+            )
+            estado.fallo?.let { MensajeError(it.texto()) }
+            if (estado.codigoReenviado) {
+                Text(
+                    stringResource(R.string.recuperar_codigo_reenviado),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = GotaTema.colores.inkMuted
+                )
+            }
+            Spacer(Modifier.height(Espacio.x2))
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                BotonPrincipal(
+                    stringResource(R.string.recuperar_cambiar),
+                    alPulsar = viewModel::cambiarContrasena,
+                    cargando = estado.enviando
+                )
+                BotonTexto(stringResource(R.string.recuperar_reenviar), alPulsar = viewModel::enviarCodigo)
+            }
+        }
     }
 }
 
@@ -347,5 +437,6 @@ private fun ErrorCampo.texto(): String = stringResource(
         ErrorCampo.EMAIL_INVALIDO -> R.string.error_email_invalido
         ErrorCampo.PASSWORD_CORTA -> R.string.error_password_corta
         ErrorCampo.TELEFONO_INVALIDO -> R.string.error_telefono_invalido
+        ErrorCampo.CODIGO_INVALIDO -> R.string.error_codigo_invalido
     }
 )

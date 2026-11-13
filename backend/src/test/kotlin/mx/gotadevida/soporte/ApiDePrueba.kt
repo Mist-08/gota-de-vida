@@ -22,6 +22,7 @@ import mx.gotadevida.chatbot.service.ClienteGemini
 import mx.gotadevida.chatbot.service.CuotaAgotada
 import mx.gotadevida.chatbot.service.RespuestaGemini
 import mx.gotadevida.chatbot.service.TurnoGemini
+import mx.gotadevida.core.correo.CorreoRegistro
 import mx.gotadevida.core.di.Dependencias
 import mx.gotadevida.core.di.Repositorios
 import mx.gotadevida.core.mensajeria.BusEnMemoria
@@ -65,6 +66,7 @@ class EntornoDePrueba {
     val conversaciones = ConversacionesEnMemoria()
     val preguntas = PreguntasEnMemoria()
     val whatsapp = WhatsAppRegistro()
+    val correo = CorreoRegistro()
 
     /** Gemini falso: las pruebas le dicen qué contestar. Null = sin IA (menú). */
     var gemini: GeminiDePrueba? = null
@@ -88,7 +90,8 @@ class EntornoDePrueba {
         },
         whatsapp = whatsapp,
         whatsappVerificacion = "verificacion-de-prueba",
-        whatsappSecreto = SECRETO_META
+        whatsappSecreto = SECRETO_META,
+        correo = correo
     ) { deps ->
         deps.asistente.asegurarPreguntasFrecuentes()
         deps.reglas.asegurarReglas()

@@ -13,8 +13,10 @@ import io.ktor.server.routing.route
 import mx.gotadevida.autenticacion.entity.DispositivoPeticion
 import mx.gotadevida.autenticacion.entity.GoogleSolicitud
 import mx.gotadevida.autenticacion.entity.LoginSolicitud
+import mx.gotadevida.autenticacion.entity.RecuperarSolicitud
 import mx.gotadevida.autenticacion.entity.RefrescoSolicitud
 import mx.gotadevida.autenticacion.entity.RegistroSolicitud
+import mx.gotadevida.autenticacion.entity.RestablecerSolicitud
 import mx.gotadevida.autenticacion.entity.UsuarioHospitalSolicitud
 import mx.gotadevida.autenticacion.service.AutenticacionService
 import mx.gotadevida.core.errores.DatosInvalidos
@@ -48,6 +50,13 @@ fun Route.autenticacionRoutes(
             }
             post("/refrescar") {
                 call.respond(servicio.refrescar(call.receive<RefrescoSolicitud>()))
+            }
+            post("/recuperar") {
+                servicio.solicitarRecuperacion(call.receive<RecuperarSolicitud>())
+                call.respond(HttpStatusCode.NoContent)
+            }
+            post("/restablecer") {
+                call.respond(servicio.restablecerContrasena(call.receive<RestablecerSolicitud>()))
             }
         }
     }

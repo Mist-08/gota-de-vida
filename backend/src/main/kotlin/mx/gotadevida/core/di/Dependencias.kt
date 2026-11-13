@@ -23,6 +23,9 @@ import mx.gotadevida.cita.repository.CitaRepository
 import mx.gotadevida.cita.repository.MongoCitaRepository
 import mx.gotadevida.cita.service.CitaService
 import mx.gotadevida.core.config.Configuracion
+import mx.gotadevida.core.correo.CorreoBrevo
+import mx.gotadevida.core.correo.CorreoRegistro
+import mx.gotadevida.core.correo.EnviadorCorreo
 import mx.gotadevida.core.db.BaseDeDatos
 import mx.gotadevida.core.demo.DatosDemo
 import mx.gotadevida.core.dominio.RequisitosVigentes
@@ -119,6 +122,7 @@ class Dependencias(
             whatsapp: ClienteWhatsApp = WhatsAppRegistro(),
             whatsappVerificacion: String? = null,
             whatsappSecreto: String? = null,
+            correo: EnviadorCorreo = CorreoRegistro(),
             esperaEntreOleadas: Duration = 15.minutes,
             reloj: Clock = Clock.systemUTC(),
             alPreparar: suspend (Dependencias) -> Unit = {}
@@ -132,7 +136,8 @@ class Dependencias(
                 hasher = hasher,
                 verificadorGoogle = verificadorGoogle,
                 crearPerfilDonador = donadores::crearPerfil,
-                reloj = reloj
+                reloj = reloj,
+                correo = correo
             )
             val solicitudes = SolicitudService(
                 solicitudes = repos.solicitudes,
@@ -247,7 +252,12 @@ class Dependencias(
                     WhatsAppRegistro()
                 },
                 whatsappVerificacion = config.whatsappTokenVerificacion,
-                whatsappSecreto = config.whatsappSecretoApp
+                whatsappSecreto = config.whatsappSecretoApp,
+                correo = if (config.brevoLlave != null && config.correoRemitente != null) {
+                    CorreoBrevo(config.brevoLlave, config.correoRemitente)
+                } else {
+                    CorreoRegistro()
+                }
             ) { deps ->
                 deps.asistente.asegurarPreguntasFrecuentes()
                 base.crearIndices()

@@ -28,6 +28,20 @@ class AutenticacionFalsa(var respuesta: Resultado<UsuarioPublico> = Resultado.Ex
     }
 
     override suspend fun iniciarConGoogle(idToken: String): Resultado<UsuarioPublico> = respuesta
+
+    val recuperaciones = mutableListOf<String>()
+    val restablecimientos = mutableListOf<Triple<String, String, String>>()
+    var respuestaRecuperar: Resultado<Unit> = Resultado.Exito(Unit)
+
+    override suspend fun solicitarRecuperacion(email: String): Resultado<Unit> {
+        recuperaciones += email
+        return respuestaRecuperar
+    }
+
+    override suspend fun restablecerContrasena(email: String, codigo: String, password: String): Resultado<UsuarioPublico> {
+        restablecimientos += Triple(email, codigo, password)
+        return respuesta
+    }
 }
 
 fun perfilDePrueba(completo: Boolean = true, ultimaDonacion: String? = null) = PerfilDonador(
