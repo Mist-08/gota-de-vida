@@ -30,7 +30,7 @@ data class Solicitud(
     val radioKm: Double = 0.0,
     val notificados: List<String> = emptyList(),
     val nota: String? = null,
-    val cubiertaEn: String? = null,
+    val cubiertaEn: String? = null
 )
 
 /** Respuesta de un donador. Su `_id` es `solicitudId:donadorId`: una por donador. */
@@ -41,15 +41,11 @@ data class Respuesta(
     val donadorId: String,
     val acepta: Boolean,
     val distanciaKm: Double?,
-    val creadaEn: String,
+    val creadaEn: String
 )
 
 @Serializable
-data class CrearSolicitudPeticion(
-    val tipoSangre: TipoSangre,
-    val unidades: Int,
-    val nota: String? = null,
-)
+data class CrearSolicitudPeticion(val tipoSangre: TipoSangre, val unidades: Int, val nota: String? = null)
 
 @Serializable
 data class CambiarEstadoPeticion(val estado: EstadoSolicitud)
@@ -64,7 +60,7 @@ data class DonadorQueAcepto(
     val nombre: String,
     val telefono: String?,
     val distanciaKm: Double?,
-    val respondioEn: String,
+    val respondioEn: String
 )
 
 @Serializable
@@ -89,30 +85,27 @@ data class SolicitudRespuesta(
     /** Solo para el hospital dueño. */
     val oleada: Int? = null,
     val donadoresNotificados: Int? = null,
-    val aceptaciones: List<DonadorQueAcepto>? = null,
+    val aceptaciones: List<DonadorQueAcepto>? = null
 )
 
-fun Solicitud.aRespuesta(
-    distanciaKm: Double? = null,
-    miRespuesta: Boolean? = null,
-    aceptaciones: List<DonadorQueAcepto>? = null,
-) = SolicitudRespuesta(
-    id = id,
-    hospitalId = hospitalId,
-    hospitalNombre = hospitalNombre,
-    hospitalDireccion = hospitalDireccion,
-    latitud = ubicacion.latitud,
-    longitud = ubicacion.longitud,
-    tipoSangre = tipoSangre,
-    etiquetaTipoSangre = tipoSangre.etiqueta,
-    unidades = unidades,
-    unidadesComprometidas = unidadesComprometidas,
-    estado = estado,
-    creadaEn = creadaEn,
-    nota = nota,
-    distanciaKm = distanciaKm?.let { Math.round(it * 10) / 10.0 },
-    miRespuesta = miRespuesta,
-    oleada = aceptaciones?.let { oleada },
-    donadoresNotificados = aceptaciones?.let { notificados.size },
-    aceptaciones = aceptaciones,
-)
+fun Solicitud.aRespuesta(distanciaKm: Double? = null, miRespuesta: Boolean? = null, aceptaciones: List<DonadorQueAcepto>? = null) =
+    SolicitudRespuesta(
+        id = id,
+        hospitalId = hospitalId,
+        hospitalNombre = hospitalNombre,
+        hospitalDireccion = hospitalDireccion,
+        latitud = ubicacion.latitud,
+        longitud = ubicacion.longitud,
+        tipoSangre = tipoSangre,
+        etiquetaTipoSangre = tipoSangre.etiqueta,
+        unidades = unidades,
+        unidadesComprometidas = unidadesComprometidas,
+        estado = estado,
+        creadaEn = creadaEn,
+        nota = nota,
+        distanciaKm = distanciaKm?.let { Math.round(it * 10) / 10.0 },
+        miRespuesta = miRespuesta,
+        oleada = aceptaciones?.let { oleada },
+        donadoresNotificados = aceptaciones?.let { notificados.size },
+        aceptaciones = aceptaciones
+    )

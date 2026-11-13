@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -23,7 +24,6 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import javax.inject.Inject
 
 interface SolicitudApi {
     @GET("api/v1/solicitudes")
@@ -87,7 +87,7 @@ class SolicitudRepositoryLocalYRed @Inject constructor(
     private val api: SolicitudApi,
     private val dao: SolicitudDao,
     private val cola: ColaDeSalida,
-    private val json: Json,
+    private val json: Json
 ) : SolicitudRepository {
 
     override fun observarCercanas() = dao.observarCercanas().map { lista -> lista.map { it.aModelo() } }
@@ -114,8 +114,13 @@ class SolicitudRepositoryLocalYRed @Inject constructor(
                 guardar(r.valor)
                 Resultado.Exito(EnvioRespuesta.ENVIADA)
             }
+
             is Resultado.Fallo -> if (r.fallo == FalloApp.SinConexion) {
-                cola.encolar(PREFIJO + id, TIPO_ACCION, json.encodeToString(RespuestaPendiente.serializer(), RespuestaPendiente(id, acepta)))
+                cola.encolar(
+                    PREFIJO + id,
+                    TIPO_ACCION,
+                    json.encodeToString(RespuestaPendiente.serializer(), RespuestaPendiente(id, acepta))
+                )
                 Resultado.Exito(EnvioRespuesta.PENDIENTE)
             } else {
                 r
@@ -134,11 +139,8 @@ class SolicitudRepositoryLocalYRed @Inject constructor(
 }
 
 /** Manda desde la cola de salida una respuesta guardada sin conexión. */
-class EjecutorResponderUrgencia @Inject constructor(
-    private val api: SolicitudApi,
-    private val dao: SolicitudDao,
-    private val json: Json,
-) : EjecutorDeAccion {
+class EjecutorResponderUrgencia @Inject constructor(private val api: SolicitudApi, private val dao: SolicitudDao, private val json: Json) :
+    EjecutorDeAccion {
     override val tipo = SolicitudRepositoryLocalYRed.TIPO_ACCION
 
     override suspend fun ejecutar(datos: String): ResultadoEnvio {
@@ -149,9 +151,17 @@ class EjecutorResponderUrgencia @Inject constructor(
                 dao.guardar(listOf(r.valor.aEntidad(cercana)))
                 ResultadoEnvio.ENVIADA
             }
+
             // Sin red o servidor caído: se reintenta. Un 409 (ya se cubrió) ya no tiene caso reintentarlo.
             is Resultado.Fallo -> when (val f = r.fallo) {
-                is FalloApp.Servidor -> if (f.estado >= 500 || f.estado == 401) ResultadoEnvio.REINTENTAR else ResultadoEnvio.DESCARTAR
+                is FalloApp.Servidor -> if (f.estado >= 500 ||
+                    f.estado == 401
+                ) {
+                    ResultadoEnvio.REINTENTAR
+                } else {
+                    ResultadoEnvio.DESCARTAR
+                }
+
                 else -> ResultadoEnvio.REINTENTAR
             }
         }

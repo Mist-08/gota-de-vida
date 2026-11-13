@@ -37,6 +37,19 @@
             </intent-filter>
         </activity>
 
+        <!-- Widget "Podrás volver a donar en N días" (Jetpack Glance). -->
+        <receiver
+            android:name=".donador.ui.ReceptorWidgetElegibilidad"
+            android:exported="true"
+            android:label="@string/widget_nombre">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_elegibilidad" />
+        </receiver>
+
         <!-- Avisos de Firebase Cloud Messaging. -->
         <service
             android:name=".notificaciones.service.GotaMessagingService"

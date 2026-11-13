@@ -11,25 +11,25 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import kotlinx.serialization.json.JsonArray
 import mx.gotadevida.JsonApi
 import mx.gotadevida.autenticacion.entity.LoginSolicitud
 import mx.gotadevida.autenticacion.entity.RegistroSolicitud
 import mx.gotadevida.autenticacion.entity.SesionRespuesta
 import mx.gotadevida.autenticacion.service.CuentaGoogle
 import mx.gotadevida.autenticacion.service.VerificadorGoogle
-import mx.gotadevida.core.di.Dependencias
-import mx.gotadevida.core.di.Repositorios
-import kotlinx.serialization.json.JsonArray
 import mx.gotadevida.chatbot.service.ClienteGemini
 import mx.gotadevida.chatbot.service.CuotaAgotada
 import mx.gotadevida.chatbot.service.RespuestaGemini
 import mx.gotadevida.chatbot.service.TurnoGemini
-import mx.gotadevida.whatsapp.service.WhatsAppRegistro
+import mx.gotadevida.core.di.Dependencias
+import mx.gotadevida.core.di.Repositorios
 import mx.gotadevida.core.mensajeria.BusEnMemoria
 import mx.gotadevida.core.mensajeria.EventosProcesadosEnMemoria
 import mx.gotadevida.core.notificaciones.EnviadorPushRegistro
 import mx.gotadevida.core.seguridad.JwtServicio
 import mx.gotadevida.module
+import mx.gotadevida.whatsapp.service.WhatsAppRegistro
 
 const val SECRETO_PRUEBAS = "secreto-de-pruebas-con-mas-de-32-caracteres"
 const val ADMIN_EMAIL = "admin@gotadevida.mx"
@@ -74,7 +74,10 @@ class EntornoDePrueba {
     val push = EnviadorPushRegistro()
     val dependencias: Dependencias = Dependencias.crear(
         jwt = JwtServicio(SECRETO_PRUEBAS, "gota-de-vida-pruebas"),
-        repos = Repositorios(usuarios, donadores, hospitales, reglas, solicitudes, respuestas, citas, donaciones, conversaciones, preguntas),
+        repos = Repositorios(
+            usuarios, donadores, hospitales, reglas, solicitudes, respuestas,
+            citas, donaciones, conversaciones, preguntas
+        ),
         hasher = HasherDePrueba(),
         verificadorGoogle = GoogleDePrueba(),
         bus = bus,
@@ -85,7 +88,7 @@ class EntornoDePrueba {
         },
         whatsapp = whatsapp,
         whatsappVerificacion = "verificacion-de-prueba",
-        whatsappSecreto = SECRETO_META,
+        whatsappSecreto = SECRETO_META
     ) { deps ->
         deps.asistente.asegurarPreguntasFrecuentes()
         deps.reglas.asegurarReglas()
@@ -94,32 +97,29 @@ class EntornoDePrueba {
 }
 
 /** Levanta la API completa con repositorios en memoria y un cliente que habla JSON. */
-fun probarApi(bloque: suspend ApplicationTestBuilder.(cliente: HttpClient, entorno: EntornoDePrueba) -> Unit) =
-    testApplication {
-        val entorno = EntornoDePrueba()
-        entorno.dependencias.preparar()
-        application { module(entorno.dependencias) }
-        val cliente = createClient {
-            install(ContentNegotiation) { json(JsonApi) }
-        }
-        bloque(cliente, entorno)
+fun probarApi(bloque: suspend ApplicationTestBuilder.(cliente: HttpClient, entorno: EntornoDePrueba) -> Unit) = testApplication {
+    val entorno = EntornoDePrueba()
+    entorno.dependencias.preparar()
+    application { module(entorno.dependencias) }
+    val cliente = createClient {
+        install(ContentNegotiation) { json(JsonApi) }
     }
+    bloque(cliente, entorno)
+}
 
-suspend fun HttpClient.registrar(
-    email: String = "mariana@correo.mx",
-    nombre: String = "Mariana Rodríguez",
-): SesionRespuesta = post("/api/v1/auth/registro") {
-    contentType(ContentType.Application.Json)
-    setBody(
-        RegistroSolicitud(
-            nombre = nombre,
-            email = email,
-            password = "contrasena-segura",
-            telefono = "871 123 4567",
-            aceptaAvisoPrivacidad = true,
-        ),
-    )
-}.body()
+suspend fun HttpClient.registrar(email: String = "mariana@correo.mx", nombre: String = "Mariana Rodríguez"): SesionRespuesta =
+    post("/api/v1/auth/registro") {
+        contentType(ContentType.Application.Json)
+        setBody(
+            RegistroSolicitud(
+                nombre = nombre,
+                email = email,
+                password = "contrasena-segura",
+                telefono = "871 123 4567",
+                aceptaAvisoPrivacidad = true
+            )
+        )
+    }.body()
 
 suspend fun HttpClient.iniciarComoAdmin(): String = post("/api/v1/auth/login") {
     contentType(ContentType.Application.Json)

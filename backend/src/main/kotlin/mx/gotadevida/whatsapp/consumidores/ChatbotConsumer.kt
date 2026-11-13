@@ -16,7 +16,7 @@ fun consumidorChatbot(asistente: AsistenteService, donadores: DirectorioDonadore
         if (donador == null) {
             whatsapp.enviarTexto(
                 telefono,
-                "Hola, soy Gota 🩸 de Gota de Vida. No encontré tu número. Regístrate en la app con este celular para recibir urgencias y agendar tu cita.",
+                "Hola, soy Gota 🩸 de Gota de Vida. No encontré tu número. Regístrate en la app con este celular para recibir urgencias y agendar tu cita."
             )
         } else {
             val r = asistente.responder(donador.id, texto)

@@ -21,9 +21,4 @@ data class RespuestaChat(val respuesta: String, val opciones: List<String> = emp
 
 /** Copia local de la conversación para verla sin conexión. */
 @Entity(tableName = "mensajes_chat")
-data class MensajeEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val autor: String,
-    val texto: String,
-    val en: String,
-)
+data class MensajeEntity(@PrimaryKey(autoGenerate = true) val id: Long = 0, val autor: String, val texto: String, val en: String)

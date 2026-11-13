@@ -70,10 +70,21 @@ import org.osmdroid.views.overlay.Marker
 fun SeccionUrgencias(alAbrir: (String) -> Unit, viewModel: UrgenciasViewModel = hiltViewModel()) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     Column(verticalArrangement = Arrangement.spacedBy(Espacio.x3)) {
-        Text(stringResource(R.string.inicio_urgencias), style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
+        Text(
+            stringResource(R.string.inicio_urgencias),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.semantics {
+                heading()
+            }
+        )
         when {
             estado.cargando -> CircularProgressIndicator(Modifier.padding(Espacio.x2), color = GotaTema.colores.sangre)
-            estado.urgencias.isEmpty() -> EstadoVacio(stringResource(R.string.inicio_urgencias_vacio), R.drawable.ic_campana)
+
+            estado.urgencias.isEmpty() -> EstadoVacio(
+                stringResource(R.string.inicio_urgencias_vacio),
+                R.drawable.ic_campana
+            )
+
             else -> estado.urgencias.forEach { u ->
                 TarjetaUrgencia(
                     etiquetaTipoSangre = u.etiquetaTipoSangre,
@@ -86,7 +97,7 @@ fun SeccionUrgencias(alAbrir: (String) -> Unit, viewModel: UrgenciasViewModel = 
                         u.id in estado.pendientes -> stringResource(R.string.urgencia_pendiente_enviar)
                         u.miRespuesta == true -> stringResource(R.string.urgencia_ya_aceptaste)
                         else -> null
-                    },
+                    }
                 )
             }
         }
@@ -97,7 +108,7 @@ fun SeccionUrgencias(alAbrir: (String) -> Unit, viewModel: UrgenciasViewModel = 
 fun DetalleUrgenciaScreen(
     alRegresar: () -> Unit,
     alAgendar: (hospitalId: String, hospitalNombre: String, solicitudId: String) -> Unit = { _, _, _ -> },
-    viewModel: DetalleUrgenciaViewModel = hiltViewModel(),
+    viewModel: DetalleUrgenciaViewModel = hiltViewModel()
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val colores = GotaTema.colores
@@ -116,7 +127,7 @@ fun DetalleUrgenciaScreen(
                 .padding(relleno)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = Espacio.x6, vertical = Espacio.x2),
-            verticalArrangement = Arrangement.spacedBy(Espacio.x4),
+            verticalArrangement = Arrangement.spacedBy(Espacio.x4)
         ) {
             BarraSuperior(alRegresar = alRegresar, titulo = stringResource(R.string.urgencia_titulo))
             val u = estado.urgencia
@@ -124,13 +135,27 @@ fun DetalleUrgenciaScreen(
                 CircularProgressIndicator(color = colores.sangre)
                 return@Column
             }
-            if (estado.pendiente) BannerAviso(stringResource(R.string.urgencia_pendiente_texto), R.drawable.ic_nube_tachada)
+            if (estado.pendiente) {
+                BannerAviso(
+                    stringResource(R.string.urgencia_pendiente_texto),
+                    R.drawable.ic_nube_tachada
+                )
+            }
             MapaHospital(u.latitud, u.longitud, u.hospitalNombre)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Espacio.x3)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Espacio.x3)
+            ) {
                 val cd = stringResource(R.string.cd_tipo_sangre, u.etiquetaTipoSangre)
                 ChipTipoSangre(u.etiquetaTipoSangre, Modifier.semantics { contentDescription = cd }, destacado = true)
                 Column(Modifier.weight(1f)) {
-                    Text(u.hospitalNombre, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
+                    Text(
+                        u.hospitalNombre,
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.semantics {
+                            heading()
+                        }
+                    )
                     Text(u.hospitalDireccion, style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
                 }
             }
@@ -138,11 +163,17 @@ fun DetalleUrgenciaScreen(
             BarraUnidades(u.unidadesComprometidas, u.unidades)
             u.nota?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
             estado.fallo?.let { MensajeError(it.texto()) }
-            Acciones(u, estado.pendiente, estado.enviando, estado.acepto, viewModel::responder, { alAgendar(u.hospitalId, u.hospitalNombre, u.id) }) {
+            Acciones(u, estado.pendiente, estado.enviando, estado.acepto, viewModel::responder, {
+                alAgendar(u.hospitalId, u.hospitalNombre, u.id)
+            }) {
                 val uri = "geo:0,0?q=${u.latitud},${u.longitud}(${Uri.encode(u.hospitalNombre)})".toUri()
                 runCatching { contexto.startActivity(Intent(Intent.ACTION_VIEW, uri)) }
             }
-            Text(stringResource(R.string.aviso_medico), style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
+            Text(
+                stringResource(R.string.aviso_medico),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colores.inkMuted
+            )
             Spacer(Modifier.height(Espacio.x4))
         }
     }
@@ -156,29 +187,54 @@ private fun Acciones(
     acepto: Boolean,
     responder: (Boolean) -> Unit,
     agendar: () -> Unit,
-    abrirRuta: () -> Unit,
+    abrirRuta: () -> Unit
 ) {
     val colores = GotaTema.colores
     when {
         u.miRespuesta == true || acepto -> {
             Column(verticalArrangement = Arrangement.spacedBy(Espacio.x3)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Espacio.x2)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Espacio.x2)
+                ) {
                     Icono(R.drawable.ic_check_circulo, null, color = colores.vida)
-                    Text(stringResource(R.string.urgencia_gracias), style = MaterialTheme.typography.titleMedium, color = colores.vida)
+                    Text(
+                        stringResource(R.string.urgencia_gracias),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colores.vida
+                    )
                 }
                 BotonPrincipal(stringResource(R.string.agendar_titulo), alPulsar = agendar)
                 BotonSecundario(stringResource(R.string.urgencia_abrir_ruta), alPulsar = abrirRuta)
             }
         }
+
         pendiente -> Unit
-        u.estado == EstadoUrgencia.CUBIERTA -> EstadoVacio(stringResource(R.string.urgencia_cubierta), R.drawable.ic_check_circulo)
-        u.estado != EstadoUrgencia.ACTIVA -> EstadoVacio(stringResource(R.string.urgencia_terminada), R.drawable.ic_info)
+
+        u.estado == EstadoUrgencia.CUBIERTA -> EstadoVacio(
+            stringResource(R.string.urgencia_cubierta),
+            R.drawable.ic_check_circulo
+        )
+
+        u.estado != EstadoUrgencia.ACTIVA -> EstadoVacio(
+            stringResource(R.string.urgencia_terminada),
+            R.drawable.ic_info
+        )
+
         else -> Column(verticalArrangement = Arrangement.spacedBy(Espacio.x3)) {
-            BotonPrincipal(stringResource(R.string.urgencia_si_puedo), alPulsar = { responder(true) }, cargando = enviando)
+            BotonPrincipal(stringResource(R.string.urgencia_si_puedo), alPulsar = {
+                responder(true)
+            }, cargando = enviando)
             if (u.miRespuesta != false) {
-                BotonSecundario(stringResource(R.string.urgencia_no_puedo), alPulsar = { responder(false) }, habilitado = !enviando)
+                BotonSecundario(stringResource(R.string.urgencia_no_puedo), alPulsar = {
+                    responder(false)
+                }, habilitado = !enviando)
             } else {
-                Text(stringResource(R.string.urgencia_dijiste_no), style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
+                Text(
+                    stringResource(R.string.urgencia_dijiste_no),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colores.inkMuted
+                )
             }
         }
     }
@@ -200,14 +256,17 @@ private fun MapaHospital(latitud: Double, longitud: Double, nombre: String) {
     }
     DisposableEffect(Unit) {
         vista.onResume()
-        onDispose { vista.onPause(); vista.onDetach() }
+        onDispose {
+            vista.onPause()
+            vista.onDetach()
+        }
     }
     Box(
         Modifier
             .fillMaxWidth()
             .height(200.dp)
             .clip(Radio.lg)
-            .semantics { contentDescription = descripcion },
+            .semantics { contentDescription = descripcion }
     ) {
         AndroidView(factory = { vista }, modifier = Modifier.fillMaxSize()) { mapa ->
             val punto = GeoPoint(latitud, longitud)
@@ -219,14 +278,14 @@ private fun MapaHospital(latitud: Double, longitud: Double, nombre: String) {
                     title = nombre
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                     pin?.let { icon = it }
-                },
+                }
             )
             mapa.invalidate()
         }
         Text(
             stringResource(R.string.osm_atribucion),
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp),
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 20.dp, bottom = 8.dp)
         )
     }
 }

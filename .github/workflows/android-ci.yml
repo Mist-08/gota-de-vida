@@ -33,6 +33,11 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Estilo de código (ktlint)
+        run: |
+          curl -sSfL -o /tmp/ktlint.jar https://repo.maven.apache.org/maven2/com/pinterest/ktlint/ktlint-cli/1.8.0/ktlint-cli-1.8.0-all.jar
+          java -jar /tmp/ktlint.jar "src/**/*.kt"
+
       - name: Lint, pruebas y APK de depuración
         run: |
           chmod +x gradlew

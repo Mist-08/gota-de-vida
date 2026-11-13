@@ -1,22 +1,22 @@
 package mx.gotadevida.cita.consumidores
 
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
-import kotlinx.serialization.json.add
-import mx.gotadevida.cita.entity.EstadoCita
-import mx.gotadevida.cita.service.CitaService
-import mx.gotadevida.core.mensajeria.BusDeEventos
-import mx.gotadevida.core.mensajeria.Consumidor
-import mx.gotadevida.core.mensajeria.TiposEvento
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toKotlinDuration
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
+import kotlinx.serialization.json.putJsonObject
+import mx.gotadevida.cita.entity.EstadoCita
+import mx.gotadevida.cita.service.CitaService
+import mx.gotadevida.core.mensajeria.BusDeEventos
+import mx.gotadevida.core.mensajeria.Consumidor
+import mx.gotadevida.core.mensajeria.TiposEvento
 
 /**
  * RecordatorioConsumer: al agendar, programa avisos 24 h y 2 h antes de la cita.
@@ -25,11 +25,7 @@ import kotlin.time.toKotlinDuration
  * al exchange al vencer (dead-letter). Para no crear una cola por cada retraso distinto,
  * se usan saltos fijos de 60, 15, 5 y 1 minutos: el mensaje "brinca" hasta que llega su hora.
  */
-class RecordatorioService(
-    private val citas: CitaService,
-    private val bus: BusDeEventos,
-    private val reloj: Clock = Clock.systemUTC(),
-) {
+class RecordatorioService(private val citas: CitaService, private val bus: BusDeEventos, private val reloj: Clock = Clock.systemUTC()) {
     suspend fun programar(citaId: String) {
         val cita = citas.buscar(citaId) ?: return
         val hora = LocalDateTime.parse(cita.fechaHora).atZone(CitaService.ZONA).toInstant()
@@ -54,7 +50,7 @@ class RecordatorioService(
                     put("hora", cita.fechaHora.substring(11, 16))
                     cita.solicitudId?.let { put("solicitudId", it) }
                 }
-            },
+            }
         )
     }
 
@@ -67,7 +63,7 @@ class RecordatorioService(
                 put("citaId", citaId)
                 put("momento", momento.toString())
             },
-            salto,
+            salto
         )
     }
 

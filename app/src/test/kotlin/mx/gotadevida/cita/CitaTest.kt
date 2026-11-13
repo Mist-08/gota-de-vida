@@ -2,6 +2,9 @@ package mx.gotadevida.cita
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import java.time.Clock
+import java.time.LocalDate
+import java.time.ZoneOffset
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -27,9 +30,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.Clock
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 private fun cita(id: String, fechaHora: String, estado: EstadoCita = EstadoCita.AGENDADA) =
     Cita(id, "h1", "Hospital Universitario", "Av. Morelos 900", 25.54, -103.40, fechaHora, estado, codigoQr = "abc123")
@@ -64,8 +64,17 @@ class CitaTest {
     @get:Rule val regla = ReglaDespachadorPrincipal()
 
     private val hoy = LocalDate.of(2026, 11, 12)
-    private val calendario = Calendario().apply { reloj = Clock.fixed(hoy.atStartOfDay().toInstant(ZoneOffset.UTC), ZoneOffset.UTC) }
-    private val ruta = SavedStateHandle(mapOf("hospitalId" to "h1", "hospitalNombre" to "Hospital Universitario", "solicitudId" to "u1"))
+    private val calendario = Calendario().apply {
+        reloj =
+            Clock.fixed(hoy.atStartOfDay().toInstant(ZoneOffset.UTC), ZoneOffset.UTC)
+    }
+    private val ruta = SavedStateHandle(
+        mapOf(
+            "hospitalId" to "h1",
+            "hospitalNombre" to "Hospital Universitario",
+            "solicitudId" to "u1"
+        )
+    )
 
     @Test
     fun `agendar muestra 7 dias, carga horarios y requisitos y manda la urgencia`() = runTest {
@@ -104,7 +113,7 @@ class CitaTest {
         repo.citas.value = listOf(
             cita("vieja", "2026-10-01T09:00", EstadoCita.COMPLETADA),
             cita("luego", "2026-11-20T10:00"),
-            cita("pronto", "2026-11-13T09:30"),
+            cita("pronto", "2026-11-13T09:30")
         )
         val vm = MiCitaViewModel(repo, calendario)
         vm.estado.test {

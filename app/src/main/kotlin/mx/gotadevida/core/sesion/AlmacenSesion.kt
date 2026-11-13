@@ -5,11 +5,11 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** Sesión iniciada: quién es y sus tokens. */
 data class Sesion(
@@ -18,7 +18,7 @@ data class Sesion(
     val email: String,
     val rol: String,
     val tokenAcceso: String,
-    val tokenRefresco: String,
+    val tokenRefresco: String
 )
 
 /** Guarda la sesión en el teléfono. Es una interfaz para poder usar una versión en memoria en las pruebas. */
@@ -37,9 +37,7 @@ interface AlmacenSesion {
 private val Context.almacenSesion by preferencesDataStore(name = "sesion")
 
 @Singleton
-class AlmacenSesionDataStore @Inject constructor(
-    @param:ApplicationContext private val contexto: Context,
-) : AlmacenSesion {
+class AlmacenSesionDataStore @Inject constructor(@param:ApplicationContext private val contexto: Context) : AlmacenSesion {
 
     override val sesion: Flow<Sesion?> = contexto.almacenSesion.data.map { p ->
         val id = p[USUARIO_ID] ?: return@map null
@@ -51,7 +49,7 @@ class AlmacenSesionDataStore @Inject constructor(
             email = p[EMAIL].orEmpty(),
             rol = p[ROL].orEmpty(),
             tokenAcceso = acceso,
-            tokenRefresco = refresco,
+            tokenRefresco = refresco
         )
     }
 

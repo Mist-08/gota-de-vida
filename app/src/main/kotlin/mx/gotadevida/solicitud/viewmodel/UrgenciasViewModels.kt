@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,25 +17,22 @@ import mx.gotadevida.core.network.Resultado
 import mx.gotadevida.solicitud.entity.Urgencia
 import mx.gotadevida.solicitud.repository.EnvioRespuesta
 import mx.gotadevida.solicitud.repository.SolicitudRepository
-import javax.inject.Inject
 
 data class UrgenciasUiState(
     val urgencias: List<Urgencia> = emptyList(),
     val pendientes: Set<String> = emptySet(),
-    val cargando: Boolean = true,
+    val cargando: Boolean = true
 )
 
 /** Lista "Urgencias cerca" del inicio del donador. */
 @HiltViewModel
-class UrgenciasViewModel @Inject constructor(
-    private val repositorio: SolicitudRepository,
-) : ViewModel() {
+class UrgenciasViewModel @Inject constructor(private val repositorio: SolicitudRepository) : ViewModel() {
     private val cargando = MutableStateFlow(true)
 
     val estado: StateFlow<UrgenciasUiState> = combine(
         repositorio.observarCercanas(),
         repositorio.observarPendientes(),
-        cargando,
+        cargando
     ) { urgencias, pendientes, c -> UrgenciasUiState(urgencias, pendientes, c && urgencias.isEmpty()) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UrgenciasUiState())
 
@@ -61,22 +59,20 @@ data class DetalleUrgenciaUiState(
     val enviando: Boolean = false,
     val fallo: FalloApp? = null,
     /** true justo después de aceptar: la pantalla muestra el agradecimiento. */
-    val acepto: Boolean = false,
+    val acepto: Boolean = false
 )
 
 /** Detalle de una urgencia: mapa, distancia, contador "2 de 3" y botones para responder. */
 @HiltViewModel
-class DetalleUrgenciaViewModel @Inject constructor(
-    private val repositorio: SolicitudRepository,
-    estadoGuardado: SavedStateHandle,
-) : ViewModel() {
+class DetalleUrgenciaViewModel @Inject constructor(private val repositorio: SolicitudRepository, estadoGuardado: SavedStateHandle) :
+    ViewModel() {
     private val id: String = checkNotNull(estadoGuardado["id"])
     private val local = MutableStateFlow(DetalleUrgenciaUiState())
 
     val estado: StateFlow<DetalleUrgenciaUiState> = combine(
         repositorio.observar(id),
         repositorio.observarPendientes(),
-        local,
+        local
     ) { urgencia, pendientes, l -> l.copy(urgencia = urgencia, pendiente = id in pendientes) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DetalleUrgenciaUiState())
 
@@ -96,6 +92,7 @@ class DetalleUrgenciaViewModel @Inject constructor(
                 is Resultado.Exito -> local.update {
                     it.copy(enviando = false, acepto = acepta && r.valor == EnvioRespuesta.ENVIADA)
                 }
+
                 is Resultado.Fallo -> local.update { it.copy(enviando = false, fallo = r.fallo) }
             }
         }

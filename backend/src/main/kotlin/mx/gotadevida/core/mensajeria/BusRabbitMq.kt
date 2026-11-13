@@ -6,6 +6,8 @@ import com.rabbitmq.client.Channel
 import com.rabbitmq.client.Connection
 import com.rabbitmq.client.ConnectionFactory
 import com.rabbitmq.client.DeliverCallback
+import java.time.Clock
+import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -13,8 +15,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.slf4j.LoggerFactory
-import java.time.Clock
-import kotlin.time.Duration
 
 /**
  * RabbitMQ en CloudAMQP (plan gratuito Little Lemur).
@@ -29,11 +29,8 @@ import kotlin.time.Duration
  * Los consumidores corren como corrutinas dentro del mismo proceso de Ktor:
  * Render Free no tiene workers en segundo plano gratuitos.
  */
-class BusRabbitMq(
-    private val uri: String,
-    private val idempotencia: EventosProcesados,
-    private val reloj: Clock = Clock.systemUTC(),
-) : BusDeEventos {
+class BusRabbitMq(private val uri: String, private val idempotencia: EventosProcesados, private val reloj: Clock = Clock.systemUTC()) :
+    BusDeEventos {
     private val log = LoggerFactory.getLogger(BusRabbitMq::class.java)
     private val json = Json { ignoreUnknownKeys = true }
     private val consumidores = mutableListOf<Consumidor>()
@@ -68,8 +65,11 @@ class BusRabbitMq(
         canal.queueDeclare(dlq, true, false, false, null)
         canal.queueBind(dlq, EXCHANGE_FALLIDOS, cola)
         canal.queueDeclare(
-            cola, true, false, false,
-            mapOf("x-dead-letter-exchange" to EXCHANGE_FALLIDOS, "x-dead-letter-routing-key" to cola),
+            cola,
+            true,
+            false,
+            false,
+            mapOf("x-dead-letter-exchange" to EXCHANGE_FALLIDOS, "x-dead-letter-routing-key" to cola)
         )
         consumidor.routingKeys.forEach { canal.queueBind(cola, EXCHANGE, it) }
 
@@ -121,12 +121,15 @@ class BusRabbitMq(
         synchronized(canalPublicacion) {
             if (colasDeRetraso.add(cola)) {
                 canalPublicacion.queueDeclare(
-                    cola, true, false, false,
+                    cola,
+                    true,
+                    false,
+                    false,
                     mapOf(
                         "x-message-ttl" to ms,
                         "x-dead-letter-exchange" to EXCHANGE,
-                        "x-dead-letter-routing-key" to tipo,
-                    ),
+                        "x-dead-letter-routing-key" to tipo
+                    )
                 )
             }
         }
@@ -140,7 +143,12 @@ class BusRabbitMq(
             .messageId(evento.eventoId)
             .build()
         synchronized(canalPublicacion) {
-            canalPublicacion.basicPublish(exchange, routingKey, props, json.encodeToString(Evento.serializer(), evento).toByteArray())
+            canalPublicacion.basicPublish(
+                exchange,
+                routingKey,
+                props,
+                json.encodeToString(Evento.serializer(), evento).toByteArray()
+            )
         }
     }
 

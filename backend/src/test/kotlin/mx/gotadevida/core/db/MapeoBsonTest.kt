@@ -1,5 +1,9 @@
 package mx.gotadevida.core.db
 
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import mx.gotadevida.core.dominio.PuntoGeo
 import mx.gotadevida.core.dominio.TipoSangre
 import mx.gotadevida.donador.entity.Donador
@@ -10,10 +14,6 @@ import org.bson.BsonDocumentWriter
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.codecs.kotlinx.KotlinSerializerCodec
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNull
 
 /**
  * Verifica cómo se guardan las entidades en MongoDB sin necesitar un servidor:
@@ -47,7 +47,7 @@ class MapeoBsonTest {
     fun `la ubicacion se guarda como punto GeoJSON con longitud primero`() {
         val donador = Donador.nuevo("abc", "Mariana", "8711234567", "2026-11-12T00:00:00Z").copy(
             tipoSangre = TipoSangre.O_NEGATIVO,
-            ubicacion = PuntoGeo.de(latitud = 25.541, longitud = -103.407),
+            ubicacion = PuntoGeo.de(latitud = 25.541, longitud = -103.407)
         )
 
         val ubicacion = ida(donador).getDocument("ubicacion")
@@ -62,7 +62,7 @@ class MapeoBsonTest {
     fun `un documento sin los campos opcionales se puede leer`() {
         val documento = BsonDocument.parse(
             """{"_id": "x", "nombre": "Luis", "notificacionesActivas": true, "radioMaximoKm": 15,
-               "fechasDonacion": [], "actualizadoEn": "2026-11-12T00:00:00Z"}""",
+               "fechasDonacion": [], "actualizadoEn": "2026-11-12T00:00:00Z"}"""
         )
 
         val donador = vuelta<Donador>(documento)

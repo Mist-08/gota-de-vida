@@ -3,6 +3,7 @@ package mx.gotadevida.donador.repository
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -22,7 +23,6 @@ import mx.gotadevida.donador.entity.aModelo
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PUT
-import javax.inject.Inject
 
 interface DonadorApi {
     @GET("api/v1/donadores/me")
@@ -68,7 +68,7 @@ interface DonadorRepository {
 class DonadorRepositoryLocalYRed @Inject constructor(
     private val api: DonadorApi,
     private val dao: DonadorDao,
-    private val almacen: AlmacenSesion,
+    private val almacen: AlmacenSesion
 ) : DonadorRepository {
 
     private val idSesion: Flow<String?> = almacen.sesion.map { it?.usuarioId }
@@ -88,6 +88,7 @@ class DonadorRepositoryLocalYRed @Inject constructor(
         dao.guardarPerfil((perfil as Resultado.Exito).valor.aEntidad(System.currentTimeMillis()))
         return when (val elegibilidad = llamarApi { api.obtenerElegibilidad() }) {
             is Resultado.Fallo -> elegibilidad
+
             is Resultado.Exito -> {
                 dao.guardarElegibilidad(elegibilidad.valor.aEntidad(id, System.currentTimeMillis()))
                 Resultado.Exito(Unit)

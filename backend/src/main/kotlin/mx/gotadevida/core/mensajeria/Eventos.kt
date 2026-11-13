@@ -1,28 +1,23 @@
 package mx.gotadevida.core.mensajeria
 
+import java.time.Clock
+import java.util.UUID
+import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import org.slf4j.LoggerFactory
-import java.time.Clock
-import java.util.UUID
-import kotlin.time.Duration
 
 /**
  * Evento que viaja por la cola (exchange `gota.eventos`).
  * `tipo` es también la routing key, por ejemplo `solicitud.creada`.
  */
 @Serializable
-data class Evento(
-    val eventoId: String,
-    val tipo: String,
-    val ocurridoEn: String,
-    val datos: JsonObject,
-)
+data class Evento(val eventoId: String, val tipo: String, val ocurridoEn: String, val datos: JsonObject)
 
 /** Routing keys de la sección 11 del prompt maestro. */
 object TiposEvento {
@@ -37,11 +32,7 @@ object TiposEvento {
 }
 
 /** Quien procesa un tipo de evento. `nombre` identifica su cola y su registro de idempotencia. */
-class Consumidor(
-    val nombre: String,
-    val routingKeys: List<String>,
-    val manejar: suspend (Evento) -> Unit,
-)
+class Consumidor(val nombre: String, val routingKeys: List<String>, val manejar: suspend (Evento) -> Unit)
 
 /**
  * Bus de eventos. En producción es RabbitMQ ([BusRabbitMq]); sin `RABBITMQ_URL`
@@ -71,7 +62,7 @@ fun nuevoEvento(tipo: String, datos: JsonObject, reloj: Clock = Clock.systemUTC(
 class BusEnMemoria(
     private val idempotencia: EventosProcesados,
     private val sincrono: Boolean = false,
-    private val reloj: Clock = Clock.systemUTC(),
+    private val reloj: Clock = Clock.systemUTC()
 ) : BusDeEventos {
     private val log = LoggerFactory.getLogger(BusEnMemoria::class.java)
     private val consumidores = mutableListOf<Consumidor>()

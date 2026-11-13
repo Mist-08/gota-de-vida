@@ -13,11 +13,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /** Datos que confirmamos de una cuenta de Google. */
-data class CuentaGoogle(
-    val googleId: String,
-    val email: String,
-    val nombre: String,
-)
+data class CuentaGoogle(val googleId: String, val email: String, val nombre: String)
 
 /** Verifica el `idToken` que manda la app después de "Continuar con Google". */
 interface VerificadorGoogle {
@@ -35,7 +31,7 @@ class VerificadorGoogleTokenInfo(
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
-    },
+    }
 ) : VerificadorGoogle {
 
     override suspend fun verificar(idToken: String): CuentaGoogle? {
@@ -57,6 +53,6 @@ class VerificadorGoogleTokenInfo(
         val iss: String,
         val email: String? = null,
         @SerialName("email_verified") val emailVerified: String? = null,
-        val name: String? = null,
+        val name: String? = null
     )
 }

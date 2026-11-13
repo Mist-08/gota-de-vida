@@ -75,3 +75,35 @@ Registro honesto de cómo usamos IA en el proyecto (criterio extra "Vibecoding" 
 - Verificación: 53 pruebas del backend (incluye el flujo completo por WhatsApp con firma y el function calling con un Gemini falso); la colección de Postman con 57 requests y 112 verificaciones pasó con Newman; 54 pruebas unitarias de la app; lint sin advertencias. No se probó contra Gemini ni Meta reales: falta crear las llaves y la plantilla (docs/DESPLIEGUE.md, secciones 6 y 7).
 - Decisiones y ajustes humanos: <pendiente>
 - Lo que aprendimos: <pendiente>
+
+### [2026-11-12] Fase 6: pulido
+- Integrante: <nombre de quien lo pidió>
+- Herramienta: Claude
+- Rama / PR: feature/pulido
+- Prompt: "continua" (reanudar después de la pausa).
+- Resultado: widget de la pantalla de inicio con Jetpack Glance ("Puedes donar" o "Podrás volver a donar en N días", lee Room y funciona sin señal); en Ajustes, interruptor para recibir o no avisos de urgencias y "Eliminar mi cuenta" (nuevo `DELETE /api/v1/usuarios/me`, derecho de cancelación); datos de demo (cuentas de banco de sangre y 12 donadores ficticios en Torreón, Gómez Palacio y Lerdo, activados con `DEMO_PASSWORD`); vistas previas en claro y oscuro de los componentes del sistema de diseño; ktlint en los dos CI y todo el código formateado.
+- Decisiones: ktlint con el estilo `android_studio` y una excepción para que los `@Composable` empiecen con mayúscula. El seed se puede repetir sin duplicar cuentas. Al borrar una cuenta se conservan las donaciones confirmadas solo con un id interno, porque son registro del banco de sangre.
+- Verificación: 55 pruebas del backend y 58 de la app en verde; Postman con 61 requests y 116 verificaciones en Newman; lint y ktlint sin advertencias.
+- Decisiones y ajustes humanos: <pendiente: ensayo de la demo en teléfonos reales>
+- Lo que aprendimos: <pendiente>
+
+### [2026-11-12] Fase 7: presentación y guion de la demo
+- Integrante: <nombre de quien lo pidió>
+- Herramienta: Claude (artifact de diapositivas con el sistema de diseño de Gota de Vida)
+- Rama / PR: docs/presentacion
+- Prompt: "continua" (reanudar después de la pausa).
+- Resultado: 8 diapositivas para 5 minutos con notas del orador (problema, solución en 4 pasos, arquitectura, asistente Gota, rúbrica, pruebas y pase a la demo) y `docs/presentacion/GUION_DEMO.md` con la preparación, el guion minuto a minuto de 15 minutos, el plan si algo falla y las preguntas difíciles con su respuesta.
+- Decisiones: la diapositiva del problema no trae cifras inventadas; dejamos un espacio para un dato real del banco de sangre aliado. Los nombres del equipo van como `[Nombre]` para que cada quien los llene.
+- Decisiones y ajustes humanos: <pendiente: ensayo cronometrado>
+- Lo que aprendimos: <pendiente>
+
+### [2026-11-12] Prueba de punta a punta en emulador
+- Integrante: <nombre de quien lo pidió>
+- Herramienta: Claude
+- Rama / PR: fix/detalles-emulador
+- Prompt: "correlo aqui"
+- Resultado: backend local y la app en un emulador Android 10. Se recorrió el flujo completo: bienvenida, login, inicio con "Puedes donar", detalle de urgencia, aceptar sin conexión (banner pendiente y sincronización), agendar cita, Mi cita con QR, chat con Gota, panel del hospital, escaneo con código manual y donación confirmada (historial con próxima fecha e insignias).
+- Errores encontrados y corregidos: las fechas salían en inglés aunque la app estaba en español (los formatos usaban el idioma del sistema y no el de la app); el texto de Mi cita no estaba centrado; la atribución de OpenStreetMap quedaba cortada por la esquina redondeada del mapa; el teclado tapaba el campo del código en el escáner.
+- Límites del entorno: sin internet no cargan los mosaicos del mapa, y la cola de salida tuvo que forzarse porque Android no considera "validada" la red del emulador. En un teléfono real ambas cosas funcionan solas; hay que comprobarlo en el ensayo.
+- Decisiones y ajustes humanos: <pendiente: repetir el flujo en teléfonos reales>
+- Lo que aprendimos: <pendiente>

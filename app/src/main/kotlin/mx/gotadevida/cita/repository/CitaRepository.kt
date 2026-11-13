@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -25,7 +26,6 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query as Parametro
-import javax.inject.Inject
 
 interface CitaApi {
     @GET("api/v1/hospitales/{id}/horarios")
@@ -86,7 +86,7 @@ class CitaRepositoryLocalYRed @Inject constructor(
     private val api: CitaApi,
     private val dao: CitaDao,
     private val cola: ColaDeSalida,
-    private val json: Json,
+    private val json: Json
 ) : CitaRepository {
     override fun observarCitas() = dao.observarTodas().map { lista -> lista.map { it.aModelo() } }
 
@@ -101,11 +101,16 @@ class CitaRepositoryLocalYRed @Inject constructor(
 
     override suspend fun requisitos() = llamarApi { api.requisitos() }
 
-    override suspend fun agendar(peticion: AgendarPeticion): Resultado<EnvioCita> = when (val r = llamarApi { api.agendar(peticion) }) {
+    override suspend fun agendar(peticion: AgendarPeticion): Resultado<EnvioCita> = when (
+        val r = llamarApi {
+            api.agendar(peticion)
+        }
+    ) {
         is Resultado.Exito -> {
             dao.guardar(listOf(r.valor.aEntidad()))
             Resultado.Exito(EnvioCita.AGENDADA)
         }
+
         is Resultado.Fallo -> if (r.fallo == FalloApp.SinConexion) {
             cola.encolar(CLAVE, TIPO_ACCION, json.encodeToString(AgendarPeticion.serializer(), peticion))
             Resultado.Exito(EnvioCita.PENDIENTE)
@@ -126,11 +131,8 @@ class CitaRepositoryLocalYRed @Inject constructor(
 }
 
 /** Manda desde la cola de salida una cita agendada sin conexión. */
-class EjecutorAgendarCita @Inject constructor(
-    private val api: CitaApi,
-    private val dao: CitaDao,
-    private val json: Json,
-) : EjecutorDeAccion {
+class EjecutorAgendarCita @Inject constructor(private val api: CitaApi, private val dao: CitaDao, private val json: Json) :
+    EjecutorDeAccion {
     override val tipo = CitaRepositoryLocalYRed.TIPO_ACCION
 
     override suspend fun ejecutar(datos: String): ResultadoEnvio =
@@ -139,9 +141,17 @@ class EjecutorAgendarCita @Inject constructor(
                 dao.guardar(listOf(r.valor.aEntidad()))
                 ResultadoEnvio.ENVIADA
             }
+
             is Resultado.Fallo -> when (val f = r.fallo) {
                 // Si el horario se llenó mientras no había señal, ya no tiene caso reintentar.
-                is FalloApp.Servidor -> if (f.estado >= 500 || f.estado == 401) ResultadoEnvio.REINTENTAR else ResultadoEnvio.DESCARTAR
+                is FalloApp.Servidor -> if (f.estado >= 500 ||
+                    f.estado == 401
+                ) {
+                    ResultadoEnvio.REINTENTAR
+                } else {
+                    ResultadoEnvio.DESCARTAR
+                }
+
                 else -> ResultadoEnvio.REINTENTAR
             }
         }

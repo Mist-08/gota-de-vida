@@ -46,9 +46,9 @@ class ValidadorCuentaTest {
                 CampoCuenta.NOMBRE to ErrorCampo.VACIO,
                 CampoCuenta.EMAIL to ErrorCampo.EMAIL_INVALIDO,
                 CampoCuenta.PASSWORD to ErrorCampo.PASSWORD_CORTA,
-                CampoCuenta.TELEFONO to ErrorCampo.TELEFONO_INVALIDO,
+                CampoCuenta.TELEFONO to ErrorCampo.TELEFONO_INVALIDO
             ),
-            errores,
+            errores
         )
         assertTrue(ValidadorCuenta.registro("Ana", "ana@correo.com", "12345678", "8711234567").isEmpty())
     }

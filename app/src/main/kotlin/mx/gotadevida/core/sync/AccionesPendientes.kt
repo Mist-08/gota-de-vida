@@ -18,10 +18,10 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Cola de salida (outbox, sección 9): lo que el donador hizo sin conexión espera aquí
@@ -29,13 +29,7 @@ import javax.inject.Singleton
  * `clave` evita duplicados (por ejemplo, responder dos veces la misma urgencia).
  */
 @Entity(tableName = "acciones_pendientes")
-data class AccionPendiente(
-    @PrimaryKey val clave: String,
-    val tipo: String,
-    val datos: String,
-    val creadaEn: Long,
-    val intentos: Int = 0,
-)
+data class AccionPendiente(@PrimaryKey val clave: String, val tipo: String, val datos: String, val creadaEn: Long, val intentos: Int = 0)
 
 @Dao
 interface AccionPendienteDao {
@@ -76,10 +70,8 @@ interface ColaDeSalida {
 }
 
 @Singleton
-class ColaDeSalidaRoom @Inject constructor(
-    private val dao: AccionPendienteDao,
-    @param:ApplicationContext private val contexto: Context,
-) : ColaDeSalida {
+class ColaDeSalidaRoom @Inject constructor(private val dao: AccionPendienteDao, @param:ApplicationContext private val contexto: Context) :
+    ColaDeSalida {
     override val claves: Flow<List<String>> = dao.observarClaves()
 
     override suspend fun encolar(clave: String, tipo: String, datos: String) {
@@ -107,7 +99,7 @@ class EnviarPendientesWorker @AssistedInject constructor(
     @Assisted contexto: Context,
     @Assisted parametros: WorkerParameters,
     private val dao: AccionPendienteDao,
-    private val ejecutores: Set<@JvmSuppressWildcards EjecutorDeAccion>,
+    private val ejecutores: Set<@JvmSuppressWildcards EjecutorDeAccion>
 ) : CoroutineWorker(contexto, parametros) {
 
     override suspend fun doWork(): Result = if (enviarPendientes(dao, ejecutores)) Result.success() else Result.retry()
@@ -121,6 +113,7 @@ suspend fun enviarPendientes(dao: AccionPendienteDao, ejecutores: Set<EjecutorDe
         val resultado = porTipo[accion.tipo]?.ejecutar(accion.datos) ?: ResultadoEnvio.DESCARTAR
         when (resultado) {
             ResultadoEnvio.ENVIADA, ResultadoEnvio.DESCARTAR -> dao.borrar(accion.clave)
+
             ResultadoEnvio.REINTENTAR -> {
                 dao.sumarIntento(accion.clave)
                 if (accion.intentos + 1 >= MAXIMO_INTENTOS) dao.borrar(accion.clave) else reintentar = true

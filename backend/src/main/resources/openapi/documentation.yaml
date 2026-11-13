@@ -287,6 +287,18 @@ paths:
         "400": { $ref: "#/components/responses/DatosInvalidos" }
         "403": { $ref: "#/components/responses/Prohibido" }
 
+  /api/v1/usuarios/me:
+    delete:
+      tags: [Dispositivos]
+      summary: Eliminar mi cuenta (DONADOR)
+      description: Derecho de cancelación. Borra la cuenta, el perfil y la conversación, y cancela las citas pendientes. Las donaciones confirmadas quedan solo con un id interno.
+      operationId: eliminarMiCuenta
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204": { description: Cuenta eliminada }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+
   /api/v1/usuarios/me/dispositivo:
     put:
       tags: [Dispositivos]

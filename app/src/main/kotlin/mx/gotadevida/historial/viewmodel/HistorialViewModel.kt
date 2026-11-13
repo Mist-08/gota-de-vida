@@ -3,6 +3,7 @@ package mx.gotadevida.historial.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,16 +15,11 @@ import mx.gotadevida.core.network.FalloApp
 import mx.gotadevida.core.network.Resultado
 import mx.gotadevida.historial.entity.Historial
 import mx.gotadevida.historial.repository.HistorialRepository
-import javax.inject.Inject
 
 @Serializable
 data object HistorialRuta
 
-data class HistorialUiState(
-    val historial: Historial? = null,
-    val cargando: Boolean = true,
-    val sinConexion: Boolean = false,
-)
+data class HistorialUiState(val historial: Historial? = null, val cargando: Boolean = true, val sinConexion: Boolean = false)
 
 @HiltViewModel
 class HistorialViewModel @Inject constructor(private val repositorio: HistorialRepository) : ViewModel() {

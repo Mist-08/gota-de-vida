@@ -40,7 +40,9 @@ object InicioConGoogle {
             val credencial = CredentialManager.create(contextoActividad)
                 .getCredential(contextoActividad, solicitud)
                 .credential
-            if (credencial is CustomCredential && credencial.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+            if (credencial is CustomCredential &&
+                credencial.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+            ) {
                 CuentaGoogleResultado.Token(GoogleIdTokenCredential.createFrom(credencial.data).idToken)
             } else {
                 CuentaGoogleResultado.NoDisponible

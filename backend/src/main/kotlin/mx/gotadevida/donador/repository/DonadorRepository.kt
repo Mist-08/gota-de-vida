@@ -1,20 +1,20 @@
 package mx.gotadevida.donador.repository
 
-import com.mongodb.client.model.Filters
-import com.mongodb.client.model.ReplaceOptions
-import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import kotlinx.coroutines.flow.firstOrNull
-import mx.gotadevida.core.db.Colecciones
-import mx.gotadevida.donador.entity.Donador
 import com.mongodb.client.model.Aggregates
-import org.bson.Document
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.GeoNearOptions
 import com.mongodb.client.model.Projections
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.geojson.Point
 import com.mongodb.client.model.geojson.Position
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
+import mx.gotadevida.core.db.Colecciones
 import mx.gotadevida.core.dominio.PuntoGeo
 import mx.gotadevida.core.dominio.TipoSangre
+import mx.gotadevida.donador.entity.Donador
+import org.bson.Document
 
 interface DonadorRepository {
     suspend fun buscarPorId(id: String): Donador?
@@ -29,13 +29,14 @@ interface DonadorRepository {
     suspend fun cercanos(centro: PuntoGeo, radioKm: Double, tipos: List<TipoSangre>, excluir: Set<String>, limite: Int): List<Donador>
 
     suspend fun buscarPorTelefono(telefono: String): Donador?
+
+    suspend fun borrar(id: String)
 }
 
 class MongoDonadorRepository(db: MongoDatabase) : DonadorRepository {
     private val coleccion = db.getCollection<Donador>(Colecciones.DONADORES)
 
-    override suspend fun buscarPorId(id: String): Donador? =
-        coleccion.find(Filters.eq("_id", id)).firstOrNull()
+    override suspend fun buscarPorId(id: String): Donador? = coleccion.find(Filters.eq("_id", id)).firstOrNull()
 
     override suspend fun guardar(donador: Donador) {
         coleccion.replaceOne(Filters.eq("_id", donador.id), donador, ReplaceOptions().upsert(true))
@@ -46,18 +47,21 @@ class MongoDonadorRepository(db: MongoDatabase) : DonadorRepository {
         radioKm: Double,
         tipos: List<TipoSangre>,
         excluir: Set<String>,
-        limite: Int,
+        limite: Int
     ): List<Donador> = buscarCercanos(centro, radioKm, tipos, excluir, limite)
 
-    override suspend fun buscarPorTelefono(telefono: String): Donador? =
-        coleccion.find(Filters.eq("telefono", telefono)).firstOrNull()
+    override suspend fun buscarPorTelefono(telefono: String): Donador? = coleccion.find(Filters.eq("telefono", telefono)).firstOrNull()
+
+    override suspend fun borrar(id: String) {
+        coleccion.deleteOne(Filters.eq("_id", id))
+    }
 
     private suspend fun buscarCercanos(
         centro: PuntoGeo,
         radioKm: Double,
         tipos: List<TipoSangre>,
         excluir: Set<String>,
-        limite: Int,
+        limite: Int
     ): List<Donador> = coleccion.aggregate<Donador>(
         listOf(
             // $geoNear tiene que ser la primera etapa; calcula la distancia en metros.
@@ -69,12 +73,12 @@ class MongoDonadorRepository(db: MongoDatabase) : DonadorRepository {
                     .query(
                         Document("tipoSangre", Document("\$in", tipos.map { it.name }))
                             .append("notificacionesActivas", true)
-                            .append("_id", Document("\$nin", excluir.toList())),
-                    ),
+                            .append("_id", Document("\$nin", excluir.toList()))
+                    )
             ),
             Aggregates.limit(limite),
             // La distancia exacta no se guarda ni se regresa: se recalcula redondeada.
-            Aggregates.project(Projections.exclude("distanciaM")),
-        ),
+            Aggregates.project(Projections.exclude("distanciaM"))
+        )
     ).toList()
 }

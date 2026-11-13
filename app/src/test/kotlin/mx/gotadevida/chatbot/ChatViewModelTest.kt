@@ -23,7 +23,8 @@ class ChatFalso(var sinRed: Boolean = false) : ChatRepository {
     override suspend fun enviar(texto: String): Resultado<RespuestaChat> {
         if (sinRed) return Resultado.Fallo(FalloApp.SinConexion)
         val r = RespuestaChat("Hay lugar a las 08:00 o 09:30.", listOf("08:00", "09:30"), "MENU")
-        mensajes.value = mensajes.value + MensajeChat(Autor.DONADOR, texto, "") + MensajeChat(Autor.GOTA, r.respuesta, "")
+        mensajes.value =
+            mensajes.value + MensajeChat(Autor.DONADOR, texto, "") + MensajeChat(Autor.GOTA, r.respuesta, "")
         return Resultado.Exito(r)
     }
 }

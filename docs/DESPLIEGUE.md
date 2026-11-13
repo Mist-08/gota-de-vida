@@ -73,6 +73,8 @@ cd backend
 
 ## Para la demo de urgencias
 
+- Pon `DEMO_PASSWORD` en Render con una contraseña que solo conozca el equipo. Al arrancar se crean cuentas de banco de sangre (`banco1@demo.gotadevida.mx`, `banco2@…`, `banco3@…`) y 12 donadores ficticios (`donador1@demo.gotadevida.mx` … `donador12@…`) en Torreón, Gómez Palacio y Lerdo, con distintos tipos de sangre y fechas de última donación.
+
 - Pon `MINUTOS_ENTRE_OLEADAS=1` en Render para que la segunda oleada llegue en un minuto y no en quince.
 - Crea con la colección de Postman una cuenta de banco de sangre (carpeta 4) y entra con ella en la app: verás el panel del hospital.
 

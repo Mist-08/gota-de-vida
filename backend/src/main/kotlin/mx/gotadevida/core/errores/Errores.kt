@@ -11,17 +11,10 @@ import kotlinx.serialization.Serializable
 
 /** Forma de todas las respuestas de error de la API. */
 @Serializable
-data class ErrorRespuesta(
-    val error: String,
-    val mensaje: String,
-)
+data class ErrorRespuesta(val error: String, val mensaje: String)
 
 /** Error esperado de la lógica de negocio: se convierte en una respuesta HTTP clara. */
-open class ErrorDeNegocio(
-    val estado: HttpStatusCode,
-    val codigo: String,
-    mensaje: String,
-) : RuntimeException(mensaje)
+open class ErrorDeNegocio(val estado: HttpStatusCode, val codigo: String, mensaje: String) : RuntimeException(mensaje)
 
 class NoEncontrado(mensaje: String) : ErrorDeNegocio(HttpStatusCode.NotFound, "no_encontrado", mensaje)
 
@@ -43,14 +36,14 @@ fun Application.configurarErrores() {
         exception<BadRequestException> { call, _ ->
             call.respond(
                 HttpStatusCode.BadRequest,
-                ErrorRespuesta("datos_invalidos", "El cuerpo de la petición no tiene el formato esperado."),
+                ErrorRespuesta("datos_invalidos", "El cuerpo de la petición no tiene el formato esperado.")
             )
         }
         exception<Throwable> { call, error ->
             call.application.log.error("Error no controlado", error)
             call.respond(
                 HttpStatusCode.InternalServerError,
-                ErrorRespuesta("error_interno", "Ocurrió un error inesperado. Intenta de nuevo."),
+                ErrorRespuesta("error_interno", "Ocurrió un error inesperado. Intenta de nuevo.")
             )
         }
     }
