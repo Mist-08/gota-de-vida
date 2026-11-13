@@ -41,7 +41,22 @@ android {
         }
     }
 
+    // Llave de depuración fija (contraseñas estándar de Android, no es secreta): el APK de
+    // cualquier compu o del CI tiene la misma huella SHA-1, que Google pide para iniciar sesión,
+    // y cada APK nuevo se instala encima del anterior sin desinstalar.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("firma/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

@@ -21,6 +21,8 @@ captures/
 .env
 *.jks
 *.keystore
+# Llave de depuración compartida (valores públicos de Android): firma igual en todas las compus y en el CI.
+!app/firma/debug.keystore
 google-services.json
 service-account*.json
 

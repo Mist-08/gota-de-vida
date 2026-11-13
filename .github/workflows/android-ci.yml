@@ -19,6 +19,13 @@ jobs:
     env:
       # Backend en Render: el APK que se descarga de Actions funciona en un teléfono real.
       API_BASE_URL: https://gota-de-vida-backend.onrender.com/
+      # "Continuar con Google": ID de cliente web de OAuth (proyecto Gota de Vida). No es secreto.
+      GOOGLE_WEB_CLIENT_ID: 289057409750-01uoeefqc3i8d1unrl2nbi7qvubeihsn.apps.googleusercontent.com
+      # Firebase Cloud Messaging (avisos push). La llave de API va como secreto del repositorio.
+      FIREBASE_APP_ID: "1:289057409750:android:6914c109c5fa86d70c1777"
+      FIREBASE_PROJECT_ID: gen-lang-client-0524179591
+      FIREBASE_SENDER_ID: "289057409750"
+      FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
     defaults:
       run:
         working-directory: app
