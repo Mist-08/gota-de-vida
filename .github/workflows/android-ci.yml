@@ -16,6 +16,9 @@ jobs:
   build:
     name: Compilar y probar la app
     runs-on: ubuntu-latest
+    env:
+      # Backend en Render: el APK que se descarga de Actions funciona en un teléfono real.
+      API_BASE_URL: https://gota-de-vida-backend.onrender.com/
     defaults:
       run:
         working-directory: app
