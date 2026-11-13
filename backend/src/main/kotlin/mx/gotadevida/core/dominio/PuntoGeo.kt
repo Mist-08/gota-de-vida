@@ -1,23 +1,20 @@
 package mx.gotadevida.core.dominio
 
-import kotlinx.serialization.Serializable
-import mx.gotadevida.core.errores.validar
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.roundToLong
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlinx.serialization.Serializable
+import mx.gotadevida.core.errores.validar
 
 /**
  * Punto GeoJSON tal como lo espera MongoDB para los índices `2dsphere`.
  * Ojo: GeoJSON guarda primero la longitud y luego la latitud.
  */
 @Serializable
-data class PuntoGeo(
-    val type: String,
-    val coordinates: List<Double>,
-) {
+data class PuntoGeo(val type: String, val coordinates: List<Double>) {
     val longitud: Double get() = coordinates[0]
     val latitud: Double get() = coordinates[1]
 

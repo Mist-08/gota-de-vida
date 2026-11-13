@@ -25,3 +25,21 @@ services:
         sync: false
       - key: CARGAR_DATOS_DEMO
         value: "true"
+      - key: RABBITMQ_URL
+        sync: false
+      - key: FIREBASE_CREDENCIALES_JSON
+        sync: false
+      - key: MINUTOS_ENTRE_OLEADAS
+        value: "15"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: DEMO_PASSWORD
+        sync: false

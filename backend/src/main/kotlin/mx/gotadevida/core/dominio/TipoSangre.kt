@@ -15,7 +15,7 @@ enum class TipoSangre(val etiqueta: String) {
     B_NEGATIVO("B−"),
     B_POSITIVO("B+"),
     AB_NEGATIVO("AB−"),
-    AB_POSITIVO("AB+"),
+    AB_POSITIVO("AB+")
     ;
 
     private val grupo: String get() = name.substringBefore('_')
@@ -38,7 +38,6 @@ enum class TipoSangre(val etiqueta: String) {
 
     companion object {
         /** Tipos de donador que sirven para un paciente con el tipo indicado. */
-        fun donadoresCompatiblesCon(receptor: TipoSangre): List<TipoSangre> =
-            entries.filter { it.puedeDonarA(receptor) }
+        fun donadoresCompatiblesCon(receptor: TipoSangre): List<TipoSangre> = entries.filter { it.puedeDonarA(receptor) }
     }
 }

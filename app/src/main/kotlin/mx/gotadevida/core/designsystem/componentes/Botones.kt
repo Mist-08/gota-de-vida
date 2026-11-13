@@ -28,7 +28,7 @@ fun BotonPrincipal(
     alPulsar: () -> Unit,
     modifier: Modifier = Modifier,
     habilitado: Boolean = true,
-    cargando: Boolean = false,
+    cargando: Boolean = false
 ) {
     val colores = GotaTema.colores
     Button(
@@ -40,30 +40,28 @@ fun BotonPrincipal(
             containerColor = colores.sangre,
             contentColor = colores.onSangre,
             disabledContainerColor = colores.surfaceSunken,
-            disabledContentColor = colores.inkMuted,
-        ),
+            disabledContentColor = colores.inkMuted
+        )
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Espacio.x2)) {
             if (cargando) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
                     strokeWidth = 2.dp,
-                    color = colores.inkMuted,
+                    color = colores.inkMuted
                 )
             }
-            Text(texto, style = MaterialTheme.typography.labelLarge.copy(fontSize = MaterialTheme.typography.bodyLarge.fontSize))
+            Text(
+                texto,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = MaterialTheme.typography.bodyLarge.fontSize)
+            )
         }
     }
 }
 
 /** Acción secundaria: borde visible, sin relleno. */
 @Composable
-fun BotonSecundario(
-    texto: String,
-    alPulsar: () -> Unit,
-    modifier: Modifier = Modifier,
-    habilitado: Boolean = true,
-) {
+fun BotonSecundario(texto: String, alPulsar: () -> Unit, modifier: Modifier = Modifier, habilitado: Boolean = true) {
     val colores = GotaTema.colores
     OutlinedButton(
         onClick = alPulsar,
@@ -71,25 +69,23 @@ fun BotonSecundario(
         modifier = modifier.fillMaxWidth().height(56.dp),
         shape = Radio.md,
         border = BorderStroke(1.5.dp, colores.outlineStrong),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = colores.ink),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = colores.ink)
     ) {
-        Text(texto, style = MaterialTheme.typography.labelLarge.copy(fontSize = MaterialTheme.typography.bodyLarge.fontSize))
+        Text(
+            texto,
+            style = MaterialTheme.typography.labelLarge.copy(fontSize = MaterialTheme.typography.bodyLarge.fontSize)
+        )
     }
 }
 
 /** Acción de bajo peso, como "Ahora no puedo" o "Cerrar sesión". */
 @Composable
-fun BotonTexto(
-    texto: String,
-    alPulsar: () -> Unit,
-    modifier: Modifier = Modifier,
-    peligroso: Boolean = false,
-) {
+fun BotonTexto(texto: String, alPulsar: () -> Unit, modifier: Modifier = Modifier, peligroso: Boolean = false) {
     val colores = GotaTema.colores
     TextButton(
         onClick = alPulsar,
         modifier = modifier.height(48.dp),
-        colors = ButtonDefaults.textButtonColors(contentColor = if (peligroso) colores.error else colores.ink),
+        colors = ButtonDefaults.textButtonColors(contentColor = if (peligroso) colores.error else colores.ink)
     ) {
         Text(texto, style = MaterialTheme.typography.labelLarge)
     }

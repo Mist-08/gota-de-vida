@@ -1,0 +1,311 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "518054ccdcf946c8bf899093b912b505",
+    "entities": [
+      {
+        "tableName": "perfil_donador",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, `notificacionesActivas` INTEGER NOT NULL, `radioMaximoKm` INTEGER NOT NULL, `totalDonaciones` INTEGER NOT NULL, `perfilCompleto` INTEGER NOT NULL, `telefono` TEXT, `tipoSangre` TEXT, `fechaNacimiento` TEXT, `pesoKg` REAL, `sexo` TEXT, `latitud` REAL, `longitud` REAL, `zona` TEXT, `ultimaDonacion` TEXT, `guardadoEn` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notificacionesActivas",
+            "columnName": "notificacionesActivas",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "radioMaximoKm",
+            "columnName": "radioMaximoKm",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalDonaciones",
+            "columnName": "totalDonaciones",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "perfilCompleto",
+            "columnName": "perfilCompleto",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telefono",
+            "columnName": "telefono",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tipoSangre",
+            "columnName": "tipoSangre",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaNacimiento",
+            "columnName": "fechaNacimiento",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pesoKg",
+            "columnName": "pesoKg",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sexo",
+            "columnName": "sexo",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "latitud",
+            "columnName": "latitud",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "longitud",
+            "columnName": "longitud",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "zona",
+            "columnName": "zona",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ultimaDonacion",
+            "columnName": "ultimaDonacion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "guardadoEn",
+            "columnName": "guardadoEn",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "elegibilidad",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`donadorId` TEXT NOT NULL, `elegible` INTEGER NOT NULL, `faltanDatos` INTEGER NOT NULL, `motivos` TEXT NOT NULL, `aviso` TEXT NOT NULL, `proximaFechaElegible` TEXT, `diasParaVolverADonar` INTEGER, `consultadoEn` INTEGER NOT NULL, PRIMARY KEY(`donadorId`))",
+        "fields": [
+          {
+            "fieldPath": "donadorId",
+            "columnName": "donadorId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "elegible",
+            "columnName": "elegible",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "faltanDatos",
+            "columnName": "faltanDatos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "motivos",
+            "columnName": "motivos",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "aviso",
+            "columnName": "aviso",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "proximaFechaElegible",
+            "columnName": "proximaFechaElegible",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "diasParaVolverADonar",
+            "columnName": "diasParaVolverADonar",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "consultadoEn",
+            "columnName": "consultadoEn",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "donadorId"
+          ]
+        }
+      },
+      {
+        "tableName": "urgencias",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `hospitalId` TEXT NOT NULL, `hospitalNombre` TEXT NOT NULL, `hospitalDireccion` TEXT NOT NULL, `latitud` REAL NOT NULL, `longitud` REAL NOT NULL, `etiquetaTipoSangre` TEXT NOT NULL, `unidades` INTEGER NOT NULL, `unidadesComprometidas` INTEGER NOT NULL, `estado` TEXT NOT NULL, `creadaEn` TEXT NOT NULL, `nota` TEXT, `distanciaKm` REAL, `miRespuesta` INTEGER, `cercana` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hospitalId",
+            "columnName": "hospitalId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hospitalNombre",
+            "columnName": "hospitalNombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hospitalDireccion",
+            "columnName": "hospitalDireccion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitud",
+            "columnName": "latitud",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitud",
+            "columnName": "longitud",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "etiquetaTipoSangre",
+            "columnName": "etiquetaTipoSangre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unidades",
+            "columnName": "unidades",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unidadesComprometidas",
+            "columnName": "unidadesComprometidas",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estado",
+            "columnName": "estado",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creadaEn",
+            "columnName": "creadaEn",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nota",
+            "columnName": "nota",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "distanciaKm",
+            "columnName": "distanciaKm",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "miRespuesta",
+            "columnName": "miRespuesta",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "cercana",
+            "columnName": "cercana",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "acciones_pendientes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`clave` TEXT NOT NULL, `tipo` TEXT NOT NULL, `datos` TEXT NOT NULL, `creadaEn` INTEGER NOT NULL, `intentos` INTEGER NOT NULL, PRIMARY KEY(`clave`))",
+        "fields": [
+          {
+            "fieldPath": "clave",
+            "columnName": "clave",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipo",
+            "columnName": "tipo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "datos",
+            "columnName": "datos",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creadaEn",
+            "columnName": "creadaEn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "intentos",
+            "columnName": "intentos",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "clave"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '518054ccdcf946c8bf899093b912b505')"
+    ]
+  }
+}

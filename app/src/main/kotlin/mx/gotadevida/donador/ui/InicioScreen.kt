@@ -43,48 +43,63 @@ import mx.gotadevida.core.designsystem.componentes.BotonPrincipal
 import mx.gotadevida.core.designsystem.componentes.BotonSecundario
 import mx.gotadevida.core.designsystem.componentes.ChipTipoSangre
 import mx.gotadevida.core.designsystem.componentes.Icono
+import mx.gotadevida.core.designsystem.componentes.formatoFecha
 import mx.gotadevida.donador.service.EstadoDonacion
 import mx.gotadevida.donador.viewmodel.InicioViewModel
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
     alAbrirAjustes: () -> Unit,
     alEditarPerfil: () -> Unit,
-    viewModel: InicioViewModel = hiltViewModel(),
+    urgencias: @Composable () -> Unit = {},
+    cita: @Composable () -> Unit = {},
+    alHistorial: () -> Unit = {},
+    alChat: () -> Unit = {},
+    viewModel: InicioViewModel = hiltViewModel()
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val colores = GotaTema.colores
 
     Scaffold(containerColor = colores.surface) { relleno ->
         Column(Modifier.fillMaxSize().padding(relleno)) {
-            if (estado.sinConexion) BannerAviso(stringResource(R.string.inicio_sin_conexion), R.drawable.ic_nube_tachada)
+            if (estado.sinConexion) {
+                BannerAviso(
+                    stringResource(R.string.inicio_sin_conexion),
+                    R.drawable.ic_nube_tachada
+                )
+            }
             PullToRefreshBox(
                 isRefreshing = estado.actualizando,
                 onRefresh = viewModel::actualizar,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = Espacio.x6, vertical = Espacio.x2),
-                    verticalArrangement = Arrangement.spacedBy(Espacio.x6),
+                    verticalArrangement = Arrangement.spacedBy(Espacio.x6)
                 ) {
                     BarraSuperior {
                         IconButton(onClick = alAbrirAjustes) {
                             Icono(R.drawable.ic_ajustes, stringResource(R.string.accion_ajustes))
                         }
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Espacio.x3)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(Espacio.x3)
+                    ) {
                         Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.inicio_hola), style = MaterialTheme.typography.bodyLarge, color = colores.inkMuted)
+                            Text(
+                                stringResource(R.string.inicio_hola),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = colores.inkMuted
+                            )
                             Text(
                                 estado.nombre,
                                 style = MaterialTheme.typography.headlineLarge,
-                                modifier = Modifier.semantics { heading() },
+                                modifier = Modifier.semantics { heading() }
                             )
                         }
                         estado.etiquetaTipoSangre?.let { tipo ->
@@ -94,23 +109,23 @@ fun InicioScreen(
                     }
 
                     TarjetaEstado(estado.estadoDonacion, alEditarPerfil)
+                    cita()
 
-                    Column(verticalArrangement = Arrangement.spacedBy(Espacio.x3)) {
-                        Text(stringResource(R.string.inicio_urgencias), style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-                        Row(
-                            modifier = Modifier.fillMaxWidth().background(colores.surfaceSunken, Radio.lg).padding(Espacio.x4),
-                            horizontalArrangement = Arrangement.spacedBy(Espacio.x3),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icono(R.drawable.ic_campana, null, color = colores.inkMuted, tamano = 20.dp)
-                            Text(stringResource(R.string.inicio_urgencias_vacio), style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
-                        }
-                    }
+                    // La lista viene de la funcionalidad `solicitud`; la navegación la conecta aquí.
+                    urgencias()
 
-                    if (estado.estadoDonacion !is EstadoDonacion.CompletarPerfil && estado.estadoDonacion !is EstadoDonacion.Cargando) {
+                    if (estado.estadoDonacion !is EstadoDonacion.CompletarPerfil &&
+                        estado.estadoDonacion !is EstadoDonacion.Cargando
+                    ) {
+                        BotonSecundario(stringResource(R.string.chat_hablar_con_gota), alPulsar = alChat)
+                        BotonSecundario(stringResource(R.string.historial_titulo), alPulsar = alHistorial)
                         BotonSecundario(stringResource(R.string.inicio_editar_perfil), alPulsar = alEditarPerfil)
                     }
-                    Text(stringResource(R.string.aviso_medico), style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
+                    Text(
+                        stringResource(R.string.aviso_medico),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colores.inkMuted
+                    )
                     Spacer(Modifier.height(Espacio.x4))
                 }
             }
@@ -121,30 +136,49 @@ fun InicioScreen(
 @Composable
 private fun TarjetaEstado(estado: EstadoDonacion, alCompletarPerfil: () -> Unit) {
     val colores = GotaTema.colores
-    val formato = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG) }
+    val formato = formatoFecha()
     when (estado) {
         EstadoDonacion.Cargando -> Tarjeta(colores.surfaceSunken) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Espacio.x3)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Espacio.x3)
+            ) {
                 CircularProgressIndicator(Modifier.height(20.dp), color = colores.sangre, strokeWidth = 2.dp)
-                Text(stringResource(R.string.inicio_cargando), style = MaterialTheme.typography.bodyLarge, color = colores.inkMuted)
+                Text(
+                    stringResource(R.string.inicio_cargando),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = colores.inkMuted
+                )
             }
         }
 
         EstadoDonacion.CompletarPerfil -> Tarjeta(colores.sangreSoft) {
             Icono(R.drawable.ic_persona, null, color = colores.onSangreSoft)
-            Text(stringResource(R.string.inicio_completa_perfil), style = MaterialTheme.typography.headlineSmall, color = colores.onSangreSoft)
-            Text(stringResource(R.string.inicio_completa_perfil_texto), style = MaterialTheme.typography.bodyLarge, color = colores.onSangreSoft)
+            Text(
+                stringResource(R.string.inicio_completa_perfil),
+                style = MaterialTheme.typography.headlineSmall,
+                color = colores.onSangreSoft
+            )
+            Text(
+                stringResource(R.string.inicio_completa_perfil_texto),
+                style = MaterialTheme.typography.bodyLarge,
+                color = colores.onSangreSoft
+            )
             BotonPrincipal(stringResource(R.string.accion_completar_perfil), alPulsar = alCompletarPerfil)
         }
 
         is EstadoDonacion.PuedeDonar -> Tarjeta(colores.vidaSoft) {
             Etiqueta(stringResource(R.string.inicio_elegible), R.drawable.ic_check_circulo, colores.vida)
-            Text(stringResource(R.string.inicio_puedes_donar), style = MaterialTheme.typography.headlineMedium, color = colores.onVidaSoft)
+            Text(
+                stringResource(R.string.inicio_puedes_donar),
+                style = MaterialTheme.typography.headlineMedium,
+                color = colores.onVidaSoft
+            )
             Text(
                 estado.ultimaDonacion?.let { stringResource(R.string.inicio_ultima_donacion, it.format(formato)) }
                     ?: stringResource(R.string.inicio_sin_donaciones),
                 style = MaterialTheme.typography.bodyLarge,
-                color = colores.onVidaSoft,
+                color = colores.onVidaSoft
             )
         }
 
@@ -153,9 +187,13 @@ private fun TarjetaEstado(estado: EstadoDonacion, alCompletarPerfil: () -> Unit)
             Text(
                 pluralStringResource(R.plurals.inicio_dias, estado.dias.toInt(), estado.dias.toInt()),
                 style = MaterialTheme.typography.displayMedium,
-                color = colores.onAvisoSoft,
+                color = colores.onAvisoSoft
             )
-            Text(stringResource(R.string.inicio_a_partir_de, estado.desde.format(formato)), style = MaterialTheme.typography.bodyLarge, color = colores.onAvisoSoft)
+            Text(
+                stringResource(R.string.inicio_a_partir_de, estado.desde.format(formato)),
+                style = MaterialTheme.typography.bodyLarge,
+                color = colores.onAvisoSoft
+            )
         }
 
         is EstadoDonacion.NoPuede -> Tarjeta(colores.surfaceSunken) {

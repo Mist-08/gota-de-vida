@@ -3,10 +3,10 @@ package mx.gotadevida.core.salud
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
-import mx.gotadevida.soporte.probarApi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import mx.gotadevida.soporte.probarApi
 
 class SaludRoutesTest {
 
