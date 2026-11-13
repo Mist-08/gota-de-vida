@@ -1,24 +1,5 @@
 package mx.gotadevida.cita.service
 
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import mx.gotadevida.cita.entity.AgendarCitaPeticion
-import mx.gotadevida.cita.entity.Cita
-import mx.gotadevida.cita.entity.CitaRespuesta
-import mx.gotadevida.cita.entity.EstadoCita
-import mx.gotadevida.cita.entity.Horario
-import mx.gotadevida.cita.entity.paraDonador
-import mx.gotadevida.cita.entity.paraHospital
-import mx.gotadevida.cita.repository.CitaRepository
-import mx.gotadevida.core.dominio.DirectorioDonadores
-import mx.gotadevida.core.dominio.DirectorioHospitales
-import mx.gotadevida.core.errores.Conflicto
-import mx.gotadevida.core.errores.DatosInvalidos
-import mx.gotadevida.core.errores.NoEncontrado
-import mx.gotadevida.core.errores.Prohibido
-import mx.gotadevida.core.errores.validar
-import mx.gotadevida.core.mensajeria.BusDeEventos
-import mx.gotadevida.core.mensajeria.TiposEvento
 import java.security.SecureRandom
 import java.time.Clock
 import java.time.LocalDate
@@ -29,6 +10,27 @@ import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 import java.util.Base64
 import java.util.UUID
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import mx.gotadevida.cita.entity.AgendarCitaPeticion
+import mx.gotadevida.cita.entity.Cita
+import mx.gotadevida.cita.entity.CitaRespuesta
+import mx.gotadevida.cita.entity.EstadoCita
+import mx.gotadevida.cita.entity.Horario
+import mx.gotadevida.cita.entity.paraDonador
+import mx.gotadevida.cita.entity.paraHospital
+import mx.gotadevida.cita.repository.CitaRepository
+import mx.gotadevida.core.dominio.CitaResumen
+import mx.gotadevida.core.dominio.DirectorioCitas
+import mx.gotadevida.core.dominio.DirectorioDonadores
+import mx.gotadevida.core.dominio.DirectorioHospitales
+import mx.gotadevida.core.errores.Conflicto
+import mx.gotadevida.core.errores.DatosInvalidos
+import mx.gotadevida.core.errores.NoEncontrado
+import mx.gotadevida.core.errores.Prohibido
+import mx.gotadevida.core.errores.validar
+import mx.gotadevida.core.mensajeria.BusDeEventos
+import mx.gotadevida.core.mensajeria.TiposEvento
 
 /**
  * Citas para donar: horarios con cupo, agenda, cancelación y check-in con QR.
@@ -40,15 +42,17 @@ class CitaService(
     private val hospitales: DirectorioHospitales,
     private val hospitalDeUsuario: suspend (usuarioId: String) -> String?,
     private val bus: BusDeEventos,
-    private val reloj: Clock = Clock.systemUTC(),
-) {
+    private val reloj: Clock = Clock.systemUTC()
+) : DirectorioCitas {
     private fun ahora(): LocalDateTime = LocalDateTime.now(reloj.withZone(ZONA))
 
     /** Horarios de 8:00 a 13:30 cada media hora, con [CUPO_POR_HORARIO] lugares cada uno. */
     suspend fun horarios(hospitalId: String, fechaTexto: String?): List<Horario> {
         hospitales.resumen(hospitalId) ?: throw NoEncontrado("No existe ese hospital.")
         val fecha = fechaTexto?.let { parsearFecha(it) } ?: ahora().toLocalDate()
-        val ocupadas = citas.agendadasDeHospital(hospitalId, fecha.toString()).groupingBy { it.fechaHora.substring(11, 16) }.eachCount()
+        val ocupadas = citas.agendadasDeHospital(hospitalId, fecha.toString()).groupingBy {
+            it.fechaHora.substring(11, 16)
+        }.eachCount()
         val momento = ahora()
         return HORAS.map { hora ->
             val lugares = CUPO_POR_HORARIO - (ocupadas[hora.toString()] ?: 0)
@@ -74,11 +78,19 @@ class CitaService(
         if (!donador.elegible && (proxima == null || proxima.isAfter(fechaHora.toLocalDate()))) {
             throw Conflicto("Para esa fecha todavía no podrías donar. Revisa tu elegibilidad en el inicio.")
         }
-        if (citas.deDonador(donadorId).any { it.estado == EstadoCita.AGENDADA && LocalDateTime.parse(it.fechaHora).isAfter(ahora()) }) {
+        if (citas.deDonador(donadorId).any {
+                it.estado == EstadoCita.AGENDADA &&
+                    LocalDateTime.parse(it.fechaHora).isAfter(ahora())
+            }
+        ) {
             throw Conflicto("Ya tienes una cita agendada. Cancélala si quieres cambiarla.")
         }
         val clave = fechaHora.toString()
-        if (citas.agendadasDeHospital(hospital.id, clave).size >= CUPO_POR_HORARIO) throw Conflicto("Ese horario ya se llenó. Elige otro.")
+        if (citas.agendadasDeHospital(hospital.id, clave).size >=
+            CUPO_POR_HORARIO
+        ) {
+            throw Conflicto("Ese horario ya se llenó. Elige otro.")
+        }
 
         val cita = Cita(
             id = UUID.randomUUID().toString(),
@@ -93,7 +105,7 @@ class CitaService(
             estado = EstadoCita.AGENDADA,
             codigoQr = nuevoCodigo(),
             creadaEn = reloj.instant().toString(),
-            solicitudId = peticion.solicitudId,
+            solicitudId = peticion.solicitudId
         )
         citas.guardar(cita)
         bus.publicar(TiposEvento.CITA_AGENDADA, buildJsonObject { put("citaId", cita.id) })
@@ -136,7 +148,7 @@ class CitaService(
                 put("hospitalNombre", cita.hospitalNombre)
                 put("fecha", ahora().toLocalDate().toString())
                 cita.solicitudId?.let { put("solicitudId", it) }
-            },
+            }
         )
         return completada.paraHospital()
     }
@@ -149,6 +161,30 @@ class CitaService(
     }
 
     suspend fun buscar(id: String): Cita? = citas.buscarPorId(id)
+
+    /** Al borrar una cuenta, sus citas pendientes se cancelan para liberar el lugar. */
+    suspend fun cancelarPendientesDe(donadorId: String) {
+        citas.deDonador(donadorId).filter { it.estado == EstadoCita.AGENDADA }
+            .forEach { citas.guardar(it.copy(estado = EstadoCita.CANCELADA)) }
+    }
+
+    override suspend fun horasLibres(hospitalId: String, fecha: String): List<String> =
+        horarios(hospitalId, fecha).filter { it.disponible }.map { it.hora }
+
+    override suspend fun agendar(donadorId: String, hospitalId: String, fechaHora: String, solicitudId: String?): CitaResumen =
+        agendar(donadorId, AgendarCitaPeticion(hospitalId, fechaHora, solicitudId)).resumen()
+
+    override suspend fun cancelarCita(donadorId: String, citaId: String): CitaResumen = cancelar(donadorId, citaId).let { r ->
+        CitaResumen(r.id, r.hospitalId, r.hospitalNombre, r.fechaHora, r.estado.name)
+    }
+
+    override suspend fun proximas(donadorId: String): List<CitaResumen> = citas.deDonador(donadorId).filter {
+        it.estado == EstadoCita.AGENDADA &&
+            LocalDateTime.parse(it.fechaHora).isAfter(ahora())
+    }
+        .map { CitaResumen(it.id, it.hospitalId, it.hospitalNombre, it.fechaHora, it.estado.name) }
+
+    private fun CitaRespuesta.resumen() = CitaResumen(id, hospitalId, hospitalNombre, fechaHora, estado.name)
 
     suspend fun horariosOcupadosHoy(hospitalId: String): Int = citas.agendadasDeHospital(hospitalId, ahora().toLocalDate().toString()).size
 

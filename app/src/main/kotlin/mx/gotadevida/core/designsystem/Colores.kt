@@ -32,7 +32,7 @@ data class ColoresGota(
     val onAvisoSoft: Color,
     val info: Color,
     val error: Color,
-    val esOscuro: Boolean,
+    val esOscuro: Boolean
 )
 
 val ColoresClaros = ColoresGota(
@@ -55,7 +55,7 @@ val ColoresClaros = ColoresGota(
     onAvisoSoft = Color(0xFF4A3000),
     info = Color(0xFF1E5AA8),
     error = Color(0xFF9C1C5A),
-    esOscuro = false,
+    esOscuro = false
 )
 
 val ColoresOscuros = ColoresGota(
@@ -78,7 +78,7 @@ val ColoresOscuros = ColoresGota(
     onAvisoSoft = Color(0xFFFFF0D6),
     info = Color(0xFF94BEF5),
     error = Color(0xFFFF9BC6),
-    esOscuro = true,
+    esOscuro = true
 )
 
 internal val LocalColoresGota = staticCompositionLocalOf { ColoresClaros }
@@ -113,6 +113,6 @@ internal fun ColoresGota.aEsquemaMaterial(): ColorScheme {
         surfaceContainerHigh = surfaceRaised,
         surfaceContainerHighest = surfaceSunken,
         outline = outlineStrong,
-        outlineVariant = outline,
+        outlineVariant = outline
     )
 }

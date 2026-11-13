@@ -1,10 +1,10 @@
 package mx.gotadevida.core.network
 
+import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import retrofit2.HttpException
-import java.io.IOException
 
 /** Resultado de una operación que puede fallar, sin lanzar excepciones hacia la UI. */
 sealed interface Resultado<out T> {

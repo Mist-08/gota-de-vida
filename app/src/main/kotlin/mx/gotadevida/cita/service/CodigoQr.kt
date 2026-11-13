@@ -13,8 +13,11 @@ import java.time.ZoneId
 object CodigoQr {
     fun matriz(contenido: String, tamano: Int = 512): Array<BooleanArray> {
         val bits = QRCodeWriter().encode(
-            contenido, BarcodeFormat.QR_CODE, tamano, tamano,
-            mapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M, EncodeHintType.MARGIN to 1),
+            contenido,
+            BarcodeFormat.QR_CODE,
+            tamano,
+            tamano,
+            mapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M, EncodeHintType.MARGIN to 1)
         )
         return Array(bits.height) { y -> BooleanArray(bits.width) { x -> bits[x, y] } }
     }

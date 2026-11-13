@@ -1,12 +1,13 @@
 package mx.gotadevida.hospital.repository
 
+import javax.inject.Inject
 import mx.gotadevida.core.network.Resultado
 import mx.gotadevida.core.network.llamarApi
 import mx.gotadevida.hospital.entity.CambiarEstadoPeticion
 import mx.gotadevida.hospital.entity.CheckinPeticion
 import mx.gotadevida.hospital.entity.CitaDelDia
-import mx.gotadevida.hospital.entity.Estadisticas
 import mx.gotadevida.hospital.entity.CrearUrgenciaPeticion
+import mx.gotadevida.hospital.entity.Estadisticas
 import mx.gotadevida.hospital.entity.EstadoUrgenciaHospital
 import mx.gotadevida.hospital.entity.UrgenciaHospital
 import retrofit2.http.Body
@@ -14,7 +15,6 @@ import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
-import javax.inject.Inject
 
 interface HospitalApi {
     @GET("api/v1/hospitales/me/solicitudes")

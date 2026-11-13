@@ -10,9 +10,7 @@ interface HasherContrasenas {
 }
 
 class BCryptHasher(private val costo: Int = 12) : HasherContrasenas {
-    override fun hashear(contrasena: String): String =
-        BCrypt.withDefaults().hashToString(costo, contrasena.toCharArray())
+    override fun hashear(contrasena: String): String = BCrypt.withDefaults().hashToString(costo, contrasena.toCharArray())
 
-    override fun verificar(contrasena: String, hash: String): Boolean =
-        BCrypt.verifyer().verify(contrasena.toCharArray(), hash).verified
+    override fun verificar(contrasena: String, hash: String): Boolean = BCrypt.verifyer().verify(contrasena.toCharArray(), hash).verified
 }

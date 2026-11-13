@@ -9,7 +9,7 @@ import mx.gotadevida.core.dominio.TipoSangre
 @Serializable
 enum class SexoParaCriteriosMedicos {
     FEMENINO,
-    MASCULINO,
+    MASCULINO
 }
 
 /**
@@ -31,7 +31,7 @@ data class Donador(
     val sexoParaCriteriosMedicos: SexoParaCriteriosMedicos? = null,
     val ubicacion: PuntoGeo? = null,
     val zona: String? = null,
-    val fechaUltimoTatuaje: String? = null,
+    val fechaUltimoTatuaje: String? = null
 ) {
     companion object {
         const val RADIO_POR_DEFECTO_KM = 15
@@ -43,7 +43,7 @@ data class Donador(
             radioMaximoKm = RADIO_POR_DEFECTO_KM,
             fechasDonacion = emptyList(),
             actualizadoEn = ahora,
-            telefono = telefono,
+            telefono = telefono
         )
     }
 }

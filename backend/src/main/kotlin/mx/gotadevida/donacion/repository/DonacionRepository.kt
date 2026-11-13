@@ -26,6 +26,5 @@ class MongoDonacionRepository(db: MongoDatabase) : DonacionRepository {
     override suspend fun deDonador(donadorId: String): List<Donacion> =
         coleccion.find(Filters.eq("donadorId", donadorId)).sort(Sorts.descending("fecha")).toList()
 
-    override suspend fun deHospital(hospitalId: String): List<Donacion> =
-        coleccion.find(Filters.eq("hospitalId", hospitalId)).toList()
+    override suspend fun deHospital(hospitalId: String): List<Donacion> = coleccion.find(Filters.eq("hospitalId", hospitalId)).toList()
 }

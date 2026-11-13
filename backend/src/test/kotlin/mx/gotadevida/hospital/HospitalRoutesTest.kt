@@ -7,6 +7,8 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import mx.gotadevida.autenticacion.entity.LoginSolicitud
 import mx.gotadevida.autenticacion.entity.SesionRespuesta
 import mx.gotadevida.autenticacion.entity.UsuarioHospitalSolicitud
@@ -18,8 +20,6 @@ import mx.gotadevida.soporte.conToken
 import mx.gotadevida.soporte.iniciarComoAdmin
 import mx.gotadevida.soporte.probarApi
 import mx.gotadevida.soporte.registrar
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class HospitalRoutesTest {
 
@@ -28,7 +28,7 @@ class HospitalRoutesTest {
         direccion = "Centro, Torreón",
         municipio = "Torreón",
         latitud = 25.5428,
-        longitud = -103.4068,
+        longitud = -103.4068
     )
 
     @Test
@@ -45,30 +45,29 @@ class HospitalRoutesTest {
     }
 
     @Test
-    fun `el administrador crea un hospital, su cuenta, y esa cuenta inicia sesion como HOSPITAL`() =
-        probarApi { cliente, _ ->
-            val admin = cliente.iniciarComoAdmin()
+    fun `el administrador crea un hospital, su cuenta, y esa cuenta inicia sesion como HOSPITAL`() = probarApi { cliente, _ ->
+        val admin = cliente.iniciarComoAdmin()
 
-            val hospital = cliente.post("/api/v1/hospitales") {
-                conToken(admin)
-                contentType(ContentType.Application.Json)
-                setBody(solicitud)
-            }.body<HospitalRespuesta>()
+        val hospital = cliente.post("/api/v1/hospitales") {
+            conToken(admin)
+            contentType(ContentType.Application.Json)
+            setBody(solicitud)
+        }.body<HospitalRespuesta>()
 
-            val cuenta = cliente.post("/api/v1/hospitales/${hospital.id}/usuarios") {
-                conToken(admin)
-                contentType(ContentType.Application.Json)
-                setBody(UsuarioHospitalSolicitud("Banco de sangre HU", "banco@hu.mx", "banco-seguro-123"))
-            }
-            val sesion = cliente.post("/api/v1/auth/login") {
-                contentType(ContentType.Application.Json)
-                setBody(LoginSolicitud("banco@hu.mx", "banco-seguro-123"))
-            }.body<SesionRespuesta>()
-
-            assertEquals(HttpStatusCode.Created, cuenta.status)
-            assertEquals(hospital.id, cuenta.body<UsuarioPublico>().hospitalId)
-            assertEquals(Rol.HOSPITAL, sesion.usuario.rol)
+        val cuenta = cliente.post("/api/v1/hospitales/${hospital.id}/usuarios") {
+            conToken(admin)
+            contentType(ContentType.Application.Json)
+            setBody(UsuarioHospitalSolicitud("Banco de sangre HU", "banco@hu.mx", "banco-seguro-123"))
         }
+        val sesion = cliente.post("/api/v1/auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginSolicitud("banco@hu.mx", "banco-seguro-123"))
+        }.body<SesionRespuesta>()
+
+        assertEquals(HttpStatusCode.Created, cuenta.status)
+        assertEquals(hospital.id, cuenta.body<UsuarioPublico>().hospitalId)
+        assertEquals(Rol.HOSPITAL, sesion.usuario.rol)
+    }
 
     @Test
     fun `no se crean cuentas para un hospital que no existe`() = probarApi { cliente, _ ->

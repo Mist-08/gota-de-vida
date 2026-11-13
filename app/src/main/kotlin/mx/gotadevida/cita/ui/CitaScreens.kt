@@ -38,10 +38,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.time.LocalDateTime
 import mx.gotadevida.R
 import mx.gotadevida.cita.entity.Cita
 import mx.gotadevida.cita.service.CodigoQr
@@ -59,13 +61,9 @@ import mx.gotadevida.core.designsystem.componentes.BotonTexto
 import mx.gotadevida.core.designsystem.componentes.EstadoVacio
 import mx.gotadevida.core.designsystem.componentes.Icono
 import mx.gotadevida.core.designsystem.componentes.MensajeError
+import mx.gotadevida.core.designsystem.componentes.formatoFechaHora
+import mx.gotadevida.core.designsystem.componentes.formatoPatron
 import mx.gotadevida.core.designsystem.componentes.texto
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-
-private val formatoDia = DateTimeFormatter.ofPattern("EEE d")
-private val formatoLargo = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -80,20 +78,32 @@ fun AgendarScreen(alRegresar: () -> Unit, alAgendar: () -> Unit, viewModel: Agen
                 .padding(relleno)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = Espacio.x6, vertical = Espacio.x2),
-            verticalArrangement = Arrangement.spacedBy(Espacio.x4),
+            verticalArrangement = Arrangement.spacedBy(Espacio.x4)
         ) {
             BarraSuperior(alRegresar = alRegresar)
-            Text(stringResource(R.string.agendar_titulo), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
+            Text(
+                stringResource(R.string.agendar_titulo),
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.semantics {
+                    heading()
+                }
+            )
             Text(estado.hospitalNombre, style = MaterialTheme.typography.titleMedium, color = colores.inkMuted)
             Text(stringResource(R.string.agendar_dia), style = MaterialTheme.typography.labelLarge)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(Espacio.x2), verticalArrangement = Arrangement.spacedBy(Espacio.x2)) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(Espacio.x2),
+                verticalArrangement = Arrangement.spacedBy(Espacio.x2)
+            ) {
                 estado.dias.forEach { dia ->
                     FilterChip(
                         selected = dia == estado.dia,
                         onClick = { viewModel.onDia(dia) },
-                        label = { Text(dia.format(formatoDia)) },
+                        label = { Text(dia.format(formatoPatron("EEE d"))) },
                         shape = Radio.completo,
-                        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = colores.sangre, selectedLabelColor = colores.onSangre),
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = colores.sangre,
+                            selectedLabelColor = colores.onSangre
+                        )
                     )
                 }
             }
@@ -103,7 +113,10 @@ fun AgendarScreen(alRegresar: () -> Unit, alAgendar: () -> Unit, viewModel: Agen
             if (!estado.cargandoHorarios && libres.isEmpty() && estado.fallo == null) {
                 EstadoVacio(stringResource(R.string.agendar_sin_horarios), R.drawable.ic_reloj)
             }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(Espacio.x2), verticalArrangement = Arrangement.spacedBy(Espacio.x2)) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(Espacio.x2),
+                verticalArrangement = Arrangement.spacedBy(Espacio.x2)
+            ) {
                 libres.forEach { h ->
                     FilterChip(
                         selected = h.hora == estado.hora,
@@ -111,20 +124,34 @@ fun AgendarScreen(alRegresar: () -> Unit, alAgendar: () -> Unit, viewModel: Agen
                         label = { Text(h.hora, style = MaterialTheme.typography.titleMedium) },
                         modifier = Modifier.height(48.dp),
                         shape = Radio.completo,
-                        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = colores.sangre, selectedLabelColor = colores.onSangre),
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = colores.sangre,
+                            selectedLabelColor = colores.onSangre
+                        )
                     )
                 }
             }
             estado.requisitos?.let { r ->
                 Column(
                     Modifier.fillMaxWidth().background(colores.surfaceSunken, Radio.lg).padding(Espacio.x4),
-                    verticalArrangement = Arrangement.spacedBy(Espacio.x2),
+                    verticalArrangement = Arrangement.spacedBy(Espacio.x2)
                 ) {
                     Text(stringResource(R.string.agendar_requisitos), style = MaterialTheme.typography.titleMedium)
-                    Text(stringResource(R.string.requisito_ayuno, r.horasAyunoMinimo, r.horasAyunoMaximo), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        stringResource(R.string.requisito_ayuno, r.horasAyunoMinimo, r.horasAyunoMaximo),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                     Text(stringResource(R.string.requisito_comida), style = MaterialTheme.typography.bodyMedium)
                     Text(stringResource(R.string.requisito_identificacion), style = MaterialTheme.typography.bodyMedium)
-                    Text(stringResource(R.string.requisito_edad_peso, r.edadMinima, r.edadMaxima, r.pesoMinimoKg.toInt()), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        stringResource(
+                            R.string.requisito_edad_peso,
+                            r.edadMinima,
+                            r.edadMaxima,
+                            r.pesoMinimoKg.toInt()
+                        ),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
             estado.fallo?.let { MensajeError(it.texto()) }
@@ -132,9 +159,13 @@ fun AgendarScreen(alRegresar: () -> Unit, alAgendar: () -> Unit, viewModel: Agen
                 stringResource(R.string.agendar_confirmar),
                 alPulsar = viewModel::confirmar,
                 habilitado = estado.hora != null,
-                cargando = estado.enviando,
+                cargando = estado.enviando
             )
-            Text(stringResource(R.string.aviso_medico), style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
+            Text(
+                stringResource(R.string.aviso_medico),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colores.inkMuted
+            )
             Spacer(Modifier.height(Espacio.x4))
         }
     }
@@ -154,19 +185,28 @@ fun TarjetaMiCita(alAbrir: () -> Unit, viewModel: MiCitaViewModel = hiltViewMode
                 .clickable(role = Role.Button, onClick = alAbrir)
                 .padding(Espacio.x4),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Espacio.x3),
+            horizontalArrangement = Arrangement.spacedBy(Espacio.x3)
         ) {
             Icono(R.drawable.ic_reloj, null, color = colores.vida)
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.cita_tu_cita), style = MaterialTheme.typography.titleMedium, color = colores.onVidaSoft)
                 Text(
-                    "${LocalDateTime.parse(cita.fechaHora).format(formatoLargo)} · ${cita.hospitalNombre}",
+                    stringResource(R.string.cita_tu_cita),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colores.onVidaSoft
+                )
+                Text(
+                    "${LocalDateTime.parse(cita.fechaHora).format(formatoFechaHora())} · ${cita.hospitalNombre}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = colores.onVidaSoft,
+                    color = colores.onVidaSoft
                 )
             }
-            Text(stringResource(R.string.cita_ver_qr), style = MaterialTheme.typography.labelLarge, color = colores.vida)
+            Text(
+                stringResource(R.string.cita_ver_qr),
+                style = MaterialTheme.typography.labelLarge,
+                color = colores.vida
+            )
         }
+
         estado.pendiente -> BannerAviso(stringResource(R.string.cita_pendiente), R.drawable.ic_nube_tachada)
     }
 }
@@ -186,7 +226,7 @@ fun MiCitaScreen(alRegresar: () -> Unit, viewModel: MiCitaViewModel = hiltViewMo
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = Espacio.x6, vertical = Espacio.x2),
             verticalArrangement = Arrangement.spacedBy(Espacio.x4),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             BarraSuperior(alRegresar = alRegresar, titulo = stringResource(R.string.cita_titulo))
             if (estado.pendiente) BannerAviso(stringResource(R.string.cita_pendiente), R.drawable.ic_nube_tachada)
@@ -194,22 +234,47 @@ fun MiCitaScreen(alRegresar: () -> Unit, viewModel: MiCitaViewModel = hiltViewMo
                 if (!estado.pendiente) EstadoVacio(stringResource(R.string.cita_sin_cita), R.drawable.ic_reloj)
                 return@Column
             }
-            Text(stringResource(R.string.cita_muestra_qr), style = MaterialTheme.typography.bodyLarge, color = colores.inkMuted)
+            Text(
+                stringResource(R.string.cita_muestra_qr),
+                style = MaterialTheme.typography.bodyLarge,
+                color = colores.inkMuted
+            )
             CodigoQrCita(cita)
-            Text(cita.hospitalNombre, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
-            Text(LocalDateTime.parse(cita.fechaHora).format(formatoLargo), style = MaterialTheme.typography.titleMedium)
-            Text(cita.hospitalDireccion, style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
+            Text(
+                cita.hospitalNombre,
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.semantics {
+                    heading()
+                }
+            )
+            Text(
+                LocalDateTime.parse(cita.fechaHora).format(formatoFechaHora()),
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                cita.hospitalDireccion,
+                style = MaterialTheme.typography.bodyMedium,
+                color = colores.inkMuted,
+                textAlign = TextAlign.Center
+            )
             BotonSecundario(stringResource(R.string.cita_agregar_calendario), alPulsar = {
                 val intento = Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI)
                     .putExtra(CalendarContract.Events.TITLE, tituloEvento)
-                    .putExtra(CalendarContract.Events.EVENT_LOCATION, "${cita.hospitalNombre}, ${cita.hospitalDireccion}")
+                    .putExtra(
+                        CalendarContract.Events.EVENT_LOCATION,
+                        "${cita.hospitalNombre}, ${cita.hospitalDireccion}"
+                    )
                     .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, HorarioCita.inicioMillis(cita.fechaHora))
                     .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, HorarioCita.finMillis(cita.fechaHora))
                     .putExtra(CalendarContract.Events.DESCRIPTION, descripcionEvento)
                 runCatching { contexto.startActivity(intento) }
             })
             BotonSecundario(stringResource(R.string.urgencia_abrir_ruta), alPulsar = {
-                val uri = "geo:0,0?q=${cita.latitud},${cita.longitud}(${android.net.Uri.encode(cita.hospitalNombre)})".toUri()
+                val uri = "geo:0,0?q=${cita.latitud},${cita.longitud}(${android.net.Uri.encode(
+                    cita.hospitalNombre
+                )})".toUri()
                 runCatching { contexto.startActivity(Intent(Intent.ACTION_VIEW, uri)) }
             })
             estado.fallo?.let { MensajeError(it.texto()) }
@@ -230,7 +295,7 @@ private fun CodigoQrCita(cita: Cita) {
             .size(240.dp)
             .background(androidx.compose.ui.graphics.Color.White, Radio.md)
             .border(1.dp, GotaTema.colores.outline, Radio.md)
-            .padding(Espacio.x3),
+            .padding(Espacio.x3)
     )
     Spacer(Modifier.width(1.dp))
 }
@@ -238,4 +303,3 @@ private fun CodigoQrCita(cita: Cita) {
 /** Lo usa el detalle de una urgencia aceptada para ir a agendar. */
 @Composable
 fun BotonAgendar(alPulsar: () -> Unit) = BotonPrincipal(stringResource(R.string.agendar_titulo), alPulsar = alPulsar)
-

@@ -4,29 +4,21 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.JWTVerifier
-import kotlinx.serialization.Serializable
-import mx.gotadevida.core.errores.NoAutorizado
 import java.time.Clock
 import java.time.Duration
 import java.util.Date
+import kotlinx.serialization.Serializable
+import mx.gotadevida.core.errores.NoAutorizado
 
 /** Par de tokens que recibe la app al iniciar sesión. */
 @Serializable
-data class Tokens(
-    val tokenAcceso: String,
-    val tokenRefresco: String,
-    val expiraEnSegundos: Long,
-)
+data class Tokens(val tokenAcceso: String, val tokenRefresco: String, val expiraEnSegundos: Long)
 
 /**
  * Crea y verifica los JWT. El token de acceso dura 1 hora; el de refresco, 30 días.
  * El claim `tipo` evita que un token de refresco se use como token de acceso.
  */
-class JwtServicio(
-    secreto: String,
-    private val emisor: String,
-    private val reloj: Clock = Clock.systemUTC(),
-) {
+class JwtServicio(secreto: String, private val emisor: String, private val reloj: Clock = Clock.systemUTC()) {
     private val algoritmo = Algorithm.HMAC256(secreto)
 
     val verificador: JWTVerifier = JWT.require(algoritmo)
@@ -37,7 +29,7 @@ class JwtServicio(
     fun crearTokens(usuarioId: String, rol: Rol): Tokens = Tokens(
         tokenAcceso = crear(usuarioId, rol, TIPO_ACCESO, DURACION_ACCESO),
         tokenRefresco = crear(usuarioId, rol, TIPO_REFRESCO, DURACION_REFRESCO),
-        expiraEnSegundos = DURACION_ACCESO.seconds,
+        expiraEnSegundos = DURACION_ACCESO.seconds
     )
 
     /** Devuelve el id del usuario si el token de refresco es válido. */

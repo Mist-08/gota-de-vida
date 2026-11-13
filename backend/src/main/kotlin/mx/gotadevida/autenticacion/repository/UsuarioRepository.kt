@@ -27,6 +27,8 @@ interface UsuarioRepository {
     suspend fun deHospital(hospitalId: String): List<Usuario>
 
     suspend fun conTokenFcm(token: String): List<Usuario>
+
+    suspend fun borrar(id: String)
 }
 
 class MongoUsuarioRepository(db: MongoDatabase) : UsuarioRepository {
@@ -43,25 +45,23 @@ class MongoUsuarioRepository(db: MongoDatabase) : UsuarioRepository {
         }
     }
 
-    override suspend fun buscarPorId(id: String): Usuario? =
-        coleccion.find(Filters.eq("_id", id)).firstOrNull()
+    override suspend fun buscarPorId(id: String): Usuario? = coleccion.find(Filters.eq("_id", id)).firstOrNull()
 
-    override suspend fun buscarPorEmail(email: String): Usuario? =
-        coleccion.find(Filters.eq("email", email)).firstOrNull()
+    override suspend fun buscarPorEmail(email: String): Usuario? = coleccion.find(Filters.eq("email", email)).firstOrNull()
 
-    override suspend fun buscarPorGoogleId(googleId: String): Usuario? =
-        coleccion.find(Filters.eq("googleId", googleId)).firstOrNull()
+    override suspend fun buscarPorGoogleId(googleId: String): Usuario? = coleccion.find(Filters.eq("googleId", googleId)).firstOrNull()
 
     override suspend fun actualizar(usuario: Usuario) {
         coleccion.replaceOne(Filters.eq("_id", usuario.id), usuario)
     }
 
-    override suspend fun buscarPorIds(ids: Collection<String>): List<Usuario> =
-        coleccion.find(Filters.`in`("_id", ids.toList())).toList()
+    override suspend fun buscarPorIds(ids: Collection<String>): List<Usuario> = coleccion.find(Filters.`in`("_id", ids.toList())).toList()
 
-    override suspend fun deHospital(hospitalId: String): List<Usuario> =
-        coleccion.find(Filters.eq("hospitalId", hospitalId)).toList()
+    override suspend fun deHospital(hospitalId: String): List<Usuario> = coleccion.find(Filters.eq("hospitalId", hospitalId)).toList()
 
-    override suspend fun conTokenFcm(token: String): List<Usuario> =
-        coleccion.find(Filters.eq("tokensFcm", token)).toList()
+    override suspend fun conTokenFcm(token: String): List<Usuario> = coleccion.find(Filters.eq("tokensFcm", token)).toList()
+
+    override suspend fun borrar(id: String) {
+        coleccion.deleteOne(Filters.eq("_id", id))
+    }
 }

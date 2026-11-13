@@ -35,7 +35,7 @@ fun CampoTexto(
     accionTeclado: ImeAction = ImeAction.Next,
     alConfirmar: (() -> Unit)? = null,
     esContrasena: Boolean = false,
-    habilitado: Boolean = true,
+    habilitado: Boolean = true
 ) {
     val colores = GotaTema.colores
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -60,15 +60,15 @@ fun CampoTexto(
                 focusedBorderColor = colores.sangre,
                 unfocusedBorderColor = colores.outlineStrong,
                 errorBorderColor = colores.error,
-                cursorColor = colores.sangre,
-            ),
+                cursorColor = colores.sangre
+            )
         )
         val texto = error ?: ayuda
         if (texto != null) {
             Text(
                 texto,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (error != null) colores.error else colores.inkMuted,
+                color = if (error != null) colores.error else colores.inkMuted
             )
         }
     }

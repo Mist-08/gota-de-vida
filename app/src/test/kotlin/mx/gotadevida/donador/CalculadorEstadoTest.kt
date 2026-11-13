@@ -1,12 +1,12 @@
 package mx.gotadevida.donador
 
+import java.time.LocalDate
 import mx.gotadevida.donador.entity.Elegibilidad
 import mx.gotadevida.donador.service.CalculadorEstado
 import mx.gotadevida.donador.service.EstadoDonacion
 import mx.gotadevida.prueba.perfilDePrueba
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 class CalculadorEstadoTest {
     private fun elegibilidad(
@@ -14,8 +14,15 @@ class CalculadorEstadoTest {
         faltanDatos: Boolean = false,
         motivos: List<String> = emptyList(),
         proxima: String? = null,
-        dias: Long? = null,
-    ) = Elegibilidad(elegible, faltanDatos, motivos, aviso = "", proximaFechaElegible = proxima, diasParaVolverADonar = dias)
+        dias: Long? = null
+    ) = Elegibilidad(
+        elegible,
+        faltanDatos,
+        motivos,
+        aviso = "",
+        proximaFechaElegible = proxima,
+        diasParaVolverADonar = dias
+    )
 
     @Test
     fun `sin perfil todavia esta cargando`() {
@@ -24,8 +31,14 @@ class CalculadorEstadoTest {
 
     @Test
     fun `perfil incompleto o con datos faltantes pide completarlo`() {
-        assertEquals(EstadoDonacion.CompletarPerfil, CalculadorEstado.calcular(perfilDePrueba(completo = false), elegibilidad()))
-        assertEquals(EstadoDonacion.CompletarPerfil, CalculadorEstado.calcular(perfilDePrueba(), elegibilidad(faltanDatos = true)))
+        assertEquals(
+            EstadoDonacion.CompletarPerfil,
+            CalculadorEstado.calcular(perfilDePrueba(completo = false), elegibilidad())
+        )
+        assertEquals(
+            EstadoDonacion.CompletarPerfil,
+            CalculadorEstado.calcular(perfilDePrueba(), elegibilidad(faltanDatos = true))
+        )
         assertEquals(EstadoDonacion.CompletarPerfil, CalculadorEstado.calcular(perfilDePrueba(), null))
     }
 
@@ -37,13 +50,19 @@ class CalculadorEstadoTest {
 
     @Test
     fun `en espera muestra dias y fecha`() {
-        val estado = CalculadorEstado.calcular(perfilDePrueba(), elegibilidad(elegible = false, proxima = "2026-12-20", dias = 39))
+        val estado = CalculadorEstado.calcular(
+            perfilDePrueba(),
+            elegibilidad(elegible = false, proxima = "2026-12-20", dias = 39)
+        )
         assertEquals(EstadoDonacion.Esperar(39, LocalDate.of(2026, 12, 20)), estado)
     }
 
     @Test
     fun `sin fecha proxima muestra los motivos`() {
-        val estado = CalculadorEstado.calcular(perfilDePrueba(), elegibilidad(elegible = false, motivos = listOf("Peso menor a 50 kg")))
+        val estado = CalculadorEstado.calcular(
+            perfilDePrueba(),
+            elegibilidad(elegible = false, motivos = listOf("Peso menor a 50 kg"))
+        )
         assertEquals(EstadoDonacion.NoPuede(listOf("Peso menor a 50 kg")), estado)
     }
 }
