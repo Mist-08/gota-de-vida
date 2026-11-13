@@ -1,25 +1,17 @@
 package mx.gotadevida.autenticacion.service
 
-import java.security.SecureRandom
 import java.time.Clock
-import java.time.Duration
-import java.time.Instant
 import java.util.UUID
-import mx.gotadevida.autenticacion.entity.CodigoRecuperacion
 import mx.gotadevida.autenticacion.entity.GoogleSolicitud
 import mx.gotadevida.autenticacion.entity.LoginSolicitud
 import mx.gotadevida.autenticacion.entity.RefrescoSolicitud
-import mx.gotadevida.autenticacion.entity.RecuperarSolicitud
 import mx.gotadevida.autenticacion.entity.RegistroSolicitud
-import mx.gotadevida.autenticacion.entity.RestablecerSolicitud
 import mx.gotadevida.autenticacion.entity.SesionRespuesta
 import mx.gotadevida.autenticacion.entity.Usuario
 import mx.gotadevida.autenticacion.entity.UsuarioHospitalSolicitud
 import mx.gotadevida.autenticacion.entity.UsuarioPublico
 import mx.gotadevida.autenticacion.entity.aPublico
 import mx.gotadevida.autenticacion.repository.UsuarioRepository
-import mx.gotadevida.core.correo.CorreoRegistro
-import mx.gotadevida.core.correo.EnviadorCorreo
 import mx.gotadevida.core.dominio.DirectorioUsuarios
 import mx.gotadevida.core.errores.Conflicto
 import mx.gotadevida.core.errores.DatosInvalidos
@@ -33,7 +25,6 @@ import mx.gotadevida.core.validacion.Validaciones.normalizarEmail
 import mx.gotadevida.core.validacion.Validaciones.normalizarTelefono
 import mx.gotadevida.core.validacion.Validaciones.validarContrasena
 import mx.gotadevida.core.validacion.Validaciones.validarNombre
-import org.slf4j.LoggerFactory
 
 /**
  * Registro e inicio de sesión. Al registrar un donador también se crea su perfil
@@ -45,11 +36,8 @@ class AutenticacionService(
     private val hasher: HasherContrasenas,
     private val verificadorGoogle: VerificadorGoogle?,
     private val crearPerfilDonador: suspend (usuarioId: String, nombre: String, telefono: String?) -> Unit,
-    private val reloj: Clock = Clock.systemUTC(),
-    private val correo: EnviadorCorreo = CorreoRegistro()
+    private val reloj: Clock = Clock.systemUTC()
 ) : DirectorioUsuarios {
-    private val log = LoggerFactory.getLogger(AutenticacionService::class.java)
-    private val aleatorio = SecureRandom()
 
     suspend fun registrarDonador(solicitud: RegistroSolicitud): SesionRespuesta {
         validar(solicitud.aceptaAvisoPrivacidad) { "Debes aceptar el aviso de privacidad para crear tu cuenta." }
@@ -113,51 +101,6 @@ class AutenticacionService(
         val usuarioId = jwt.verificarRefresco(solicitud.tokenRefresco)
         val usuario = usuarios.buscarPorId(usuarioId) ?: throw NoAutorizado("Tu sesión expiró. Inicia sesión de nuevo.")
         return sesion(usuario)
-    }
-
-    /**
-     * Manda al correo un código de 6 dígitos para cambiar la contraseña. Responde igual exista o no
-     * la cuenta, para no revelar qué correos están registrados.
-     */
-    suspend fun solicitarRecuperacion(solicitud: RecuperarSolicitud) {
-        val usuario = usuarios.buscarPorEmail(normalizarEmail(solicitud.email)) ?: return
-        val mensaje = if (usuario.passwordHash == null) {
-            CorreosRecuperacion.cuentaDeGoogle(usuario.email, usuario.nombre)
-        } else {
-            val codigo = (0 until DIGITOS_CODIGO).map { aleatorio.nextInt(10) }.joinToString("")
-            val vence = reloj.instant().plus(Duration.ofMinutes(MINUTOS_CODIGO)).toString()
-            usuarios.actualizar(usuario.copy(recuperacion = CodigoRecuperacion(hasher.hashear(codigo), vence)))
-            CorreosRecuperacion.codigo(usuario.email, usuario.nombre, codigo, MINUTOS_CODIGO)
-        }
-        try {
-            correo.enviar(mensaje)
-        } catch (e: Exception) {
-            log.warn("No se pudo enviar el correo de recuperación: ${e.message}")
-        }
-    }
-
-    /** Cambia la contraseña si el código es correcto y no ha vencido; deja la sesión iniciada. */
-    suspend fun restablecerContrasena(solicitud: RestablecerSolicitud): SesionRespuesta {
-        validarContrasena(solicitud.password)
-        val codigo = solicitud.codigo.filter { it.isDigit() }
-        val usuario = usuarios.buscarPorEmail(normalizarEmail(solicitud.email)) ?: throw DatosInvalidos(CODIGO_INVALIDO)
-        val pendiente = usuario.recuperacion ?: throw DatosInvalidos(CODIGO_INVALIDO)
-
-        if (Instant.parse(pendiente.vence).isBefore(reloj.instant()) || pendiente.intentos >= MAX_INTENTOS) {
-            usuarios.actualizar(usuario.copy(recuperacion = null))
-            throw DatosInvalidos("El código ya venció. Pide uno nuevo.")
-        }
-        if (codigo.length != DIGITOS_CODIGO || !hasher.verificar(codigo, pendiente.codigoHash)) {
-            val intentos = pendiente.intentos + 1
-            usuarios.actualizar(
-                usuario.copy(recuperacion = if (intentos >= MAX_INTENTOS) null else pendiente.copy(intentos = intentos))
-            )
-            throw DatosInvalidos(CODIGO_INVALIDO)
-        }
-
-        val actualizado = usuario.copy(passwordHash = hasher.hashear(solicitud.password), recuperacion = null)
-        usuarios.actualizar(actualizado)
-        return sesion(actualizado)
     }
 
     /** Crea la cuenta con la que el personal de un banco de sangre entra a la app. */
@@ -235,11 +178,4 @@ class AutenticacionService(
         usuario = usuario.aPublico(),
         tokens = jwt.crearTokens(usuario.id, usuario.rol)
     )
-
-    private companion object {
-        const val DIGITOS_CODIGO = 6
-        const val MINUTOS_CODIGO = 15L
-        const val MAX_INTENTOS = 5
-        const val CODIGO_INVALIDO = "El código no es correcto."
-    }
 }

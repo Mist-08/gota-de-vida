@@ -21,7 +21,6 @@
     <string name="error_email_invalido">Escribe un correo válido, por ejemplo nombre@correo.com.</string>
     <string name="error_password_corta">La contraseña debe tener al menos 8 caracteres.</string>
     <string name="error_telefono_invalido">El celular debe tener 10 dígitos.</string>
-    <string name="error_codigo_invalido">El código tiene 6 dígitos.</string>
     <string name="error_elige_opcion">Elige una opción.</string>
     <string name="error_peso_invalido">Escribe un peso entre 30 y 250 kg.</string>
     <string name="error_fecha_futura">La fecha no puede estar en el futuro.</string>
@@ -59,17 +58,6 @@
     <string name="inicio_sesion_titulo">Inicia sesión</string>
     <string name="inicio_sesion_subtitulo">Qué bueno verte de nuevo.</string>
     <string name="accion_entrar">Entrar</string>
-    <string name="olvide_contrasena">¿Olvidaste tu contraseña?</string>
-    <string name="recuperar_titulo">Recupera tu contraseña</string>
-    <string name="recuperar_subtitulo">Escribe el correo de tu cuenta y te mandamos un código para crear una contraseña nueva.</string>
-    <string name="recuperar_enviar_codigo">Enviar código</string>
-    <string name="recuperar_codigo_titulo">Revisa tu correo</string>
-    <string name="recuperar_codigo_subtitulo">Si %1$s tiene cuenta, te llegó un código de 6 dígitos. Vence en 15 minutos; si no lo ves, revisa también spam.</string>
-    <string name="campo_codigo">Código</string>
-    <string name="campo_contrasena_nueva">Contraseña nueva</string>
-    <string name="recuperar_cambiar">Cambiar contraseña</string>
-    <string name="recuperar_reenviar">Reenviar código</string>
-    <string name="recuperar_codigo_reenviado">Te mandamos un código nuevo. El anterior ya no sirve.</string>
 
     <!-- Perfil -->
     <string name="perfil_paso">Paso 2 de 2</string>

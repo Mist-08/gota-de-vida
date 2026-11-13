@@ -18,13 +18,8 @@ data class Usuario(
     val passwordHash: String? = null,
     val googleId: String? = null,
     val hospitalId: String? = null,
-    val tokensFcm: List<String> = emptyList(),
-    val recuperacion: CodigoRecuperacion? = null
+    val tokensFcm: List<String> = emptyList()
 )
-
-/** Código para cambiar la contraseña: se guarda solo su hash y vence a los pocos minutos. */
-@Serializable
-data class CodigoRecuperacion(val codigoHash: String, val vence: String, val intentos: Int = 0)
 
 /** Token de Firebase Cloud Messaging del teléfono, para recibir avisos. */
 @Serializable
