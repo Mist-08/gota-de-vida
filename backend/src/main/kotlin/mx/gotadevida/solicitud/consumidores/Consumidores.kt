@@ -17,10 +17,9 @@ fun consumidorMatching(matching: MatchingService) =
     }
 
 /** SolicitudConsumer: actualiza el contador de unidades y avisa al hospital. */
-fun consumidorAvance(avance: AvanceService) =
-    Consumidor("solicitud", listOf(TiposEvento.RESPUESTA_REGISTRADA)) { evento ->
-        avance.actualizar(
-            evento.datos.getValue("solicitudId").jsonPrimitive.content,
-            evento.datos.getValue("acepta").jsonPrimitive.boolean,
-        )
-    }
+fun consumidorAvance(avance: AvanceService) = Consumidor("solicitud", listOf(TiposEvento.RESPUESTA_REGISTRADA)) { evento ->
+    avance.actualizar(
+        evento.datos.getValue("solicitudId").jsonPrimitive.content,
+        evento.datos.getValue("acepta").jsonPrimitive.boolean
+    )
+}

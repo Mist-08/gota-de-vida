@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,17 +13,20 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import mx.gotadevida.core.network.FalloApp
 import mx.gotadevida.core.network.Resultado
+import mx.gotadevida.hospital.entity.CitaDelDia
 import mx.gotadevida.hospital.entity.CrearUrgenciaPeticion
+import mx.gotadevida.hospital.entity.Estadisticas
 import mx.gotadevida.hospital.entity.EstadoUrgenciaHospital
 import mx.gotadevida.hospital.entity.TipoSangrePaciente
 import mx.gotadevida.hospital.entity.UrgenciaHospital
 import mx.gotadevida.hospital.repository.HospitalRepository
-import javax.inject.Inject
 
 data class PanelUiState(
     val urgencias: List<UrgenciaHospital> = emptyList(),
+    val estadisticas: Estadisticas? = null,
+    val citasHoy: List<CitaDelDia> = emptyList(),
     val cargando: Boolean = true,
-    val fallo: FalloApp? = null,
+    val fallo: FalloApp? = null
 )
 
 @HiltViewModel
@@ -34,9 +38,13 @@ class PanelHospitalViewModel @Inject constructor(private val repositorio: Hospit
     fun actualizar() {
         viewModelScope.launch {
             when (val r = repositorio.misUrgencias()) {
-                is Resultado.Exito -> _estado.value = PanelUiState(r.valor, cargando = false)
+                is Resultado.Exito -> _estado.update { it.copy(urgencias = r.valor, cargando = false, fallo = null) }
                 is Resultado.Fallo -> _estado.update { it.copy(cargando = false, fallo = r.fallo) }
             }
+            (repositorio.estadisticas() as? Resultado.Exito)?.let { r ->
+                _estado.update { it.copy(estadisticas = r.valor) }
+            }
+            (repositorio.citasDeHoy() as? Resultado.Exito)?.let { r -> _estado.update { it.copy(citasHoy = r.valor) } }
         }
     }
 }
@@ -48,7 +56,7 @@ data class CrearUrgenciaUiState(
     val faltaTipo: Boolean = false,
     val enviando: Boolean = false,
     val fallo: FalloApp? = null,
-    val creadaId: String? = null,
+    val creadaId: String? = null
 )
 
 @HiltViewModel
@@ -68,7 +76,17 @@ class CrearUrgenciaViewModel @Inject constructor(private val repositorio: Hospit
         val tipo = actual.tipo ?: return _estado.update { it.copy(faltaTipo = true) }
         _estado.update { it.copy(enviando = true, fallo = null) }
         viewModelScope.launch {
-            when (val r = repositorio.publicar(CrearUrgenciaPeticion(tipo, actual.unidades, actual.nota.trim().ifEmpty { null }))) {
+            when (
+                val r = repositorio.publicar(
+                    CrearUrgenciaPeticion(
+                        tipo,
+                        actual.unidades,
+                        actual.nota.trim().ifEmpty {
+                            null
+                        }
+                    )
+                )
+            ) {
                 is Resultado.Exito -> _estado.update { it.copy(enviando = false, creadaId = r.valor.id) }
                 is Resultado.Fallo -> _estado.update { it.copy(enviando = false, fallo = r.fallo) }
             }
@@ -83,17 +101,11 @@ class CrearUrgenciaViewModel @Inject constructor(private val repositorio: Hospit
 @Serializable
 data class DetalleUrgenciaHospital(val id: String)
 
-data class DetalleHospitalUiState(
-    val urgencia: UrgenciaHospital? = null,
-    val fallo: FalloApp? = null,
-    val cambiando: Boolean = false,
-)
+data class DetalleHospitalUiState(val urgencia: UrgenciaHospital? = null, val fallo: FalloApp? = null, val cambiando: Boolean = false)
 
 @HiltViewModel
-class DetalleUrgenciaHospitalViewModel @Inject constructor(
-    private val repositorio: HospitalRepository,
-    estadoGuardado: SavedStateHandle,
-) : ViewModel() {
+class DetalleUrgenciaHospitalViewModel @Inject constructor(private val repositorio: HospitalRepository, estadoGuardado: SavedStateHandle) :
+    ViewModel() {
     private val id: String = checkNotNull(estadoGuardado["id"])
     private val _estado = MutableStateFlow(DetalleHospitalUiState())
     val estado: StateFlow<DetalleHospitalUiState> = _estado.asStateFlow()
@@ -117,4 +129,39 @@ class DetalleUrgenciaHospitalViewModel @Inject constructor(
             }
         }
     }
+}
+
+@Serializable
+data object EscanearQr
+
+data class EscanearUiState(
+    val codigoManual: String = "",
+    val enviando: Boolean = false,
+    val confirmada: CitaDelDia? = null,
+    val fallo: FalloApp? = null
+)
+
+/** Check-in: la cámara lee el QR (o se escribe el código) y se confirma la donación. */
+@HiltViewModel
+class EscanearViewModel @Inject constructor(private val repositorio: HospitalRepository) : ViewModel() {
+    private val _estado = MutableStateFlow(EscanearUiState())
+    val estado: StateFlow<EscanearUiState> = _estado.asStateFlow()
+
+    fun onCodigo(texto: String) = _estado.update { it.copy(codigoManual = texto.trim(), fallo = null) }
+
+    fun alLeer(contenido: String) {
+        val actual = _estado.value
+        if (actual.enviando || actual.confirmada != null) return
+        _estado.update { it.copy(enviando = true, fallo = null) }
+        viewModelScope.launch {
+            when (val r = repositorio.checkin(contenido)) {
+                is Resultado.Exito -> _estado.update { it.copy(enviando = false, confirmada = r.valor) }
+                is Resultado.Fallo -> _estado.update { it.copy(enviando = false, fallo = r.fallo) }
+            }
+        }
+    }
+
+    fun confirmarManual() = alLeer(_estado.value.codigoManual)
+
+    fun otra() = _estado.update { EscanearUiState() }
 }

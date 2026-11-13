@@ -38,11 +38,15 @@ fun Route.solicitudRoutes(servicio: SolicitudService) {
             }
             patch("/{id}/estado") {
                 val usuario = call.exigirRol(Rol.HOSPITAL, Rol.ADMIN)
-                call.respond(servicio.cambiarEstado(usuario, call.idSolicitud(), call.receive<CambiarEstadoPeticion>().estado))
+                call.respond(
+                    servicio.cambiarEstado(usuario, call.idSolicitud(), call.receive<CambiarEstadoPeticion>().estado)
+                )
             }
             post("/{id}/respuestas") {
                 val usuario = call.exigirRol(Rol.DONADOR)
-                call.respond(servicio.responder(usuario.id, call.idSolicitud(), call.receive<ResponderPeticion>().acepta))
+                call.respond(
+                    servicio.responder(usuario.id, call.idSolicitud(), call.receive<ResponderPeticion>().acepta)
+                )
             }
         }
         get("/api/v1/hospitales/me/solicitudes") {

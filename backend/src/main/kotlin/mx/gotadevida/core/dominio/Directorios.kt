@@ -1,10 +1,8 @@
 package mx.gotadevida.core.dominio
 
-/**
- * Contratos que una funcionalidad ofrece a las demás sin exponer sus clases internas
- * (regla de la sección 8.1: las funcionalidades solo comparten lo que está en `core`).
- * Las implementan los services de donador, hospital y autenticación; se conectan en `core/di`.
- */
+// Contratos que una funcionalidad ofrece a las demás sin exponer sus clases internas
+// (regla de la sección 8.1: las funcionalidades solo comparten lo que está en `core`).
+// Las implementan los services de donador, hospital y autenticación; se conectan en `core/di`.
 
 /** Lo mínimo de un donador que necesitan urgencias, citas y el chatbot. */
 data class DonadorResumen(
@@ -15,7 +13,7 @@ data class DonadorResumen(
     val ubicacion: PuntoGeo?,
     val radioMaximoKm: Int,
     val elegible: Boolean,
-    val proximaFechaElegible: String?,
+    val proximaFechaElegible: String?
 )
 
 /** Donador candidato a una urgencia con su distancia al hospital. */
@@ -29,25 +27,16 @@ interface DirectorioDonadores {
      * y que están dentro de `radioKm` del hospital y de su propia distancia máxima.
      * Ordenados del más cercano al más lejano.
      */
-    suspend fun candidatos(
-        centro: PuntoGeo,
-        radioKm: Double,
-        tipos: List<TipoSangre>,
-        excluir: Set<String>,
-        limite: Int,
-    ): List<Candidato>
+    suspend fun candidatos(centro: PuntoGeo, radioKm: Double, tipos: List<TipoSangre>, excluir: Set<String>, limite: Int): List<Candidato>
+
+    /** El donador con ese celular (10 dígitos), para el chatbot de WhatsApp. */
+    suspend fun porTelefono(telefono: String): DonadorResumen?
 
     /** Registra una donación confirmada (fecha ISO) en el perfil del donador. */
     suspend fun registrarDonacion(id: String, fecha: String)
 }
 
-data class HospitalResumen(
-    val id: String,
-    val nombre: String,
-    val direccion: String,
-    val ubicacion: PuntoGeo,
-    val telefono: String?,
-)
+data class HospitalResumen(val id: String, val nombre: String, val direccion: String, val ubicacion: PuntoGeo, val telefono: String?)
 
 interface DirectorioHospitales {
     suspend fun resumen(id: String): HospitalResumen?

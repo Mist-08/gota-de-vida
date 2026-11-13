@@ -37,30 +37,28 @@ fun Icono(
     descripcion: String?,
     modifier: Modifier = Modifier,
     color: Color = GotaTema.colores.ink,
-    tamano: Dp = 24.dp,
+    tamano: Dp = 24.dp
 ) {
     Icon(painterResource(id), contentDescription = descripcion, modifier = modifier.size(tamano), tint = color)
 }
 
 /** Chip de tipo de sangre (O−, A+…). `destacado` = relleno sangre para urgencias. */
 @Composable
-fun ChipTipoSangre(
-    texto: String,
-    modifier: Modifier = Modifier,
-    destacado: Boolean = false,
-) {
+fun ChipTipoSangre(texto: String, modifier: Modifier = Modifier, destacado: Boolean = false) {
     val colores = GotaTema.colores
     Box(
         modifier = modifier
             .height(32.dp)
             .background(if (destacado) colores.sangre else colores.sangreSoft, Radio.completo)
             .padding(horizontal = 14.dp),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Text(
             texto,
-            style = MaterialTheme.typography.titleMedium.copy(fontFamily = MaterialTheme.typography.headlineSmall.fontFamily),
-            color = if (destacado) colores.onSangre else colores.onSangreSoft,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontFamily = MaterialTheme.typography.headlineSmall.fontFamily
+            ),
+            color = if (destacado) colores.onSangre else colores.onSangreSoft
         )
     }
 }
@@ -71,12 +69,12 @@ fun BarraSuperior(
     modifier: Modifier = Modifier,
     titulo: String? = null,
     alRegresar: (() -> Unit)? = null,
-    acciones: @Composable RowScope.() -> Unit = {},
+    acciones: @Composable RowScope.() -> Unit = {}
 ) {
     Row(
         modifier = modifier.fillMaxWidth().height(56.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Espacio.x1),
+        horizontalArrangement = Arrangement.spacedBy(Espacio.x1)
     ) {
         if (alRegresar != null) {
             IconButton(onClick = alRegresar) {
@@ -94,11 +92,7 @@ fun BarraSuperior(
 
 /** Aviso en franja (sin conexión, recordatorios). Lo anuncia el lector de pantalla. */
 @Composable
-fun BannerAviso(
-    texto: String,
-    @DrawableRes icono: Int,
-    modifier: Modifier = Modifier,
-) {
+fun BannerAviso(texto: String, @DrawableRes icono: Int, modifier: Modifier = Modifier) {
     val colores = GotaTema.colores
     Row(
         modifier = modifier
@@ -107,7 +101,7 @@ fun BannerAviso(
             .padding(horizontal = Espacio.x4, vertical = Espacio.x3)
             .semantics { liveRegion = LiveRegionMode.Polite },
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Icono(icono, null, color = colores.aviso, tamano = 20.dp)
         Text(texto, style = MaterialTheme.typography.labelLarge, color = colores.aviso)
@@ -125,7 +119,7 @@ fun MensajeError(texto: String, modifier: Modifier = Modifier) {
             .padding(Espacio.x3)
             .semantics { liveRegion = LiveRegionMode.Assertive },
         horizontalArrangement = Arrangement.spacedBy(Espacio.x2),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icono(R.drawable.ic_alerta, null, color = colores.error, tamano = 20.dp)
         Text(texto, style = MaterialTheme.typography.bodyMedium, color = colores.error)

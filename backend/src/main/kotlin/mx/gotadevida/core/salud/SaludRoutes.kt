@@ -7,11 +7,7 @@ import kotlinx.serialization.Serializable
 
 /** Respuesta de `/health`: sirve para saber si el servidor está arriba y para despertarlo en Render. */
 @Serializable
-data class EstadoSalud(
-    val estado: String,
-    val servicio: String,
-    val version: String,
-)
+data class EstadoSalud(val estado: String, val servicio: String, val version: String)
 
 fun Route.saludRoutes() {
     get("/health") {
@@ -19,8 +15,8 @@ fun Route.saludRoutes() {
             EstadoSalud(
                 estado = "ok",
                 servicio = "gota-de-vida-backend",
-                version = "0.1.0",
-            ),
+                version = "0.1.0"
+            )
         )
     }
 }

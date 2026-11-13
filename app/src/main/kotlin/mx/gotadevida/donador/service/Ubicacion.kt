@@ -8,9 +8,9 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlin.coroutines.resume
 
 /** Municipios de la Comarca Lagunera con su centro aproximado, para quien no quiere usar el GPS. */
 data class Zona(val nombre: String, val latitud: Double, val longitud: Double)
@@ -23,7 +23,7 @@ object ZonasLaguna {
         Zona("Matamoros", 25.5281, -103.2280),
         Zona("Francisco I. Madero", 25.7756, -103.2731),
         Zona("San Pedro", 25.7583, -102.9833),
-        Zona("Viesca", 25.3417, -102.8050),
+        Zona("Viesca", 25.3417, -102.8050)
     )
 }
 

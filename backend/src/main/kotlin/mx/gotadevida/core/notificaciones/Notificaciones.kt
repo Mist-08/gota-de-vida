@@ -1,5 +1,7 @@
 package mx.gotadevida.core.notificaciones
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.bearerAuth
@@ -11,6 +13,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.parameters
+import java.security.KeyFactory
+import java.security.interfaces.RSAPrivateKey
+import java.security.spec.PKCS8EncodedKeySpec
+import java.time.Instant
+import java.util.Base64
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -23,13 +30,6 @@ import mx.gotadevida.core.dominio.DirectorioUsuarios
 import mx.gotadevida.core.mensajeria.Consumidor
 import mx.gotadevida.core.mensajeria.TiposEvento
 import org.slf4j.LoggerFactory
-import java.security.KeyFactory
-import java.security.interfaces.RSAPrivateKey
-import java.security.spec.PKCS8EncodedKeySpec
-import java.time.Instant
-import java.util.Base64
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
 
 /**
  * Envía notificaciones push. Se mandan mensajes "de datos": la app arma el texto
@@ -62,14 +62,18 @@ class EnviadorPushFcm(credencialesJson: String) : EnviadorPush {
     private val json = Json { ignoreUnknownKeys = true }
     private val cliente = HttpClient(CIO)
     private val credenciales: JsonObject = json.parseToJsonElement(
-        credencialesJson.trim().let { if (it.startsWith("{")) it else String(Base64.getDecoder().decode(it)) },
+        credencialesJson.trim().let { if (it.startsWith("{")) it else String(Base64.getDecoder().decode(it)) }
     ).jsonObject
     private val proyecto = credenciales.getValue("project_id").jsonPrimitive.content
     private val correo = credenciales.getValue("client_email").jsonPrimitive.content
     private val llave: RSAPrivateKey = credenciales.getValue("private_key").jsonPrimitive.content
         .replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "")
         .replace("\\s".toRegex(), "")
-        .let { KeyFactory.getInstance("RSA").generatePrivate(PKCS8EncodedKeySpec(Base64.getDecoder().decode(it))) as RSAPrivateKey }
+        .let {
+            KeyFactory.getInstance(
+                "RSA"
+            ).generatePrivate(PKCS8EncodedKeySpec(Base64.getDecoder().decode(it))) as RSAPrivateKey
+        }
     private var tokenAcceso: String? = null
     private var venceEn: Instant = Instant.EPOCH
 
@@ -88,7 +92,7 @@ class EnviadorPushFcm(credencialesJson: String) : EnviadorPush {
             parameters {
                 append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                 append("assertion", afirmacion)
-            },
+            }
         )
         val cuerpo = json.parseToJsonElement(respuesta.bodyAsText()).jsonObject
         val nuevo = cuerpo["access_token"]?.jsonPrimitive?.content ?: error("Firebase no dio token: $cuerpo")
@@ -133,7 +137,7 @@ class EnviadorPushFcm(credencialesJson: String) : EnviadorPush {
 fun consumidorNotificaciones(
     usuarios: DirectorioUsuarios,
     push: EnviadorPush,
-    alEnviar: suspend (usuarioIds: List<String>, datos: Map<String, String>) -> Unit = { _, _ -> },
+    alEnviar: suspend (usuarioIds: List<String>, datos: Map<String, String>) -> Unit = { _, _ -> }
 ) = Consumidor("notificador", listOf(TiposEvento.NOTIFICACION_ENVIAR)) { evento ->
     val d = evento.datos
     val destinatarios = buildList {

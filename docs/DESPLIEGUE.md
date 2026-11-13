@@ -53,7 +53,27 @@ cd backend
 3. **Backend:** en *Configuración → Cuentas de servicio* genera una clave privada (JSON). Pégala completa (o en base64) en la variable `FIREBASE_CREDENCIALES_JSON` de Render. **Nunca la subas al repositorio.**
 4. Sin estas variables la app y el backend funcionan igual; los avisos solo se registran en el log.
 
+## 6. Gemini (Fase 5, gratis)
+
+1. En https://aistudio.google.com crea una llave de API (no pide tarjeta).
+2. Ponla en `GEMINI_API_KEY` (cada integrante usa su propia llave en su `.env`; la de Render se reserva para la demo).
+3. Opcional: `GEMINI_MODEL` (por defecto `gemini-3.5-flash-lite`).
+4. Sin llave, o si se acaba la cuota (error 429), Gota sigue funcionando con preguntas frecuentes y el menú de opciones.
+
+## 7. WhatsApp Cloud API (Fase 5, número de prueba gratis)
+
+1. En https://developers.facebook.com crea una app tipo **Negocio** y agrega el producto **WhatsApp**. **No agregues método de pago.**
+2. En *WhatsApp → Configuración de la API* copia el **token de acceso** (`WHATSAPP_TOKEN`) y el **identificador del número de teléfono** de prueba (`WHATSAPP_PHONE_NUMBER_ID`). Agrega como destinatarios los celulares de los 3 integrantes y del profesor.
+3. En *Configuración de la app → Básica* copia la **clave secreta de la app** (`WHATSAPP_APP_SECRET`). Inventa un token de verificación y ponlo en `WHATSAPP_VERIFY_TOKEN`.
+4. En *WhatsApp → Configuración → Webhook* pon la URL `https://<tu-servicio>.onrender.com/api/v1/webhooks/whatsapp` y el mismo token de verificación. Suscríbete al campo `messages`.
+5. Crea la plantilla **`urgencia_donacion`** (categoría *Utilidad*, idioma *Español (MEX)*):
+   - Cuerpo: `🩸 Urgencia: el {{2}} necesita sangre {{1}} (a {{3}} km de ti). ¿Puedes donar?`
+   - Botones de respuesta rápida: `Sí puedo` y `No puedo`.
+6. El token temporal de Meta dura 24 horas: para la demo genera un token de **usuario del sistema** (no caduca) en *Configuración del negocio*.
+
 ## Para la demo de urgencias
+
+- Pon `DEMO_PASSWORD` en Render con una contraseña que solo conozca el equipo. Al arrancar se crean cuentas de banco de sangre (`banco1@demo.gotadevida.mx`, `banco2@…`, `banco3@…`) y 12 donadores ficticios (`donador1@demo.gotadevida.mx` … `donador12@…`) en Torreón, Gómez Palacio y Lerdo, con distintos tipos de sangre y fechas de última donación.
 
 - Pon `MINUTOS_ENTRE_OLEADAS=1` en Render para que la segunda oleada llegue en un minuto y no en quince.
 - Crea con la colección de Postman una cuenta de banco de sangre (carpeta 4) y entra con ella en la app: verás el panel del hospital.

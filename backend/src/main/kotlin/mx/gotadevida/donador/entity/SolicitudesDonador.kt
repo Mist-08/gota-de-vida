@@ -18,7 +18,7 @@ data class ActualizarPerfilSolicitud(
     val fechaUltimaDonacion: String? = null,
     val fechaUltimoTatuaje: String? = null,
     val notificacionesActivas: Boolean? = null,
-    val radioMaximoKm: Int? = null,
+    val radioMaximoKm: Int? = null
 )
 
 /** Perfil tal como lo ve la app. La ubicación sale como latitud y longitud aproximadas. */
@@ -39,7 +39,7 @@ data class PerfilDonadorRespuesta(
     val latitud: Double? = null,
     val longitud: Double? = null,
     val zona: String? = null,
-    val ultimaDonacion: String? = null,
+    val ultimaDonacion: String? = null
 )
 
 /** Resultado de revisar si el donador puede donar hoy. */
@@ -50,7 +50,7 @@ data class Elegibilidad(
     val motivos: List<String>,
     val aviso: String,
     val proximaFechaElegible: String? = null,
-    val diasParaVolverADonar: Long? = null,
+    val diasParaVolverADonar: Long? = null
 )
 
 fun Donador.aRespuesta() = PerfilDonadorRespuesta(
@@ -70,5 +70,5 @@ fun Donador.aRespuesta() = PerfilDonadorRespuesta(
     latitud = ubicacion?.latitud,
     longitud = ubicacion?.longitud,
     zona = zona,
-    ultimaDonacion = fechasDonacion.maxOrNull(),
+    ultimaDonacion = fechasDonacion.maxOrNull()
 )

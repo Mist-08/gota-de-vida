@@ -10,6 +10,10 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import mx.gotadevida.autenticacion.entity.DispositivoPeticion
 import mx.gotadevida.autenticacion.entity.LoginSolicitud
 import mx.gotadevida.autenticacion.entity.SesionRespuesta
@@ -28,23 +32,27 @@ import mx.gotadevida.soporte.conToken
 import mx.gotadevida.soporte.iniciarComoAdmin
 import mx.gotadevida.soporte.probarApi
 import mx.gotadevida.soporte.registrar
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 /** Hospital Universitario de Torreón (coordenadas aproximadas). */
-private const val LAT_HOSPITAL = 25.5428
-private const val LNG_HOSPITAL = -103.4068
+internal const val LAT_HOSPITAL = 25.5428
+internal const val LNG_HOSPITAL = -103.4068
 
 class SolicitudRoutesTest {
 
-    private suspend fun HttpClient.crearHospitalYCuenta(): String {
+    internal suspend fun HttpClient.crearHospitalYCuenta(): String {
         val admin = iniciarComoAdmin()
         val hospital = post("/api/v1/hospitales") {
             conToken(admin)
             contentType(ContentType.Application.Json)
-            setBody(CrearHospitalSolicitud("Hospital Universitario", "Av. Morelos 900", "Torreón", LAT_HOSPITAL, LNG_HOSPITAL))
+            setBody(
+                CrearHospitalSolicitud(
+                    "Hospital Universitario",
+                    "Av. Morelos 900",
+                    "Torreón",
+                    LAT_HOSPITAL,
+                    LNG_HOSPITAL
+                )
+            )
         }.body<HospitalRespuesta>()
         post("/api/v1/hospitales/${hospital.id}/usuarios") {
             conToken(admin)
@@ -64,7 +72,12 @@ class SolicitudRoutesTest {
     }
 
     /** Registra un donador elegible con su tipo de sangre a `kmAlNorte` del hospital. */
-    private suspend fun HttpClient.donador(email: String, tipo: TipoSangre, kmAlNorte: Double, token: String? = null): Pair<String, String> {
+    internal suspend fun HttpClient.donador(
+        email: String,
+        tipo: TipoSangre,
+        kmAlNorte: Double,
+        token: String? = null
+    ): Pair<String, String> {
         val sesion = registrar(email = email, nombre = "Donador ${tipo.name}")
         val acceso = sesion.tokens.tokenAcceso
         put("/api/v1/donadores/me") {
@@ -78,8 +91,8 @@ class SolicitudRoutesTest {
                     sexoParaCriteriosMedicos = SexoParaCriteriosMedicos.MASCULINO,
                     latitud = LAT_HOSPITAL + kmAlNorte / 111.0,
                     longitud = LNG_HOSPITAL,
-                    radioMaximoKm = 60,
-                ),
+                    radioMaximoKm = 60
+                )
             )
         }
         if (token != null) {
@@ -92,7 +105,7 @@ class SolicitudRoutesTest {
         return sesion.usuario.id to acceso
     }
 
-    private suspend fun HttpClient.publicar(hospital: String, tipo: TipoSangre, unidades: Int) = post("/api/v1/solicitudes") {
+    internal suspend fun HttpClient.publicar(hospital: String, tipo: TipoSangre, unidades: Int) = post("/api/v1/solicitudes") {
         conToken(hospital)
         contentType(ContentType.Application.Json)
         setBody(CrearSolicitudPeticion(tipo, unidades, "Paciente en quirófano"))
@@ -154,7 +167,9 @@ class SolicitudRoutesTest {
             assertEquals(true, r.miRespuesta)
         }
 
-        val detalle = cliente.get("/api/v1/solicitudes/${urgencia.id}") { conToken(hospital) }.body<SolicitudRespuesta>()
+        val detalle = cliente.get("/api/v1/solicitudes/${urgencia.id}") {
+            conToken(hospital)
+        }.body<SolicitudRespuesta>()
         assertEquals(EstadoSolicitud.CUBIERTA, detalle.estado)
         assertEquals(2, detalle.unidadesComprometidas)
         assertEquals(2, detalle.aceptaciones!!.size)
@@ -167,7 +182,10 @@ class SolicitudRoutesTest {
     }
 
     @Test
-    fun `una urgencia cancelada no lanza mas oleadas y otro hospital no puede tocarla`() = probarApi { cliente, entorno ->
+    fun `una urgencia cancelada no lanza mas oleadas y otro hospital no puede tocarla`() = probarApi {
+            cliente,
+            entorno
+        ->
         val hospital = cliente.crearHospitalYCuenta()
         cliente.donador("oneg@correo.mx", TipoSangre.O_NEGATIVO, 30.0, "token-oneg-0000000000000")
         val urgencia = cliente.publicar(hospital, TipoSangre.AB_POSITIVO, 1).body<SolicitudRespuesta>()
@@ -191,7 +209,9 @@ class SolicitudRoutesTest {
         assertEquals(1, entorno.solicitudes.datos.getValue(urgencia.id).oleada)
         assertTrue(entorno.push.enviados.none { it.second["tipo"] == "urgencia" })
 
-        val lista = cliente.get("/api/v1/hospitales/me/solicitudes") { conToken(hospital) }.body<List<SolicitudRespuesta>>()
+        val lista = cliente.get("/api/v1/hospitales/me/solicitudes") {
+            conToken(hospital)
+        }.body<List<SolicitudRespuesta>>()
         assertEquals(listOf(urgencia.id), lista.map { it.id })
     }
 

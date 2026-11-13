@@ -1,23 +1,26 @@
 package mx.gotadevida.prueba
 
+import java.io.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import mx.gotadevida.core.network.Resultado
 import mx.gotadevida.core.sync.AccionPendiente
 import mx.gotadevida.core.sync.AccionPendienteDao
 import mx.gotadevida.core.sync.ColaDeSalida
+import mx.gotadevida.hospital.entity.CitaDelDia
 import mx.gotadevida.hospital.entity.CrearUrgenciaPeticion
+import mx.gotadevida.hospital.entity.Estadisticas
 import mx.gotadevida.hospital.entity.EstadoUrgenciaHospital
+import mx.gotadevida.hospital.entity.TipoSolicitado
 import mx.gotadevida.hospital.entity.UrgenciaHospital
 import mx.gotadevida.hospital.repository.HospitalRepository
-import mx.gotadevida.core.network.Resultado
 import mx.gotadevida.solicitud.entity.EstadoUrgencia
 import mx.gotadevida.solicitud.entity.ResponderPeticion
 import mx.gotadevida.solicitud.entity.Urgencia
 import mx.gotadevida.solicitud.entity.UrgenciaEntity
 import mx.gotadevida.solicitud.repository.SolicitudApi
 import mx.gotadevida.solicitud.repository.SolicitudDao
-import java.io.IOException
 
 fun urgenciaDePrueba(id: String = "u1", comprometidas: Int = 0, miRespuesta: Boolean? = null) = Urgencia(
     id = id,
@@ -32,7 +35,7 @@ fun urgenciaDePrueba(id: String = "u1", comprometidas: Int = 0, miRespuesta: Boo
     estado = EstadoUrgencia.ACTIVA,
     creadaEn = "2026-11-12T10:00:00Z",
     distanciaKm = 3.2,
-    miRespuesta = miRespuesta,
+    miRespuesta = miRespuesta
 )
 
 /** API falsa: con `sinRed = true` lanza IOException, como un teléfono en modo avión. */
@@ -54,7 +57,10 @@ class SolicitudApiFalsa(var sinRed: Boolean = false) : SolicitudApi {
         if (sinRed) throw IOException("sin red")
         respuestas += id to peticion.acepta
         return lista.first { it.id == id }.let {
-            it.copy(unidadesComprometidas = it.unidadesComprometidas + if (peticion.acepta) 1 else 0, miRespuesta = peticion.acepta)
+            it.copy(
+                unidadesComprometidas = it.unidadesComprometidas + if (peticion.acepta) 1 else 0,
+                miRespuesta = peticion.acepta
+            )
         }
     }
 }
@@ -108,7 +114,7 @@ class AccionesDaoFalso : AccionPendienteDao {
 
 fun urgenciaHospital(id: String = "u1", estado: EstadoUrgenciaHospital = EstadoUrgenciaHospital.ACTIVA) = UrgenciaHospital(
     id = id, hospitalNombre = "Hospital Universitario", etiquetaTipoSangre = "O−", unidades = 3,
-    unidadesComprometidas = 1, estado = estado, creadaEn = "2026-11-12T10:00:00Z", oleada = 1, donadoresNotificados = 12,
+    unidadesComprometidas = 1, estado = estado, creadaEn = "2026-11-12T10:00:00Z", oleada = 1, donadoresNotificados = 12
 )
 
 class HospitalFalso(var respuesta: Resultado<UrgenciaHospital> = Resultado.Exito(urgenciaHospital())) : HospitalRepository {
@@ -121,6 +127,27 @@ class HospitalFalso(var respuesta: Resultado<UrgenciaHospital> = Resultado.Exito
     }
 
     override suspend fun detalle(id: String) = respuesta
+
+    var checkins = mutableListOf<String>()
+
+    override suspend fun estadisticas() = Resultado.Exito(Estadisticas(3, 1, 2, 42, listOf(TipoSolicitado("O−", 2)), 5, 1))
+
+    override suspend fun citasDeHoy() = Resultado.Exito(listOf(CitaDelDia("c1", "2026-11-12T09:30", "Mariana", "AGENDADA")))
+
+    override suspend fun checkin(contenidoQr: String): Resultado<CitaDelDia> {
+        checkins += contenidoQr
+        return if (contenidoQr.startsWith("gota:")) {
+            Resultado.Exito(CitaDelDia("c1", "2026-11-12T09:30", "Mariana", "COMPLETADA"))
+        } else {
+            Resultado.Fallo(
+                mx.gotadevida.core.network.FalloApp.Servidor(
+                    400,
+                    "datos_invalidos",
+                    "Ese código QR no es de Gota de Vida."
+                )
+            )
+        }
+    }
 
     override suspend fun cambiarEstado(id: String, estado: EstadoUrgenciaHospital) =
         (respuesta as? Resultado.Exito)?.let { Resultado.Exito(it.valor.copy(estado = estado)) } ?: respuesta
