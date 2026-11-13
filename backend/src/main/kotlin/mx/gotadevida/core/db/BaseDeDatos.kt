@@ -21,6 +21,22 @@ class BaseDeDatos(uri: String, nombre: String) {
             .createIndex(Indexes.geo2dsphere("ubicacion"))
         db.getCollection<Document>(Colecciones.HOSPITALES)
             .createIndex(Indexes.geo2dsphere("ubicacion"))
+        db.getCollection<Document>(Colecciones.SOLICITUDES)
+            .createIndex(Indexes.geo2dsphere("ubicacion"))
+        db.getCollection<Document>(Colecciones.SOLICITUDES)
+            .createIndex(Indexes.compoundIndex(Indexes.ascending("hospitalId"), Indexes.descending("creadaEn")))
+        db.getCollection<Document>(Colecciones.RESPUESTAS)
+            .createIndex(Indexes.ascending("solicitudId"))
+        db.getCollection<Document>(Colecciones.RESPUESTAS)
+            .createIndex(Indexes.ascending("donadorId"))
+        db.getCollection<Document>(Colecciones.USUARIOS)
+            .createIndex(Indexes.ascending("hospitalId"))
+        db.getCollection<Document>(Colecciones.CITAS)
+            .createIndex(Indexes.compoundIndex(Indexes.ascending("hospitalId"), Indexes.ascending("fechaHora")))
+        db.getCollection<Document>(Colecciones.CITAS)
+            .createIndex(Indexes.ascending("donadorId"))
+        db.getCollection<Document>(Colecciones.DONACIONES)
+            .createIndex(Indexes.ascending("donadorId"))
     }
 
     fun cerrar() = cliente.close()
@@ -31,4 +47,11 @@ object Colecciones {
     const val DONADORES = "donadores"
     const val HOSPITALES = "hospitales"
     const val REGLAS_ELEGIBILIDAD = "reglas_elegibilidad"
+    const val SOLICITUDES = "solicitudes"
+    const val RESPUESTAS = "respuestas"
+    const val CITAS = "citas"
+    const val DONACIONES = "donaciones"
+    const val CONVERSACIONES = "conversaciones"
+    const val PREGUNTAS_FRECUENTES = "preguntas_frecuentes"
+    const val EVENTOS_PROCESADOS = "eventos_procesados"
 }

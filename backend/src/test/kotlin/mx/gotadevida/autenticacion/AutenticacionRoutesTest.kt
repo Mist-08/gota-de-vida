@@ -6,6 +6,10 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import mx.gotadevida.autenticacion.entity.GoogleSolicitud
 import mx.gotadevida.autenticacion.entity.LoginSolicitud
 import mx.gotadevida.autenticacion.entity.RefrescoSolicitud
@@ -15,10 +19,6 @@ import mx.gotadevida.core.errores.ErrorRespuesta
 import mx.gotadevida.core.seguridad.Rol
 import mx.gotadevida.soporte.probarApi
 import mx.gotadevida.soporte.registrar
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class AutenticacionRoutesTest {
 

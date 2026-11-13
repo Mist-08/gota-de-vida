@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Español: idioma por defecto. Todo texto nuevo va aquí y en values-en/strings.xml. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
+    <string name="app_name">Gota de Vida</string>
+
+    <!-- Comunes -->
+    <string name="accion_regresar">Regresar</string>
+    <string name="accion_ajustes">Ajustes</string>
+    <string name="accion_continuar">Continuar</string>
+    <string name="accion_aceptar">Aceptar</string>
+    <string name="accion_cancelar">Cancelar</string>
+    <string name="accion_entendido">Entendido</string>
+    <string name="error_sin_conexion">No pudimos conectarnos. Revisa tu internet e intenta de nuevo.</string>
+    <string name="error_desconocido">Algo salió mal. Intenta de nuevo.</string>
+    <string name="error_google_no_disponible">No pudimos usar tu cuenta de Google en este teléfono. Usa tu correo.</string>
+    <string name="aviso_medico">La decisión final de donar la toma el personal médico del banco de sangre.</string>
+
+    <!-- Errores de campos -->
+    <string name="error_campo_vacio">Este campo es obligatorio.</string>
+    <string name="error_nombre_corto">Escribe al menos 2 letras.</string>
+    <string name="error_email_invalido">Escribe un correo válido, por ejemplo nombre@correo.com.</string>
+    <string name="error_password_corta">La contraseña debe tener al menos 8 caracteres.</string>
+    <string name="error_telefono_invalido">El celular debe tener 10 dígitos.</string>
+    <string name="error_elige_opcion">Elige una opción.</string>
+    <string name="error_peso_invalido">Escribe un peso entre 30 y 250 kg.</string>
+    <string name="error_fecha_futura">La fecha no puede estar en el futuro.</string>
+    <string name="error_edad_invalida">Revisa tu fecha de nacimiento.</string>
+
+    <!-- Bienvenida -->
+    <string name="bienvenida_subtitulo">Cuando un hospital de La Laguna necesita tu tipo de sangre, te avisamos. Solo a ti, y solo si ya puedes donar.</string>
+    <string name="bienvenida_punto1_titulo">Avisos solo si eres compatible</string>
+    <string name="bienvenida_punto1_texto">Nada de cadenas: solo urgencias que puedes cubrir.</string>
+    <string name="bienvenida_punto2_titulo">Agenda tu cita en un mensaje</string>
+    <string name="bienvenida_punto2_texto">En la app o por WhatsApp con Gota, tu asistente.</string>
+    <string name="bienvenida_punto3_titulo">Tu ubicación no se comparte</string>
+    <string name="bienvenida_punto3_texto">El hospital solo ve qué tan lejos estás.</string>
+    <string name="bienvenida_consentimiento">Acepto el aviso de privacidad y que mis datos de salud se usen para avisarme de urgencias.</string>
+    <string name="bienvenida_leer_aviso">Leer aviso de privacidad</string>
+    <string name="bienvenida_crear_cuenta">Crear cuenta</string>
+    <string name="bienvenida_ya_tengo_cuenta">Ya tengo cuenta</string>
+
+    <!-- Aviso de privacidad (resumen del prototipo: revisarlo antes de publicar la app) -->
+    <string name="aviso_privacidad_titulo">Aviso de privacidad</string>
+    <string name="aviso_privacidad_texto">Gota de Vida guarda tu nombre, correo, celular, tipo de sangre, fecha de nacimiento, peso, sexo para criterios médicos y una ubicación aproximada (unos 100 metros, nunca tu dirección).\n\nLos usamos solo para saber si puedes donar y avisarte de urgencias de sangre compatibles cerca de ti.\n\nUn hospital solo ve qué tan lejos estás. Tu nombre y celular los ve únicamente si aceptas una urgencia.\n\nPuedes corregir tus datos desde Ajustes → Editar mi perfil y borrar tu cuenta desde Ajustes → Eliminar mi cuenta.\n\nEste es el aviso del prototipo escolar; antes de usar la app con personas reales debe revisarlo un especialista en protección de datos.</string>
+
+    <!-- Registro e inicio de sesión -->
+    <string name="registro_paso">Paso 1 de 2</string>
+    <string name="registro_titulo">Crea tu cuenta</string>
+    <string name="registro_subtitulo">Te toma un minuto. Después te preguntamos tu tipo de sangre.</string>
+    <string name="continuar_con_google">Continuar con Google</string>
+    <string name="registro_o_con_correo">o con tu correo</string>
+    <string name="campo_nombre">Nombre</string>
+    <string name="campo_correo">Correo</string>
+    <string name="campo_contrasena">Contraseña</string>
+    <string name="campo_contrasena_ayuda">Mínimo 8 caracteres.</string>
+    <string name="campo_telefono">Celular con WhatsApp</string>
+    <string name="campo_telefono_ayuda">Aquí te escribirá Gota cuando haya una urgencia.</string>
+    <string name="inicio_sesion_titulo">Inicia sesión</string>
+    <string name="inicio_sesion_subtitulo">Qué bueno verte de nuevo.</string>
+    <string name="accion_entrar">Entrar</string>
+
+    <!-- Perfil -->
+    <string name="perfil_paso">Paso 2 de 2</string>
+    <string name="perfil_titulo">Tu perfil de donador</string>
+    <string name="perfil_titulo_editar">Editar perfil</string>
+    <string name="perfil_subtitulo">Con esto sabemos a qué urgencias avisarte.</string>
+    <string name="perfil_tipo_sangre">Tipo de sangre</string>
+    <string name="perfil_no_se_tipo">No lo sé</string>
+    <string name="perfil_no_se_tipo_ayuda">Te lo dirán en tu primera donación. Mientras, no podremos avisarte de urgencias.</string>
+    <string name="perfil_nacimiento">Fecha de nacimiento</string>
+    <string name="perfil_elegir_fecha">Elegir fecha</string>
+    <string name="perfil_peso">Peso (kg)</string>
+    <string name="perfil_sexo">Sexo para criterios médicos</string>
+    <string name="perfil_sexo_ayuda">Solo sirve para calcular cada cuánto puedes donar.</string>
+    <string name="sexo_femenino">Femenino</string>
+    <string name="sexo_masculino">Masculino</string>
+    <string name="perfil_zona">Tu zona</string>
+    <string name="perfil_zona_ayuda">Guardamos una ubicación aproximada, nunca tu dirección.</string>
+    <string name="perfil_usar_ubicacion">Usar mi ubicación aproximada</string>
+    <string name="perfil_ubicacion_gps">Ubicación aproximada lista</string>
+    <string name="perfil_ubicacion_no_disponible">No pudimos obtener tu ubicación. Elige tu municipio.</string>
+    <string name="perfil_o_elige_municipio">o elige tu municipio</string>
+    <string name="perfil_ha_donado">¿Ya has donado sangre?</string>
+    <string name="perfil_si">Sí</string>
+    <string name="perfil_no">No</string>
+    <string name="perfil_ultima_donacion">Fecha de tu última donación</string>
+    <string name="perfil_guardar">Guardar perfil</string>
+
+    <!-- Inicio -->
+    <string name="inicio_hola">Hola,</string>
+    <string name="inicio_elegible">Elegible</string>
+    <string name="inicio_puedes_donar">Puedes donar</string>
+    <string name="inicio_ultima_donacion">Tu última donación fue el %1$s.</string>
+    <string name="inicio_sin_donaciones">Todavía no registras donaciones. ¡Tu primera puede salvar vidas!</string>
+    <string name="inicio_podras_donar">Podrás volver a donar en</string>
+    <plurals name="inicio_dias">
+        <item quantity="one">%d día</item>
+        <item quantity="many">%d días</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <string name="inicio_a_partir_de">A partir del %1$s. Te avisaremos ese día.</string>
+    <string name="inicio_no_puedes">Por ahora no puedes donar</string>
+    <string name="inicio_completa_perfil">Completa tu perfil</string>
+    <string name="inicio_completa_perfil_texto">Necesitamos unos datos para saber si puedes donar y avisarte de urgencias.</string>
+    <string name="accion_completar_perfil">Completar perfil</string>
+    <string name="inicio_editar_perfil">Editar perfil</string>
+    <string name="inicio_urgencias">Urgencias cerca</string>
+    <string name="inicio_urgencias_vacio">Cuando un hospital cercano necesite tu tipo de sangre, aparecerá aquí.</string>
+    <string name="inicio_sin_conexion">Sin conexión. Te mostramos lo último guardado.</string>
+    <string name="inicio_cargando">Cargando tu información…</string>
+    <string name="cd_tipo_sangre">Tipo de sangre %1$s</string>
+
+    <!-- Ajustes -->
+    <string name="ajustes_titulo">Ajustes</string>
+    <string name="ajustes_idioma">Idioma</string>
+    <string name="idioma_espanol">Español</string>
+    <string name="idioma_ingles">English</string>
+    <string name="ajustes_privacidad">Privacidad</string>
+    <string name="ajustes_ver_aviso">Aviso de privacidad</string>
+    <string name="ajustes_editar_perfil">Editar mi perfil</string>
+    <string name="ajustes_cerrar_sesion">Cerrar sesión</string>
+    <string name="ajustes_confirmar_cierre_titulo">¿Cerrar sesión?</string>
+    <string name="ajustes_confirmar_cierre_texto">Se borrarán de este teléfono tus datos guardados. Tu cuenta sigue activa.</string>
+    <string name="ajustes_version">Gota de Vida %1$s</string>
+    <!-- Urgencias (donador) -->
+    <plurals name="unidades_cubiertas">
+        <item quantity="one">%1$d de %2$d unidad cubierta</item>
+        <item quantity="many">%1$d de %2$d unidades cubiertas</item>
+        <item quantity="other">%1$d de %2$d unidades cubiertas</item>
+    </plurals>
+    <string name="distancia_km">a %1$.1f km</string>
+    <string name="urgencia_titulo">Urgencia</string>
+    <string name="urgencia_pendiente_enviar">Pendiente de enviar</string>
+    <string name="urgencia_pendiente_texto">Sin conexión. Tu respuesta se enviará en cuanto vuelva la señal.</string>
+    <string name="urgencia_ya_aceptaste">Ya aceptaste</string>
+    <string name="cd_mapa_hospital">Mapa con la ubicación de %1$s</string>
+    <string name="osm_atribucion">© OpenStreetMap</string>
+    <string name="urgencia_si_puedo">Sí puedo donar</string>
+    <string name="urgencia_no_puedo">No puedo esta vez</string>
+    <string name="urgencia_dijiste_no">Dijiste que no podías. Si cambias de opinión, toca "Sí puedo donar".</string>
+    <string name="urgencia_gracias">¡Gracias! El hospital ya sabe que vas.</string>
+    <string name="urgencia_abrir_ruta">Abrir ruta al hospital</string>
+    <string name="urgencia_cubierta">Esta urgencia ya se cubrió. ¡Gracias por estar pendiente!</string>
+    <string name="urgencia_terminada">Esta urgencia ya terminó.</string>
+
+    <!-- Panel del hospital -->
+    <string name="estado_activa">Activa</string>
+    <string name="estado_cubierta">Cubierta</string>
+    <string name="estado_cerrada">Cerrada</string>
+    <string name="estado_cancelada">Cancelada</string>
+    <string name="panel_titulo">Urgencias de tu hospital</string>
+    <string name="panel_nueva_urgencia">Publicar urgencia</string>
+    <string name="panel_vacio">Todavía no hay urgencias publicadas.</string>
+    <plurals name="panel_avisados">
+        <item quantity="one">%d donador avisado</item>
+        <item quantity="many">%d donadores avisados</item>
+        <item quantity="other">%d donadores avisados</item>
+    </plurals>
+    <plurals name="panel_oleada">
+        <item quantity="one">Oleada %1$d: %2$d donador avisado. Si no se cubre, se amplía el radio en 15 minutos.</item>
+        <item quantity="many">Oleada %1$d: %2$d donadores avisados. Si no se cubre, se amplía el radio en 15 minutos.</item>
+        <item quantity="other">Oleada %1$d: %2$d donadores avisados. Si no se cubre, se amplía el radio en 15 minutos.</item>
+    </plurals>
+    <string name="panel_aceptaron">Donadores que aceptaron</string>
+    <string name="panel_nadie_acepto">Aún nadie acepta. Te avisaremos en cuanto alguien responda.</string>
+    <string name="panel_llamar">Llamar</string>
+    <string name="panel_cerrar">Cerrar urgencia</string>
+    <string name="panel_cancelar">Cancelar urgencia</string>
+    <string name="crear_titulo">Nueva urgencia</string>
+    <string name="crear_tipo_paciente">Tipo de sangre del paciente</string>
+    <string name="crear_unidades">Unidades necesarias</string>
+    <string name="crear_nota">Nota para los donadores (opcional)</string>
+    <string name="crear_nota_ayuda">Por ejemplo: "Preguntar por el banco de sangre, planta baja". Sin datos del paciente.</string>
+    <string name="crear_publicar">Publicar y avisar</string>
+    <string name="crear_ayuda_oleadas">Avisaremos primero a los 20 donadores compatibles más cercanos y, si no se cubre, ampliaremos el radio.</string>
+
+    <!-- Notificaciones -->
+    <string name="canal_urgencias">Urgencias de sangre</string>
+    <string name="canal_respuestas">Respuestas y recordatorios</string>
+    <string name="push_urgencia_titulo">Urgencia: se necesita %1$s</string>
+    <string name="push_urgencia_texto">%1$s, a %2$s km de ti. ¿Puedes donar?</string>
+    <string name="push_respuesta_titulo">Un donador aceptó</string>
+    <string name="push_respuesta_texto">%1$s de %2$s unidades de %3$s comprometidas.</string>
+    <string name="push_cubierta_titulo">¡Urgencia cubierta!</string>
+    <string name="push_cubierta_texto">Se comprometieron las %1$s unidades de %2$s.</string>
+    <string name="push_recordatorio_titulo">Tu cita para donar</string>
+    <string name="push_recordatorio_texto">%1$s a las %2$s. Recuerda tu identificación.</string>
+    <string name="push_gracias_titulo">¡Gracias por donar!</string>
+    <string name="push_gracias_texto">Tu donación quedó registrada. Mira tu historial y tu próxima fecha.</string>
+
+    <!-- Citas, historial y check-in -->
+    <string name="agendar_titulo">Agendar cita</string>
+    <string name="agendar_dia">Día</string>
+    <string name="agendar_hora">Hora</string>
+    <string name="agendar_sin_horarios">No quedan horarios ese día. Prueba otro.</string>
+    <string name="agendar_requisitos">Antes de ir</string>
+    <string name="requisito_ayuno" tools:ignore="PluralsCandidate">Ayuno de %1$d a %2$d horas.</string>
+    <string name="requisito_comida">Evita grasas, huevo y lácteos desde un día antes.</string>
+    <string name="requisito_identificacion">Lleva tu identificación oficial con fotografía.</string>
+    <string name="requisito_edad_peso" tools:ignore="PluralsCandidate">Tener de %1$d a %2$d años y pesar al menos %3$d kg.</string>
+    <string name="agendar_confirmar">Confirmar cita</string>
+    <string name="cita_tu_cita">Tu cita para donar</string>
+    <string name="cita_ver_qr">Ver QR</string>
+    <string name="cita_pendiente">Tu cita se agendará en cuanto vuelva la señal.</string>
+    <string name="cita_titulo">Mi cita</string>
+    <string name="cita_sin_cita">No tienes citas próximas. Cuando aceptes una urgencia podrás agendar.</string>
+    <string name="cita_muestra_qr">Muestra este código en el banco de sangre.</string>
+    <string name="cita_agregar_calendario">Agregar a mi calendario</string>
+    <string name="cita_evento_titulo">Donar sangre (Gota de Vida)</string>
+    <string name="cita_evento_descripcion">Lleva tu identificación y llega con 4 a 12 horas de ayuno.</string>
+    <string name="cita_cancelar">Cancelar cita</string>
+    <string name="cd_codigo_qr">Código QR de tu cita</string>
+    <string name="historial_titulo">Mi historial</string>
+    <string name="historial_donaciones">Donaciones</string>
+    <string name="historial_vidas">Vidas que puedes ayudar</string>
+    <string name="historial_proxima">Podrás volver a donar a partir del %1$s.</string>
+    <string name="historial_insignias">Insignias</string>
+    <string name="insignia_primera">Primera donación</string>
+    <string name="insignia_tres">Tres donaciones</string>
+    <string name="insignia_cinco">Cinco donaciones</string>
+    <string name="insignia_heroe">Héroe de urgencia</string>
+    <string name="insignia_obtenida">Obtenida</string>
+    <string name="insignia_pendiente">Por obtener</string>
+    <string name="historial_por_urgencia">%1$s · por una urgencia</string>
+    <string name="escanear_titulo">Confirmar donación</string>
+    <string name="escanear_confirmada">Donación de %1$s confirmada. ¡Gracias!</string>
+    <string name="escanear_otra">Escanear otra</string>
+    <string name="escanear_instrucciones">Apunta la cámara al código QR de la cita del donador.</string>
+    <string name="cd_camara">Vista de la cámara para leer el código QR</string>
+    <string name="escanear_sin_permiso">Sin permiso de cámara. Escribe el código de la cita.</string>
+    <string name="escanear_o_escribe">o escribe el código</string>
+    <string name="escanear_codigo">Código de la cita</string>
+    <string name="escanear_confirmar">Confirmar</string>
+    <string name="panel_escanear">Escanear QR de una cita</string>
+    <string name="panel_activas">Activas</string>
+    <string name="panel_donaciones">Donaciones</string>
+    <string name="panel_minutos">Min. para cubrir</string>
+    <string name="panel_mas_solicitados">Más solicitados: %1$s</string>
+    <string name="panel_citas_hoy">Citas de hoy</string>
+
+    <!-- Chat -->
+    <string name="chat_titulo">Gota, tu asistente</string>
+    <string name="chat_bienvenida">¡Hola! Soy Gota 🩸. Te ayudo a responder urgencias, resolver dudas sobre requisitos y agendar tu cita. También estoy en WhatsApp.</string>
+    <string name="chat_escribe">Escribe tu mensaje</string>
+    <string name="chat_enviar">Enviar</string>
+    <string name="chat_hablar_con_gota">Hablar con Gota</string>
+    <string name="chat_opcion_1">Aceptar urgencia</string>
+    <string name="chat_opcion_2">Ver requisitos</string>
+    <string name="chat_opcion_3">Agendar cita</string>
+    <string name="chat_opcion_4">¿Puedo donar?</string>
+    <string name="accion_reintentar_envio">Reintentar envío</string>
+
+    <!-- Widget y ajustes -->
+    <string name="widget_nombre">Mi próxima donación</string>
+    <string name="widget_descripcion">Muestra si ya puedes donar o cuántos días faltan.</string>
+    <string name="widget_abre_la_app">Abre la app para ver si puedes donar</string>
+    <string name="widget_gracias">Gracias por estar listo</string>
+    <string name="ajustes_notificaciones">Notificaciones</string>
+    <string name="ajustes_recibir_urgencias">Recibir avisos de urgencias</string>
+    <string name="ajustes_recibir_urgencias_ayuda">Por notificación y WhatsApp, solo si eres compatible y estás cerca.</string>
+    <string name="ajustes_eliminar_cuenta">Eliminar mi cuenta</string>
+    <string name="ajustes_eliminar_titulo">¿Eliminar tu cuenta?</string>
+    <string name="ajustes_eliminar_texto">Se borrarán tu cuenta, tu perfil, tu conversación con Gota y tus citas pendientes. Las donaciones ya confirmadas quedan en el banco de sangre sin tus datos personales. No se puede deshacer.</string>
+    <string name="ajustes_eliminar_confirmar">Eliminar</string>
+</resources>
