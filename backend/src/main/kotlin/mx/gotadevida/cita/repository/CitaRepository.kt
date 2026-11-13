@@ -35,15 +35,15 @@ class MongoCitaRepository(db: MongoDatabase) : CitaRepository {
     override suspend fun deDonador(donadorId: String): List<Cita> =
         coleccion.find(Filters.eq("donadorId", donadorId)).sort(Sorts.descending("fechaHora")).limit(50).toList()
 
-    override suspend fun agendadasDeHospital(hospitalId: String, prefijo: String): List<Cita> =
-        coleccion.find(
-            Filters.and(
-                Filters.eq("hospitalId", hospitalId),
-                Filters.eq("estado", EstadoCita.AGENDADA.name),
-                Filters.regex("fechaHora", "^" + prefijo.filter { it.isDigit() || it in "-T:" }),
-            ),
-        ).sort(Sorts.ascending("fechaHora")).toList()
+    override suspend fun agendadasDeHospital(hospitalId: String, prefijo: String): List<Cita> = coleccion.find(
+        Filters.and(
+            Filters.eq("hospitalId", hospitalId),
+            Filters.eq("estado", EstadoCita.AGENDADA.name),
+            Filters.regex("fechaHora", "^" + prefijo.filter { it.isDigit() || it in "-T:" })
+        )
+    ).sort(Sorts.ascending("fechaHora")).toList()
 
-    override suspend fun contarCompletadas(hospitalId: String): Int =
-        coleccion.countDocuments(Filters.and(Filters.eq("hospitalId", hospitalId), Filters.eq("estado", EstadoCita.COMPLETADA.name))).toInt()
+    override suspend fun contarCompletadas(hospitalId: String): Int = coleccion.countDocuments(
+        Filters.and(Filters.eq("hospitalId", hospitalId), Filters.eq("estado", EstadoCita.COMPLETADA.name))
+    ).toInt()
 }

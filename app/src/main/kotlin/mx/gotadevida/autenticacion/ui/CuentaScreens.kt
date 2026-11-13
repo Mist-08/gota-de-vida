@@ -62,10 +62,7 @@ import mx.gotadevida.core.designsystem.componentes.texto
 // ---------- Bienvenida ----------
 
 @Composable
-fun BienvenidaScreen(
-    alCrearCuenta: () -> Unit,
-    alIniciarSesion: () -> Unit,
-) {
+fun BienvenidaScreen(alCrearCuenta: () -> Unit, alIniciarSesion: () -> Unit) {
     val colores = GotaTema.colores
     var acepto by rememberSaveable { mutableStateOf(false) }
     var verAviso by rememberSaveable { mutableStateOf(false) }
@@ -77,25 +74,35 @@ fun BienvenidaScreen(
                 .padding(relleno)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = Espacio.x6, vertical = Espacio.x8),
-            verticalArrangement = Arrangement.spacedBy(Espacio.x8),
+            verticalArrangement = Arrangement.spacedBy(Espacio.x8)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 Box(
                     modifier = Modifier.size(64.dp).background(colores.sangreSoft, MaterialTheme.shapes.extraLarge),
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
                     Icono(R.drawable.ic_gota, null, color = colores.sangre, tamano = 32.dp)
                 }
                 Text(
                     stringResource(R.string.app_name),
-                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = MaterialTheme.typography.displayMedium.fontSize),
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontSize = MaterialTheme.typography.displayMedium.fontSize
+                    )
                 )
                 Text(stringResource(R.string.bienvenida_subtitulo), style = MaterialTheme.typography.bodyLarge)
             }
             Column(verticalArrangement = Arrangement.spacedBy(Espacio.x4)) {
-                PuntoBienvenida(R.drawable.ic_campana, R.string.bienvenida_punto1_titulo, R.string.bienvenida_punto1_texto)
+                PuntoBienvenida(
+                    R.drawable.ic_campana,
+                    R.string.bienvenida_punto1_titulo,
+                    R.string.bienvenida_punto1_texto
+                )
                 PuntoBienvenida(R.drawable.ic_chat, R.string.bienvenida_punto2_titulo, R.string.bienvenida_punto2_texto)
-                PuntoBienvenida(R.drawable.ic_escudo, R.string.bienvenida_punto3_titulo, R.string.bienvenida_punto3_texto)
+                PuntoBienvenida(
+                    R.drawable.ic_escudo,
+                    R.string.bienvenida_punto3_titulo,
+                    R.string.bienvenida_punto3_texto
+                )
             }
             Column(verticalArrangement = Arrangement.spacedBy(Espacio.x4)) {
                 Row(
@@ -103,14 +110,20 @@ fun BienvenidaScreen(
                         .fillMaxWidth()
                         .toggleable(value = acepto, role = Role.Checkbox, onValueChange = { acepto = it }),
                     verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(Espacio.x3),
+                    horizontalArrangement = Arrangement.spacedBy(Espacio.x3)
                 ) {
                     Checkbox(
                         checked = acepto,
                         onCheckedChange = null,
-                        colors = CheckboxDefaults.colors(checkedColor = colores.sangre, uncheckedColor = colores.outlineStrong),
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = colores.sangre,
+                            uncheckedColor = colores.outlineStrong
+                        )
                     )
-                    Text(stringResource(R.string.bienvenida_consentimiento), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        stringResource(R.string.bienvenida_consentimiento),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
                 TextButton(onClick = { verAviso = true }) {
                     Text(stringResource(R.string.bienvenida_leer_aviso), color = colores.info)
@@ -129,12 +142,17 @@ private fun PuntoBienvenida(@DrawableRes icono: Int, titulo: Int, texto: Int) {
     Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         Box(
             modifier = Modifier.size(40.dp).background(colores.surfaceSunken, MaterialTheme.shapes.small),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
             Icono(icono, null, color = colores.sangre, tamano = 22.dp)
         }
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(stringResource(titulo), style = MaterialTheme.typography.titleMedium.copy(fontSize = MaterialTheme.typography.bodyLarge.fontSize))
+            Text(
+                stringResource(titulo),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                )
+            )
             Text(stringResource(texto), style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
         }
     }
@@ -149,10 +167,10 @@ fun DialogoAvisoPrivacidad(alCerrar: () -> Unit) {
             Text(
                 stringResource(R.string.aviso_privacidad_texto),
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier.verticalScroll(rememberScrollState())
             )
         },
-        confirmButton = { TextButton(onClick = alCerrar) { Text(stringResource(R.string.accion_entendido)) } },
+        confirmButton = { TextButton(onClick = alCerrar) { Text(stringResource(R.string.accion_entendido)) } }
     )
 }
 
@@ -163,26 +181,30 @@ fun RegistroScreen(
     aceptoAviso: Boolean,
     alRegresar: () -> Unit,
     alRegistrarse: () -> Unit,
-    viewModel: RegistroViewModel = hiltViewModel(),
+    viewModel: RegistroViewModel = hiltViewModel()
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     LaunchedEffect(estado.listo) { if (estado.listo) alRegistrarse() }
 
     PantallaFormulario(alRegresar = alRegresar, paso = stringResource(R.string.registro_paso)) {
         Encabezado(stringResource(R.string.registro_titulo), stringResource(R.string.registro_subtitulo))
-        BotonGoogle(habilitado = !estado.enviando, alToken = viewModel::conGoogle, alFallar = viewModel::googleNoDisponible)
+        BotonGoogle(
+            habilitado = !estado.enviando,
+            alToken = viewModel::conGoogle,
+            alFallar = viewModel::googleNoDisponible
+        )
         CampoTexto(
             valor = estado.nombre,
             alCambiar = viewModel::onNombre,
             etiqueta = stringResource(R.string.campo_nombre),
-            error = estado.errores[CampoCuenta.NOMBRE]?.texto(),
+            error = estado.errores[CampoCuenta.NOMBRE]?.texto()
         )
         CampoTexto(
             valor = estado.email,
             alCambiar = viewModel::onEmail,
             etiqueta = stringResource(R.string.campo_correo),
             error = estado.errores[CampoCuenta.EMAIL]?.texto(),
-            tipoTeclado = KeyboardType.Email,
+            tipoTeclado = KeyboardType.Email
         )
         CampoTexto(
             valor = estado.password,
@@ -191,7 +213,7 @@ fun RegistroScreen(
             ayuda = stringResource(R.string.campo_contrasena_ayuda),
             error = estado.errores[CampoCuenta.PASSWORD]?.texto(),
             tipoTeclado = KeyboardType.Password,
-            esContrasena = true,
+            esContrasena = true
         )
         CampoTexto(
             valor = estado.telefono,
@@ -201,7 +223,7 @@ fun RegistroScreen(
             error = estado.errores[CampoCuenta.TELEFONO]?.texto(),
             tipoTeclado = KeyboardType.Phone,
             accionTeclado = ImeAction.Done,
-            alConfirmar = { viewModel.registrar(aceptoAviso) },
+            alConfirmar = { viewModel.registrar(aceptoAviso) }
         )
         estado.fallo?.let { MensajeError(it.texto()) }
         if (estado.googleNoDisponible) MensajeError(stringResource(R.string.error_google_no_disponible))
@@ -209,7 +231,7 @@ fun RegistroScreen(
         BotonPrincipal(
             stringResource(R.string.accion_continuar),
             alPulsar = { viewModel.registrar(aceptoAviso) },
-            cargando = estado.enviando,
+            cargando = estado.enviando
         )
     }
 }
@@ -217,23 +239,23 @@ fun RegistroScreen(
 // ---------- Inicio de sesión ----------
 
 @Composable
-fun InicioSesionScreen(
-    alRegresar: () -> Unit,
-    alEntrar: () -> Unit,
-    viewModel: InicioSesionViewModel = hiltViewModel(),
-) {
+fun InicioSesionScreen(alRegresar: () -> Unit, alEntrar: () -> Unit, viewModel: InicioSesionViewModel = hiltViewModel()) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     LaunchedEffect(estado.listo) { if (estado.listo) alEntrar() }
 
     PantallaFormulario(alRegresar = alRegresar) {
         Encabezado(stringResource(R.string.inicio_sesion_titulo), stringResource(R.string.inicio_sesion_subtitulo))
-        BotonGoogle(habilitado = !estado.enviando, alToken = viewModel::conGoogle, alFallar = viewModel::googleNoDisponible)
+        BotonGoogle(
+            habilitado = !estado.enviando,
+            alToken = viewModel::conGoogle,
+            alFallar = viewModel::googleNoDisponible
+        )
         CampoTexto(
             valor = estado.email,
             alCambiar = viewModel::onEmail,
             etiqueta = stringResource(R.string.campo_correo),
             error = estado.errores[CampoCuenta.EMAIL]?.texto(),
-            tipoTeclado = KeyboardType.Email,
+            tipoTeclado = KeyboardType.Email
         )
         CampoTexto(
             valor = estado.password,
@@ -243,7 +265,7 @@ fun InicioSesionScreen(
             tipoTeclado = KeyboardType.Password,
             accionTeclado = ImeAction.Done,
             alConfirmar = viewModel::entrar,
-            esContrasena = true,
+            esContrasena = true
         )
         estado.fallo?.let { MensajeError(it.texto()) }
         if (estado.googleNoDisponible) MensajeError(stringResource(R.string.error_google_no_disponible))
@@ -255,11 +277,7 @@ fun InicioSesionScreen(
 // ---------- Piezas compartidas ----------
 
 @Composable
-private fun PantallaFormulario(
-    alRegresar: () -> Unit,
-    paso: String? = null,
-    contenido: @Composable () -> Unit,
-) {
+private fun PantallaFormulario(alRegresar: () -> Unit, paso: String? = null, contenido: @Composable () -> Unit) {
     val colores = GotaTema.colores
     Scaffold(containerColor = colores.surface) { relleno ->
         Column(
@@ -269,7 +287,7 @@ private fun PantallaFormulario(
                 .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = Espacio.x6, vertical = Espacio.x2),
-            verticalArrangement = Arrangement.spacedBy(Espacio.x6),
+            verticalArrangement = Arrangement.spacedBy(Espacio.x6)
         ) {
             BarraSuperior(alRegresar = alRegresar) {
                 if (paso != null) {
@@ -307,11 +325,15 @@ private fun BotonGoogle(habilitado: Boolean, alToken: (String) -> Unit, alFallar
                         CuentaGoogleResultado.Cancelado -> Unit
                     }
                 }
-            },
+            }
         )
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Espacio.x3)) {
             HorizontalDivider(Modifier.weight(1f), color = GotaTema.colores.outline)
-            Text(stringResource(R.string.registro_o_con_correo), style = MaterialTheme.typography.bodyMedium, color = GotaTema.colores.inkMuted)
+            Text(
+                stringResource(R.string.registro_o_con_correo),
+                style = MaterialTheme.typography.bodyMedium,
+                color = GotaTema.colores.inkMuted
+            )
             HorizontalDivider(Modifier.weight(1f), color = GotaTema.colores.outline)
         }
     }
@@ -325,5 +347,5 @@ private fun ErrorCampo.texto(): String = stringResource(
         ErrorCampo.EMAIL_INVALIDO -> R.string.error_email_invalido
         ErrorCampo.PASSWORD_CORTA -> R.string.error_password_corta
         ErrorCampo.TELEFONO_INVALIDO -> R.string.error_telefono_invalido
-    },
+    }
 )

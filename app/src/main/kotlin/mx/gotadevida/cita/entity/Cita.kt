@@ -25,7 +25,7 @@ data class Cita(
     val fechaHora: String,
     val estado: EstadoCita,
     val solicitudId: String? = null,
-    val codigoQr: String? = null,
+    val codigoQr: String? = null
 ) {
     /** Lo que contiene el QR que escanea el hospital. */
     val contenidoQr: String? get() = codigoQr?.let { "gota:$id:$it" }
@@ -38,7 +38,7 @@ data class Requisitos(
     val edadMaxima: Int,
     val pesoMinimoKg: Double,
     val horasAyunoMinimo: Int,
-    val horasAyunoMaximo: Int,
+    val horasAyunoMaximo: Int
 )
 
 /** Copia local de la cita: el QR se puede mostrar sin señal en el hospital. */
@@ -53,9 +53,16 @@ data class CitaEntity(
     val fechaHora: String,
     val estado: String,
     val solicitudId: String?,
-    val codigoQr: String?,
+    val codigoQr: String?
 )
 
-fun Cita.aEntidad() = CitaEntity(id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, fechaHora, estado.name, solicitudId, codigoQr)
+fun Cita.aEntidad() =
+    CitaEntity(id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, fechaHora, estado.name, solicitudId, codigoQr)
 
-fun CitaEntity.aModelo() = Cita(id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, fechaHora, EstadoCita.valueOf(estado), solicitudId, codigoQr)
+fun CitaEntity.aModelo() = Cita(
+    id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, fechaHora,
+    EstadoCita.valueOf(
+        estado
+    ),
+    solicitudId, codigoQr
+)

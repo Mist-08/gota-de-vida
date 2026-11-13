@@ -21,7 +21,7 @@ data class Historial(
     val vidasQuePuedesAyudar: Int,
     val elegible: Boolean,
     val proximaFechaElegible: String? = null,
-    val insignias: List<InsigniaGanada>,
+    val insignias: List<InsigniaGanada>
 )
 
 /** Copia local del historial (un solo renglón con el JSON) para verlo sin conexión. */

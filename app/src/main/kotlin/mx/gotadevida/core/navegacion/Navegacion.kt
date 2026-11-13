@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -27,28 +28,29 @@ import mx.gotadevida.ajustes.ui.AjustesScreen
 import mx.gotadevida.autenticacion.ui.BienvenidaScreen
 import mx.gotadevida.autenticacion.ui.InicioSesionScreen
 import mx.gotadevida.autenticacion.ui.RegistroScreen
-import mx.gotadevida.core.designsystem.GotaTema
-import mx.gotadevida.core.sesion.AlmacenSesion
-import mx.gotadevida.donador.ui.InicioScreen
-import mx.gotadevida.donador.ui.PerfilScreen
-import mx.gotadevida.hospital.ui.CrearUrgenciaScreen
-import mx.gotadevida.hospital.ui.DetalleUrgenciaHospitalScreen
-import mx.gotadevida.hospital.ui.PanelHospitalScreen
-import mx.gotadevida.hospital.viewmodel.DetalleUrgenciaHospital
-import mx.gotadevida.notificaciones.ui.RegistroDeAvisos
-import mx.gotadevida.solicitud.ui.DetalleUrgenciaScreen
-import mx.gotadevida.solicitud.ui.SeccionUrgencias
-import mx.gotadevida.solicitud.viewmodel.DetalleUrgencia
-import javax.inject.Inject
+import mx.gotadevida.chatbot.ui.ChatScreen
+import mx.gotadevida.chatbot.viewmodel.Chat
 import mx.gotadevida.cita.ui.AgendarScreen
 import mx.gotadevida.cita.ui.MiCitaScreen
 import mx.gotadevida.cita.ui.TarjetaMiCita
 import mx.gotadevida.cita.viewmodel.AgendarCita
 import mx.gotadevida.cita.viewmodel.MiCita
+import mx.gotadevida.core.designsystem.GotaTema
+import mx.gotadevida.core.sesion.AlmacenSesion
+import mx.gotadevida.donador.ui.InicioScreen
+import mx.gotadevida.donador.ui.PerfilScreen
 import mx.gotadevida.historial.ui.HistorialScreen
 import mx.gotadevida.historial.viewmodel.HistorialRuta
+import mx.gotadevida.hospital.ui.CrearUrgenciaScreen
+import mx.gotadevida.hospital.ui.DetalleUrgenciaHospitalScreen
 import mx.gotadevida.hospital.ui.EscanearQrScreen
+import mx.gotadevida.hospital.ui.PanelHospitalScreen
+import mx.gotadevida.hospital.viewmodel.DetalleUrgenciaHospital
 import mx.gotadevida.hospital.viewmodel.EscanearQr
+import mx.gotadevida.notificaciones.ui.RegistroDeAvisos
+import mx.gotadevida.solicitud.ui.DetalleUrgenciaScreen
+import mx.gotadevida.solicitud.ui.SeccionUrgencias
+import mx.gotadevida.solicitud.viewmodel.DetalleUrgencia
 
 // Rutas con tipo: Navigation Compose las serializa con kotlinx.serialization.
 @Serializable data object Bienvenida
@@ -88,7 +90,7 @@ fun NavegacionGota(
     solicitudPorAbrir: String? = null,
     alAbrirSolicitud: () -> Unit = {},
     navController: NavHostController = rememberNavController(),
-    arranque: ArranqueViewModel = hiltViewModel(),
+    arranque: ArranqueViewModel = hiltViewModel()
 ) {
     val estado by arranque.estado.collectAsStateWithLifecycle()
     if (estado == EstadoArranque.LEYENDO) {
@@ -128,12 +130,12 @@ fun NavegacionGota(
     NavHost(
         navController = navController,
         startDestination = if (estado == EstadoArranque.SIN_SESION) Bienvenida else inicio,
-        modifier = Modifier.fillMaxSize().background(GotaTema.colores.surface),
+        modifier = Modifier.fillMaxSize().background(GotaTema.colores.surface)
     ) {
         composable<Bienvenida> {
             BienvenidaScreen(
                 alCrearCuenta = { navController.navigate(Registro(aceptoAviso = true)) },
-                alIniciarSesion = { navController.navigate(IniciarSesion) },
+                alIniciarSesion = { navController.navigate(IniciarSesion) }
             )
         }
         composable<Registro> { entrada ->
@@ -142,14 +144,20 @@ fun NavegacionGota(
                 alRegresar = navController::popBackStack,
                 alRegistrarse = {
                     navController.navigate(Perfil(esRegistro = true)) { popUpTo(0) { inclusive = true } }
-                },
+                }
             )
         }
         composable<IniciarSesion> {
             InicioSesionScreen(
                 alRegresar = navController::popBackStack,
                 // El rol decide a dónde ir: el LaunchedEffect de arriba manda al hospital a su panel.
-                alEntrar = { if (estado != EstadoArranque.HOSPITAL) navController.navigate(Inicio) { popUpTo(0) { inclusive = true } } },
+                alEntrar = {
+                    if (estado !=
+                        EstadoArranque.HOSPITAL
+                    ) {
+                        navController.navigate(Inicio) { popUpTo(0) { inclusive = true } }
+                    }
+                }
             )
         }
         composable<Perfil> { entrada ->
@@ -170,35 +178,39 @@ fun NavegacionGota(
                 urgencias = { SeccionUrgencias(alAbrir = { navController.navigate(DetalleUrgencia(it)) }) },
                 cita = { TarjetaMiCita(alAbrir = { navController.navigate(MiCita) }) },
                 alHistorial = { navController.navigate(HistorialRuta) },
+                alChat = { navController.navigate(Chat) }
             )
         }
         composable<DetalleUrgencia> {
             DetalleUrgenciaScreen(
                 alRegresar = navController::popBackStack,
-                alAgendar = { hospitalId, nombre, solicitudId -> navController.navigate(AgendarCita(hospitalId, nombre, solicitudId)) },
+                alAgendar = { hospitalId, nombre, solicitudId ->
+                    navController.navigate(AgendarCita(hospitalId, nombre, solicitudId))
+                }
             )
         }
         composable<AgendarCita> {
             AgendarScreen(
                 alRegresar = navController::popBackStack,
-                alAgendar = { navController.navigate(MiCita) { popUpTo(Inicio) } },
+                alAgendar = { navController.navigate(MiCita) { popUpTo(Inicio) } }
             )
         }
         composable<MiCita> { MiCitaScreen(alRegresar = navController::popBackStack) }
         composable<HistorialRuta> { HistorialScreen(alRegresar = navController::popBackStack) }
+        composable<Chat> { ChatScreen(alRegresar = navController::popBackStack) }
         composable<EscanearQr> { EscanearQrScreen(alRegresar = navController::popBackStack) }
         composable<PanelHospital> {
             PanelHospitalScreen(
                 alNuevaUrgencia = { navController.navigate(CrearUrgencia) },
                 alAbrir = { navController.navigate(DetalleUrgenciaHospital(it)) },
                 alAjustes = { navController.navigate(Ajustes) { launchSingleTop = true } },
-                alEscanear = { navController.navigate(EscanearQr) },
+                alEscanear = { navController.navigate(EscanearQr) }
             )
         }
         composable<CrearUrgencia> {
             CrearUrgenciaScreen(
                 alRegresar = navController::popBackStack,
-                alPublicar = { id -> navController.navigate(DetalleUrgenciaHospital(id)) { popUpTo(PanelHospital) } },
+                alPublicar = { id -> navController.navigate(DetalleUrgenciaHospital(id)) { popUpTo(PanelHospital) } }
             )
         }
         composable<DetalleUrgenciaHospital> {
@@ -211,7 +223,7 @@ fun NavegacionGota(
                     { navController.navigate(Perfil(esRegistro = false)) { launchSingleTop = true } }
                 } else {
                     null
-                },
+                }
             )
         }
     }

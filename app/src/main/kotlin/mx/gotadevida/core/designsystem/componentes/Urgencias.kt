@@ -32,14 +32,19 @@ import mx.gotadevida.core.designsystem.Radio
 fun BarraUnidades(cubiertas: Int, total: Int, modifier: Modifier = Modifier) {
     val colores = GotaTema.colores
     val texto = pluralStringResource(R.plurals.unidades_cubiertas, total, cubiertas, total)
-    Column(modifier.semantics(mergeDescendants = true) { contentDescription = texto }, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(
+        modifier.semantics(mergeDescendants = true) {
+            contentDescription = texto
+        },
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth().height(8.dp)) {
             repeat(total.coerceIn(1, 20)) { i ->
                 Box(
                     Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .background(if (i < cubiertas) colores.vida else colores.surfaceSunken, Radio.completo),
+                        .background(if (i < cubiertas) colores.vida else colores.surfaceSunken, Radio.completo)
                 )
             }
         }
@@ -57,7 +62,7 @@ fun TarjetaUrgencia(
     total: Int,
     alPulsar: () -> Unit,
     modifier: Modifier = Modifier,
-    insignia: String? = null,
+    insignia: String? = null
 ) {
     val colores = GotaTema.colores
     Column(
@@ -67,7 +72,7 @@ fun TarjetaUrgencia(
             .border(1.dp, colores.outline, Radio.lg)
             .clickable(role = Role.Button, onClick = alPulsar)
             .padding(Espacio.x4),
-        verticalArrangement = Arrangement.spacedBy(Espacio.x3),
+        verticalArrangement = Arrangement.spacedBy(Espacio.x3)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Espacio.x3)) {
             ChipTipoSangre(etiquetaTipoSangre, destacado = true)
@@ -81,7 +86,10 @@ fun TarjetaUrgencia(
                 insignia,
                 style = MaterialTheme.typography.labelLarge,
                 color = colores.aviso,
-                modifier = Modifier.background(colores.avisoSoft, Radio.completo).padding(horizontal = 10.dp, vertical = 4.dp),
+                modifier = Modifier.background(
+                    colores.avisoSoft,
+                    Radio.completo
+                ).padding(horizontal = 10.dp, vertical = 4.dp)
             )
         }
         BarraUnidades(cubiertas, total)
@@ -95,7 +103,7 @@ fun EstadoVacio(texto: String, icono: Int, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth().background(colores.surfaceSunken, Radio.lg).padding(Espacio.x4),
         horizontalArrangement = Arrangement.spacedBy(Espacio.x3),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icono(icono, null, color = colores.inkMuted, tamano = 20.dp)
         Text(texto, style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)

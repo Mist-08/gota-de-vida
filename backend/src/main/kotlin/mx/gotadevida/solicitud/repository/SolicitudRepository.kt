@@ -43,15 +43,14 @@ class MongoSolicitudRepository(db: MongoDatabase) : SolicitudRepository {
 
     override suspend fun buscarPorId(id: String): Solicitud? = coleccion.find(Filters.eq("_id", id)).firstOrNull()
 
-    override suspend fun activasCerca(centro: PuntoGeo, radioKm: Double, tipos: List<TipoSangre>): List<Solicitud> =
-        coleccion.find(
-            Filters.and(
-                Filters.eq("estado", EstadoSolicitud.ACTIVA.name),
-                Filters.`in`("tipoSangre", tipos.map { it.name }),
-                // $centerSphere usa radianes: distancia / radio de la Tierra.
-                Filters.geoWithinCenterSphere("ubicacion", centro.longitud, centro.latitud, radioKm / RADIO_TIERRA_KM),
-            ),
-        ).toList()
+    override suspend fun activasCerca(centro: PuntoGeo, radioKm: Double, tipos: List<TipoSangre>): List<Solicitud> = coleccion.find(
+        Filters.and(
+            Filters.eq("estado", EstadoSolicitud.ACTIVA.name),
+            Filters.`in`("tipoSangre", tipos.map { it.name }),
+            // $centerSphere usa radianes: distancia / radio de la Tierra.
+            Filters.geoWithinCenterSphere("ubicacion", centro.longitud, centro.latitud, radioKm / RADIO_TIERRA_KM)
+        )
+    ).toList()
 
     override suspend fun delHospital(hospitalId: String): List<Solicitud> =
         coleccion.find(Filters.eq("hospitalId", hospitalId)).sort(Sorts.descending("creadaEn")).limit(50).toList()
@@ -74,6 +73,5 @@ class MongoRespuestaRepository(db: MongoDatabase) : RespuestaRepository {
     override suspend fun deSolicitud(solicitudId: String): List<Respuesta> =
         coleccion.find(Filters.eq("solicitudId", solicitudId)).sort(Sorts.ascending("creadaEn")).toList()
 
-    override suspend fun deDonador(donadorId: String): List<Respuesta> =
-        coleccion.find(Filters.eq("donadorId", donadorId)).toList()
+    override suspend fun deDonador(donadorId: String): List<Respuesta> = coleccion.find(Filters.eq("donadorId", donadorId)).toList()
 }

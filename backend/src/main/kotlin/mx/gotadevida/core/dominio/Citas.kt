@@ -13,7 +13,7 @@ data class UrgenciaResumen(
     val creadaEn: String,
     val cubiertaEn: String?,
     val distanciaKm: Double?,
-    val miRespuesta: Boolean?,
+    val miRespuesta: Boolean?
 )
 
 /** Lo que otras funcionalidades (estadísticas, chatbot) pueden consultar de las urgencias. */
@@ -26,3 +26,29 @@ interface DirectorioUrgencias {
     /** Registra que el donador acepta o no; devuelve un mensaje para mostrar si no se pudo. */
     suspend fun responderUrgencia(donadorId: String, solicitudId: String, acepta: Boolean): UrgenciaResumen
 }
+
+data class CitaResumen(val id: String, val hospitalId: String, val hospitalNombre: String, val fechaHora: String, val estado: String)
+
+/** Lo que el chatbot puede hacer con las citas (las mismas reglas que la app). */
+interface DirectorioCitas {
+    /** Horas libres de ese día, por ejemplo `["08:00", "09:30"]`. */
+    suspend fun horasLibres(hospitalId: String, fecha: String): List<String>
+
+    suspend fun agendar(donadorId: String, hospitalId: String, fechaHora: String, solicitudId: String?): CitaResumen
+
+    suspend fun cancelarCita(donadorId: String, citaId: String): CitaResumen
+
+    suspend fun proximas(donadorId: String): List<CitaResumen>
+}
+
+/** Requisitos vigentes (de `reglas_elegibilidad`) para que el chatbot no invente datos. */
+data class RequisitosVigentes(
+    val edadMinima: Int,
+    val edadMaxima: Int,
+    val pesoMinimoKg: Double,
+    val diasEntreDonaciones: Int,
+    val horasAyunoMinimo: Int,
+    val horasAyunoMaximo: Int,
+    val mesesEsperaTatuaje: Int,
+    val requisitos: List<String>
+)

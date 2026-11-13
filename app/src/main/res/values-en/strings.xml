@@ -40,7 +40,7 @@
 
     <!-- Privacy notice -->
     <string name="aviso_privacidad_titulo">Privacy notice</string>
-    <string name="aviso_privacidad_texto">Gota de Vida stores your name, email, phone number, blood type, date of birth, weight, sex for medical criteria and an approximate location (about 100 meters, never your address).\n\nWe only use them to know whether you can donate and to alert you about matching blood emergencies near you.\n\nA hospital only sees how far away you are. They see your name and phone number only if you accept an emergency.\n\nYou can correct your data at any time from Settings → Edit my profile.\n\nThis is the school prototype notice; a data protection specialist must review it before the app is used with real people.</string>
+    <string name="aviso_privacidad_texto">Gota de Vida stores your name, email, phone number, blood type, date of birth, weight, sex for medical criteria and an approximate location (about 100 meters, never your address).\n\nWe only use them to know whether you can donate and to alert you about matching blood emergencies near you.\n\nA hospital only sees how far away you are. They see your name and phone number only if you accept an emergency.\n\nYou can correct your data from Settings → Edit my profile and delete your account from Settings → Delete my account.\n\nThis is the school prototype notice; a data protection specialist must review it before the app is used with real people.</string>
 
     <!-- Sign up and log in -->
     <string name="registro_paso">Step 1 of 2</string>
@@ -232,4 +232,29 @@
     <string name="panel_minutos">Min. to cover</string>
     <string name="panel_mas_solicitados">Most requested: %1$s</string>
     <string name="panel_citas_hoy">Today\'s appointments</string>
+
+    <!-- Chat -->
+    <string name="chat_titulo">Gota, your assistant</string>
+    <string name="chat_bienvenida">Hi! I\'m Gota 🩸. I can help you answer emergencies, clear up questions about requirements and book your appointment. I\'m on WhatsApp too.</string>
+    <string name="chat_escribe">Type your message</string>
+    <string name="chat_enviar">Send</string>
+    <string name="chat_hablar_con_gota">Talk to Gota</string>
+    <string name="chat_opcion_1">Accept emergency</string>
+    <string name="chat_opcion_2">See requirements</string>
+    <string name="chat_opcion_3">Book appointment</string>
+    <string name="chat_opcion_4">Can I donate?</string>
+    <string name="accion_reintentar_envio">Retry sending</string>
+
+    <!-- Widget y ajustes -->
+    <string name="widget_nombre">My next donation</string>
+    <string name="widget_descripcion">Shows whether you can donate or how many days are left.</string>
+    <string name="widget_abre_la_app">Open the app to see if you can donate</string>
+    <string name="widget_gracias">Thanks for being ready</string>
+    <string name="ajustes_notificaciones">Notifications</string>
+    <string name="ajustes_recibir_urgencias">Get emergency alerts</string>
+    <string name="ajustes_recibir_urgencias_ayuda">By notification and WhatsApp, only if you\'re a match and nearby.</string>
+    <string name="ajustes_eliminar_cuenta">Delete my account</string>
+    <string name="ajustes_eliminar_titulo">Delete your account?</string>
+    <string name="ajustes_eliminar_texto">Your account, profile, conversation with Gota and pending appointments will be deleted. Confirmed donations stay with the blood bank without your personal data. This can\'t be undone.</string>
+    <string name="ajustes_eliminar_confirmar">Delete</string>
 </resources>
