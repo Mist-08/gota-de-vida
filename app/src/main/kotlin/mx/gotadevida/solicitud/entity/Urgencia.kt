@@ -23,7 +23,7 @@ data class Urgencia(
     val creadaEn: String,
     val nota: String? = null,
     val distanciaKm: Double? = null,
-    val miRespuesta: Boolean? = null,
+    val miRespuesta: Boolean? = null
 )
 
 @Serializable
@@ -50,15 +50,15 @@ data class UrgenciaEntity(
     val nota: String?,
     val distanciaKm: Double?,
     val miRespuesta: Boolean?,
-    val cercana: Boolean,
+    val cercana: Boolean
 )
 
 fun Urgencia.aEntidad(cercana: Boolean) = UrgenciaEntity(
     id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, etiquetaTipoSangre, unidades,
-    unidadesComprometidas, estado.name, creadaEn, nota, distanciaKm, miRespuesta, cercana,
+    unidadesComprometidas, estado.name, creadaEn, nota, distanciaKm, miRespuesta, cercana
 )
 
 fun UrgenciaEntity.aModelo() = Urgencia(
     id, hospitalId, hospitalNombre, hospitalDireccion, latitud, longitud, etiquetaTipoSangre, unidades,
-    unidadesComprometidas, EstadoUrgencia.valueOf(estado), creadaEn, nota, distanciaKm, miRespuesta,
+    unidadesComprometidas, EstadoUrgencia.valueOf(estado), creadaEn, nota, distanciaKm, miRespuesta
 )

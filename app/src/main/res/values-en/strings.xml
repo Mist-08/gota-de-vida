@@ -40,7 +40,7 @@
 
     <!-- Privacy notice -->
     <string name="aviso_privacidad_titulo">Privacy notice</string>
-    <string name="aviso_privacidad_texto">Gota de Vida stores your name, email, phone number, blood type, date of birth, weight, sex for medical criteria and an approximate location (about 100 meters, never your address).\n\nWe only use them to know whether you can donate and to alert you about matching blood emergencies near you.\n\nA hospital only sees how far away you are. They see your name and phone number only if you accept an emergency.\n\nYou can correct your data at any time from Settings → Edit my profile.\n\nThis is the school prototype notice; a data protection specialist must review it before the app is used with real people.</string>
+    <string name="aviso_privacidad_texto">Gota de Vida stores your name, email, phone number, blood type, date of birth, weight, sex for medical criteria and an approximate location (about 100 meters, never your address).\n\nWe only use them to know whether you can donate and to alert you about matching blood emergencies near you.\n\nA hospital only sees how far away you are. They see your name and phone number only if you accept an emergency.\n\nYou can correct your data from Settings → Edit my profile and delete your account from Settings → Delete my account.\n\nThis is the school prototype notice; a data protection specialist must review it before the app is used with real people.</string>
 
     <!-- Sign up and log in -->
     <string name="registro_paso">Step 1 of 2</string>
@@ -182,4 +182,79 @@
     <string name="push_recordatorio_texto">%1$s at %2$s. Remember your ID.</string>
     <string name="push_gracias_titulo">Thank you for donating!</string>
     <string name="push_gracias_texto">Your donation was recorded. Check your history and your next date.</string>
+
+    <!-- Appointments, history and check-in -->
+    <string name="agendar_titulo">Book appointment</string>
+    <string name="agendar_dia">Day</string>
+    <string name="agendar_hora">Time</string>
+    <string name="agendar_sin_horarios">No times left that day. Try another one.</string>
+    <string name="agendar_requisitos">Before you go</string>
+    <string name="requisito_ayuno" tools:ignore="PluralsCandidate">Fast for %1$d to %2$d hours.</string>
+    <string name="requisito_comida">Avoid fats, eggs and dairy from the day before.</string>
+    <string name="requisito_identificacion">Bring an official photo ID.</string>
+    <string name="requisito_edad_peso" tools:ignore="PluralsCandidate">Be %1$d to %2$d years old and weigh at least %3$d kg.</string>
+    <string name="agendar_confirmar">Confirm appointment</string>
+    <string name="cita_tu_cita">Your donation appointment</string>
+    <string name="cita_ver_qr">See QR</string>
+    <string name="cita_pendiente">Your appointment will be booked as soon as you\'re back online.</string>
+    <string name="cita_titulo">My appointment</string>
+    <string name="cita_sin_cita">No upcoming appointments. Once you accept an emergency you can book one.</string>
+    <string name="cita_muestra_qr">Show this code at the blood bank.</string>
+    <string name="cita_agregar_calendario">Add to my calendar</string>
+    <string name="cita_evento_titulo">Donate blood (Gota de Vida)</string>
+    <string name="cita_evento_descripcion">Bring your ID and fast for 4 to 12 hours before.</string>
+    <string name="cita_cancelar">Cancel appointment</string>
+    <string name="cd_codigo_qr">Your appointment QR code</string>
+    <string name="historial_titulo">My history</string>
+    <string name="historial_donaciones">Donations</string>
+    <string name="historial_vidas">Lives you can help</string>
+    <string name="historial_proxima">You can donate again from %1$s.</string>
+    <string name="historial_insignias">Badges</string>
+    <string name="insignia_primera">First donation</string>
+    <string name="insignia_tres">Three donations</string>
+    <string name="insignia_cinco">Five donations</string>
+    <string name="insignia_heroe">Emergency hero</string>
+    <string name="insignia_obtenida">Earned</string>
+    <string name="insignia_pendiente">Not yet</string>
+    <string name="historial_por_urgencia">%1$s · for an emergency</string>
+    <string name="escanear_titulo">Confirm donation</string>
+    <string name="escanear_confirmada">%1$s\'s donation confirmed. Thank you!</string>
+    <string name="escanear_otra">Scan another</string>
+    <string name="escanear_instrucciones">Point the camera at the donor\'s appointment QR code.</string>
+    <string name="cd_camara">Camera view to read the QR code</string>
+    <string name="escanear_sin_permiso">No camera permission. Type the appointment code.</string>
+    <string name="escanear_o_escribe">or type the code</string>
+    <string name="escanear_codigo">Appointment code</string>
+    <string name="escanear_confirmar">Confirm</string>
+    <string name="panel_escanear">Scan an appointment QR</string>
+    <string name="panel_activas">Active</string>
+    <string name="panel_donaciones">Donations</string>
+    <string name="panel_minutos">Min. to cover</string>
+    <string name="panel_mas_solicitados">Most requested: %1$s</string>
+    <string name="panel_citas_hoy">Today\'s appointments</string>
+
+    <!-- Chat -->
+    <string name="chat_titulo">Gota, your assistant</string>
+    <string name="chat_bienvenida">Hi! I\'m Gota 🩸. I can help you answer emergencies, clear up questions about requirements and book your appointment. I\'m on WhatsApp too.</string>
+    <string name="chat_escribe">Type your message</string>
+    <string name="chat_enviar">Send</string>
+    <string name="chat_hablar_con_gota">Talk to Gota</string>
+    <string name="chat_opcion_1">Accept emergency</string>
+    <string name="chat_opcion_2">See requirements</string>
+    <string name="chat_opcion_3">Book appointment</string>
+    <string name="chat_opcion_4">Can I donate?</string>
+    <string name="accion_reintentar_envio">Retry sending</string>
+
+    <!-- Widget y ajustes -->
+    <string name="widget_nombre">My next donation</string>
+    <string name="widget_descripcion">Shows whether you can donate or how many days are left.</string>
+    <string name="widget_abre_la_app">Open the app to see if you can donate</string>
+    <string name="widget_gracias">Thanks for being ready</string>
+    <string name="ajustes_notificaciones">Notifications</string>
+    <string name="ajustes_recibir_urgencias">Get emergency alerts</string>
+    <string name="ajustes_recibir_urgencias_ayuda">By notification and WhatsApp, only if you\'re a match and nearby.</string>
+    <string name="ajustes_eliminar_cuenta">Delete my account</string>
+    <string name="ajustes_eliminar_titulo">Delete your account?</string>
+    <string name="ajustes_eliminar_texto">Your account, profile, conversation with Gota and pending appointments will be deleted. Confirmed donations stay with the blood bank without your personal data. This can\'t be undone.</string>
+    <string name="ajustes_eliminar_confirmar">Delete</string>
 </resources>

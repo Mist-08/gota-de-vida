@@ -25,6 +25,14 @@ tags:
   - name: Solicitud
     description: Urgencias de sangre. Al publicar una, la cola avisa por oleadas a donadores compatibles, cercanos y elegibles.
   - name: Dispositivos
+  - name: Cita
+    description: Horarios, agenda, cancelación y check-in con código QR.
+  - name: Chatbot
+    description: Gota, la asistente. Preguntas frecuentes sin IA, Gemini con function calling y menú de respaldo si se acaba la cuota.
+  - name: WhatsApp
+    description: Webhook de WhatsApp Cloud API (Meta).
+  - name: Donación
+    description: Historial, insignias y estadísticas del hospital.
 paths:
   /health:
     get:
@@ -279,6 +287,18 @@ paths:
         "400": { $ref: "#/components/responses/DatosInvalidos" }
         "403": { $ref: "#/components/responses/Prohibido" }
 
+  /api/v1/usuarios/me:
+    delete:
+      tags: [Dispositivos]
+      summary: Eliminar mi cuenta (DONADOR)
+      description: Derecho de cancelación. Borra la cuenta, el perfil y la conversación, y cancela las citas pendientes. Las donaciones confirmadas quedan solo con un id interno.
+      operationId: eliminarMiCuenta
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204": { description: Cuenta eliminada }
+        "401": { $ref: "#/components/responses/NoAutorizado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+
   /api/v1/usuarios/me/dispositivo:
     put:
       tags: [Dispositivos]
@@ -418,6 +438,236 @@ paths:
               schema: { type: array, items: { $ref: "#/components/schemas/Solicitud" } }
         "403": { $ref: "#/components/responses/Prohibido" }
 
+  /api/v1/hospitales/{id}/horarios:
+    get:
+      tags: [Cita]
+      summary: Horarios disponibles de un hospital
+      description: De 8:00 a 13:30 cada media hora, 3 lugares por horario. No se ofrecen horarios a menos de 30 minutos.
+      operationId: horariosDisponibles
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: fecha, in: query, schema: { type: string, format: date, example: "2026-11-13" } }
+      responses:
+        "200":
+          description: Horarios del día
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Horario" } }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+
+  /api/v1/citas:
+    post:
+      tags: [Cita]
+      summary: Agendar cita (DONADOR)
+      description: Valida horario, cupo, que el donador pueda donar en esa fecha y que no tenga otra cita. Publica `cita.agendada` (recordatorios 24 h y 2 h antes).
+      operationId: agendarCita
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AgendarCitaPeticion" }
+      responses:
+        "201":
+          description: Cita agendada con su código QR
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cita" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+
+  /api/v1/citas/me:
+    get:
+      tags: [Cita]
+      summary: Mis citas (DONADOR)
+      operationId: misCitas
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Citas, la más reciente primero
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Cita" } }
+
+  /api/v1/citas/{id}/cancelar:
+    post:
+      tags: [Cita]
+      summary: Cancelar mi cita (DONADOR)
+      operationId: cancelarCita
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200":
+          description: Cita cancelada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cita" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+
+  /api/v1/citas/{id}/checkin:
+    post:
+      tags: [Cita]
+      summary: Confirmar la donación con el código (HOSPITAL)
+      description: Marca la cita como completada y publica `donacion.confirmada`; el HistorialConsumer registra la donación, recalcula la próxima fecha y manda el agradecimiento.
+      operationId: checkinCita
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CheckinPeticion" }
+      responses:
+        "200":
+          description: Donación confirmada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cita" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+
+  /api/v1/citas/checkin-qr:
+    post:
+      tags: [Cita]
+      summary: Confirmar la donación escaneando el QR (HOSPITAL)
+      description: "El QR de la app contiene `gota:<citaId>:<codigo>`."
+      operationId: checkinConQr
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CheckinPeticion" }
+      responses:
+        "200":
+          description: Donación confirmada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cita" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+
+  /api/v1/hospitales/me/citas:
+    get:
+      tags: [Cita]
+      summary: Citas agendadas de mi hospital (HOSPITAL)
+      operationId: citasDeMiHospital
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: fecha, in: query, schema: { type: string, format: date } }]
+      responses:
+        "200":
+          description: Citas del día
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Cita" } }
+
+  /api/v1/donaciones/me:
+    get:
+      tags: [Donación]
+      summary: Mi historial (DONADOR)
+      description: Donaciones, vidas que puedes ayudar (3 por donación), próxima fecha e insignias.
+      operationId: miHistorial
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Historial
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Historial" }
+
+  /api/v1/hospitales/me/estadisticas:
+    get:
+      tags: [Donación]
+      summary: Estadísticas del panel (HOSPITAL)
+      operationId: estadisticasDeMiHospital
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Métricas
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Estadisticas" }
+
+  /api/v1/chat/mensajes:
+    post:
+      tags: [Chatbot]
+      summary: Mandar un mensaje a Gota (DONADOR)
+      description: >
+        Orden para ahorrar cuota: opciones del menú y botones sin IA, luego preguntas frecuentes de la base,
+        luego Gemini con function calling. Si Gemini no está configurado o responde 429, contesta con el menú.
+        A Gemini nunca se le mandan nombres, teléfonos, correos ni ubicaciones.
+      operationId: mandarMensaje
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [texto]
+              properties:
+                texto: { type: string, example: "¿Tengo que ir en ayunas?" }
+      responses:
+        "200":
+          description: Respuesta de Gota
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RespuestaChat" }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    get:
+      tags: [Chatbot]
+      summary: Historial de la conversación (DONADOR)
+      operationId: historialChat
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Últimos 30 mensajes (app y WhatsApp)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensajes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        autor: { type: string, enum: [DONADOR, GOTA] }
+                        texto: { type: string }
+                        en: { type: string, format: date-time }
+
+  /api/v1/webhooks/whatsapp:
+    get:
+      tags: [WhatsApp]
+      summary: Verificación del webhook (Meta)
+      operationId: verificarWebhook
+      parameters:
+        - { name: hub.mode, in: query, schema: { type: string, example: subscribe } }
+        - { name: hub.verify_token, in: query, schema: { type: string } }
+        - { name: hub.challenge, in: query, schema: { type: string } }
+      responses:
+        "200": { description: Devuelve hub.challenge }
+        "403": { description: Token de verificación incorrecto }
+    post:
+      tags: [WhatsApp]
+      summary: Mensajes entrantes (Meta)
+      description: Verifica la firma `X-Hub-Signature-256`, publica `whatsapp.mensaje.recibido` y responde 200 de inmediato; el ChatbotConsumer contesta por WhatsApp.
+      operationId: recibirWhatsApp
+      parameters:
+        - { name: X-Hub-Signature-256, in: header, required: true, schema: { type: string, example: "sha256=ab12..." } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200": { description: Recibido }
+        "401": { description: Firma inválida }
+        "429": { $ref: "#/components/responses/DemasiadasPeticiones" }
+
 components:
   parameters:
     IdSolicitud:
@@ -466,6 +716,83 @@ components:
       description: Demasiados intentos; espera un minuto
 
   schemas:
+    RespuestaChat:
+      type: object
+      properties:
+        respuesta: { type: string, example: "Llega con 4 a 12 horas de ayuno y evita grasas, huevo y lácteos desde un día antes." }
+        opciones: { type: array, items: { type: string }, example: ["08:00", "09:30", "11:00"] }
+        origen: { type: string, enum: [MENU, PREGUNTA_FRECUENTE, GEMINI] }
+    Horario:
+      type: object
+      properties:
+        hora: { type: string, example: "09:30" }
+        lugares: { type: integer, example: 2 }
+        disponible: { type: boolean }
+    AgendarCitaPeticion:
+      type: object
+      required: [hospitalId, fechaHora]
+      properties:
+        hospitalId: { type: string }
+        fechaHora: { type: string, description: Hora local de La Laguna, example: "2026-11-13T09:30" }
+        solicitudId: { type: string, description: Urgencia que aceptó (opcional) }
+    CheckinPeticion:
+      type: object
+      required: [codigoQr]
+      properties:
+        codigoQr: { type: string, example: "gota:3f6e...:Xk2pQ9" }
+    Cita:
+      type: object
+      properties:
+        id: { type: string }
+        hospitalId: { type: string }
+        hospitalNombre: { type: string }
+        hospitalDireccion: { type: string }
+        latitud: { type: number }
+        longitud: { type: number }
+        fechaHora: { type: string, example: "2026-11-13T09:30" }
+        estado: { type: string, enum: [AGENDADA, CANCELADA, COMPLETADA] }
+        solicitudId: { type: string }
+        codigoQr: { type: string, description: Solo para el donador }
+        donadorNombre: { type: string, description: Solo para el hospital }
+    Historial:
+      type: object
+      properties:
+        donaciones:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              hospitalNombre: { type: string }
+              fecha: { type: string, format: date }
+              porUrgencia: { type: boolean }
+        totalDonaciones: { type: integer }
+        vidasQuePuedesAyudar: { type: integer }
+        elegible: { type: boolean }
+        proximaFechaElegible: { type: string, format: date }
+        insignias:
+          type: array
+          items:
+            type: object
+            properties:
+              codigo: { type: string, enum: [PRIMERA_DONACION, TRES_DONACIONES, CINCO_DONACIONES, HEROE_DE_URGENCIA] }
+              obtenida: { type: boolean }
+    Estadisticas:
+      type: object
+      properties:
+        urgenciasTotales: { type: integer }
+        urgenciasActivas: { type: integer }
+        urgenciasCubiertas: { type: integer }
+        minutosPromedioParaCubrir: { type: integer }
+        tiposMasSolicitados:
+          type: array
+          items:
+            type: object
+            properties:
+              etiquetaTipoSangre: { type: string }
+              urgencias: { type: integer }
+        donacionesConfirmadas: { type: integer }
+        citasHoy: { type: integer }
     DispositivoPeticion:
       type: object
       required: [tokenFcm]

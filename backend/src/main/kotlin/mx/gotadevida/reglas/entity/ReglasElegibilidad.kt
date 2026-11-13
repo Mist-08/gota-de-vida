@@ -23,7 +23,7 @@ data class ReglasElegibilidad(
     val mesesEsperaTatuaje: Int,
     val requisitos: List<String>,
     val fuente: String,
-    val actualizadoEn: String,
+    val actualizadoEn: String
 ) {
     companion object {
         const val ID_VIGENTES = "vigentes"
@@ -46,10 +46,11 @@ data class ReglasElegibilidad(
                 "No comer grasas, huevo ni lácteos 24 horas antes.",
                 "Llevar identificación oficial vigente con fotografía.",
                 "Esperar 1 año después de un tatuaje, perforación o acupuntura.",
-                "Reservar entre 40 minutos y 2 horas para la donación.",
+                "Reservar entre 40 minutos y 2 horas para la donación."
             ),
-            fuente = "Valores por defecto de fuentes públicas (NOM-253-SSA1-2012 y bancos de sangre). Confirmar con el banco de sangre aliado.",
-            actualizadoEn = ahora,
+            fuente = "Valores por defecto de fuentes públicas (NOM-253-SSA1-2012 y bancos de sangre). " +
+                "Confirmar con el banco de sangre aliado.",
+            actualizadoEn = ahora
         )
     }
 }
@@ -67,5 +68,5 @@ data class ActualizarReglasSolicitud(
     val horasAyunoMaximo: Int? = null,
     val mesesEsperaTatuaje: Int? = null,
     val requisitos: List<String>? = null,
-    val fuente: String? = null,
+    val fuente: String? = null
 )

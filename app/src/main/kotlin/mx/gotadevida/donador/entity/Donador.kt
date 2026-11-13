@@ -14,7 +14,7 @@ enum class TipoSangre(val etiqueta: String) {
     B_NEGATIVO("B−"),
     B_POSITIVO("B+"),
     AB_NEGATIVO("AB−"),
-    AB_POSITIVO("AB+"),
+    AB_POSITIVO("AB+")
 }
 
 /** Solo se usa para calcular intervalos y máximos anuales. */
@@ -39,7 +39,7 @@ data class PerfilDonador(
     val latitud: Double? = null,
     val longitud: Double? = null,
     val zona: String? = null,
-    val ultimaDonacion: String? = null,
+    val ultimaDonacion: String? = null
 )
 
 /** Cuerpo de `PUT /api/v1/donadores/me`. Lo que va en null no se cambia. */
@@ -56,7 +56,7 @@ data class ActualizarPerfilSolicitud(
     val zona: String? = null,
     val fechaUltimaDonacion: String? = null,
     val notificacionesActivas: Boolean? = null,
-    val radioMaximoKm: Int? = null,
+    val radioMaximoKm: Int? = null
 )
 
 /** Respuesta de `GET /api/v1/donadores/me/elegibilidad`. */
@@ -67,7 +67,7 @@ data class Elegibilidad(
     val motivos: List<String>,
     val aviso: String,
     val proximaFechaElegible: String? = null,
-    val diasParaVolverADonar: Long? = null,
+    val diasParaVolverADonar: Long? = null
 )
 
 /** Copia local del perfil (Room) para verlo sin conexión. */
@@ -88,7 +88,7 @@ data class PerfilEntity(
     val longitud: Double?,
     val zona: String?,
     val ultimaDonacion: String?,
-    val guardadoEn: Long,
+    val guardadoEn: Long
 )
 
 /** Copia local de la última elegibilidad consultada. */
@@ -101,7 +101,7 @@ data class ElegibilidadEntity(
     val aviso: String,
     val proximaFechaElegible: String?,
     val diasParaVolverADonar: Long?,
-    val consultadoEn: Long,
+    val consultadoEn: Long
 )
 
 fun PerfilDonador.aEntidad(ahora: Long) = PerfilEntity(
@@ -120,7 +120,7 @@ fun PerfilDonador.aEntidad(ahora: Long) = PerfilEntity(
     longitud = longitud,
     zona = zona,
     ultimaDonacion = ultimaDonacion,
-    guardadoEn = ahora,
+    guardadoEn = ahora
 )
 
 fun PerfilEntity.aModelo(): PerfilDonador {
@@ -141,7 +141,7 @@ fun PerfilEntity.aModelo(): PerfilDonador {
         latitud = latitud,
         longitud = longitud,
         zona = zona,
-        ultimaDonacion = ultimaDonacion,
+        ultimaDonacion = ultimaDonacion
     )
 }
 
@@ -153,7 +153,7 @@ fun Elegibilidad.aEntidad(donadorId: String, ahora: Long) = ElegibilidadEntity(
     aviso = aviso,
     proximaFechaElegible = proximaFechaElegible,
     diasParaVolverADonar = diasParaVolverADonar,
-    consultadoEn = ahora,
+    consultadoEn = ahora
 )
 
 fun ElegibilidadEntity.aModelo() = Elegibilidad(
@@ -162,5 +162,5 @@ fun ElegibilidadEntity.aModelo() = Elegibilidad(
     motivos = motivos,
     aviso = aviso,
     proximaFechaElegible = proximaFechaElegible,
-    diasParaVolverADonar = diasParaVolverADonar,
+    diasParaVolverADonar = diasParaVolverADonar
 )

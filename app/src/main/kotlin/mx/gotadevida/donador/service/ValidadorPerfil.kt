@@ -1,8 +1,8 @@
 package mx.gotadevida.donador.service
 
+import java.time.LocalDate
 import mx.gotadevida.donador.entity.SexoParaCriteriosMedicos
 import mx.gotadevida.donador.entity.TipoSangre
-import java.time.LocalDate
 
 enum class CampoPerfil { TIPO_SANGRE, NACIMIENTO, PESO, SEXO, UBICACION, ULTIMA_DONACION }
 
@@ -18,7 +18,7 @@ data class DatosPerfil(
     val latitud: Double? = null,
     val longitud: Double? = null,
     val haDonado: Boolean? = null,
-    val fechaUltimaDonacion: LocalDate? = null,
+    val fechaUltimaDonacion: LocalDate? = null
 )
 
 /** Revisa el perfil antes de enviarlo. Mismos rangos que el backend. */

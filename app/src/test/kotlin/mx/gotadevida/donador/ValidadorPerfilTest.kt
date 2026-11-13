@@ -1,5 +1,6 @@
 package mx.gotadevida.donador
 
+import java.time.LocalDate
 import mx.gotadevida.donador.entity.SexoParaCriteriosMedicos
 import mx.gotadevida.donador.entity.TipoSangre
 import mx.gotadevida.donador.service.CampoPerfil
@@ -10,7 +11,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class ValidadorPerfilTest {
     private val hoy = LocalDate.of(2026, 11, 11)
@@ -22,7 +22,7 @@ class ValidadorPerfilTest {
         latitud = 25.54,
         longitud = -103.406,
         haDonado = true,
-        fechaUltimaDonacion = LocalDate.of(2026, 6, 1),
+        fechaUltimaDonacion = LocalDate.of(2026, 6, 1)
     )
 
     @Test
@@ -46,7 +46,11 @@ class ValidadorPerfilTest {
     @Test
     fun `peso fuera de rango o con letras es invalido`() {
         listOf("29", "251", "abc", "6.5.1").forEach { peso ->
-            assertEquals(peso, ErrorPerfil.PESO_INVALIDO, ValidadorPerfil.validar(valido.copy(peso = peso), hoy)[CampoPerfil.PESO])
+            assertEquals(
+                peso,
+                ErrorPerfil.PESO_INVALIDO,
+                ValidadorPerfil.validar(valido.copy(peso = peso), hoy)[CampoPerfil.PESO]
+            )
         }
         assertEquals(68.5, ValidadorPerfil.pesoComoNumero("68,5")!!, 0.0)
     }
@@ -54,8 +58,14 @@ class ValidadorPerfilTest {
     @Test
     fun `fechas futuras se rechazan`() {
         val manana = hoy.plusDays(1)
-        assertEquals(ErrorPerfil.FECHA_FUTURA, ValidadorPerfil.validar(valido.copy(fechaNacimiento = manana), hoy)[CampoPerfil.NACIMIENTO])
-        assertEquals(ErrorPerfil.FECHA_FUTURA, ValidadorPerfil.validar(valido.copy(fechaUltimaDonacion = manana), hoy)[CampoPerfil.ULTIMA_DONACION])
+        assertEquals(
+            ErrorPerfil.FECHA_FUTURA,
+            ValidadorPerfil.validar(valido.copy(fechaNacimiento = manana), hoy)[CampoPerfil.NACIMIENTO]
+        )
+        assertEquals(
+            ErrorPerfil.FECHA_FUTURA,
+            ValidadorPerfil.validar(valido.copy(fechaUltimaDonacion = manana), hoy)[CampoPerfil.ULTIMA_DONACION]
+        )
     }
 
     @Test

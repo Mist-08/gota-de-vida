@@ -41,7 +41,7 @@
 
     <!-- Aviso de privacidad (resumen del prototipo: revisarlo antes de publicar la app) -->
     <string name="aviso_privacidad_titulo">Aviso de privacidad</string>
-    <string name="aviso_privacidad_texto">Gota de Vida guarda tu nombre, correo, celular, tipo de sangre, fecha de nacimiento, peso, sexo para criterios médicos y una ubicación aproximada (unos 100 metros, nunca tu dirección).\n\nLos usamos solo para saber si puedes donar y avisarte de urgencias de sangre compatibles cerca de ti.\n\nUn hospital solo ve qué tan lejos estás. Tu nombre y celular los ve únicamente si aceptas una urgencia.\n\nPuedes corregir tus datos en cualquier momento desde Ajustes → Editar mi perfil.\n\nEste es el aviso del prototipo escolar; antes de usar la app con personas reales debe revisarlo un especialista en protección de datos.</string>
+    <string name="aviso_privacidad_texto">Gota de Vida guarda tu nombre, correo, celular, tipo de sangre, fecha de nacimiento, peso, sexo para criterios médicos y una ubicación aproximada (unos 100 metros, nunca tu dirección).\n\nLos usamos solo para saber si puedes donar y avisarte de urgencias de sangre compatibles cerca de ti.\n\nUn hospital solo ve qué tan lejos estás. Tu nombre y celular los ve únicamente si aceptas una urgencia.\n\nPuedes corregir tus datos desde Ajustes → Editar mi perfil y borrar tu cuenta desde Ajustes → Eliminar mi cuenta.\n\nEste es el aviso del prototipo escolar; antes de usar la app con personas reales debe revisarlo un especialista en protección de datos.</string>
 
     <!-- Registro e inicio de sesión -->
     <string name="registro_paso">Paso 1 de 2</string>
@@ -187,4 +187,79 @@
     <string name="push_recordatorio_texto">%1$s a las %2$s. Recuerda tu identificación.</string>
     <string name="push_gracias_titulo">¡Gracias por donar!</string>
     <string name="push_gracias_texto">Tu donación quedó registrada. Mira tu historial y tu próxima fecha.</string>
+
+    <!-- Citas, historial y check-in -->
+    <string name="agendar_titulo">Agendar cita</string>
+    <string name="agendar_dia">Día</string>
+    <string name="agendar_hora">Hora</string>
+    <string name="agendar_sin_horarios">No quedan horarios ese día. Prueba otro.</string>
+    <string name="agendar_requisitos">Antes de ir</string>
+    <string name="requisito_ayuno" tools:ignore="PluralsCandidate">Ayuno de %1$d a %2$d horas.</string>
+    <string name="requisito_comida">Evita grasas, huevo y lácteos desde un día antes.</string>
+    <string name="requisito_identificacion">Lleva tu identificación oficial con fotografía.</string>
+    <string name="requisito_edad_peso" tools:ignore="PluralsCandidate">Tener de %1$d a %2$d años y pesar al menos %3$d kg.</string>
+    <string name="agendar_confirmar">Confirmar cita</string>
+    <string name="cita_tu_cita">Tu cita para donar</string>
+    <string name="cita_ver_qr">Ver QR</string>
+    <string name="cita_pendiente">Tu cita se agendará en cuanto vuelva la señal.</string>
+    <string name="cita_titulo">Mi cita</string>
+    <string name="cita_sin_cita">No tienes citas próximas. Cuando aceptes una urgencia podrás agendar.</string>
+    <string name="cita_muestra_qr">Muestra este código en el banco de sangre.</string>
+    <string name="cita_agregar_calendario">Agregar a mi calendario</string>
+    <string name="cita_evento_titulo">Donar sangre (Gota de Vida)</string>
+    <string name="cita_evento_descripcion">Lleva tu identificación y llega con 4 a 12 horas de ayuno.</string>
+    <string name="cita_cancelar">Cancelar cita</string>
+    <string name="cd_codigo_qr">Código QR de tu cita</string>
+    <string name="historial_titulo">Mi historial</string>
+    <string name="historial_donaciones">Donaciones</string>
+    <string name="historial_vidas">Vidas que puedes ayudar</string>
+    <string name="historial_proxima">Podrás volver a donar a partir del %1$s.</string>
+    <string name="historial_insignias">Insignias</string>
+    <string name="insignia_primera">Primera donación</string>
+    <string name="insignia_tres">Tres donaciones</string>
+    <string name="insignia_cinco">Cinco donaciones</string>
+    <string name="insignia_heroe">Héroe de urgencia</string>
+    <string name="insignia_obtenida">Obtenida</string>
+    <string name="insignia_pendiente">Por obtener</string>
+    <string name="historial_por_urgencia">%1$s · por una urgencia</string>
+    <string name="escanear_titulo">Confirmar donación</string>
+    <string name="escanear_confirmada">Donación de %1$s confirmada. ¡Gracias!</string>
+    <string name="escanear_otra">Escanear otra</string>
+    <string name="escanear_instrucciones">Apunta la cámara al código QR de la cita del donador.</string>
+    <string name="cd_camara">Vista de la cámara para leer el código QR</string>
+    <string name="escanear_sin_permiso">Sin permiso de cámara. Escribe el código de la cita.</string>
+    <string name="escanear_o_escribe">o escribe el código</string>
+    <string name="escanear_codigo">Código de la cita</string>
+    <string name="escanear_confirmar">Confirmar</string>
+    <string name="panel_escanear">Escanear QR de una cita</string>
+    <string name="panel_activas">Activas</string>
+    <string name="panel_donaciones">Donaciones</string>
+    <string name="panel_minutos">Min. para cubrir</string>
+    <string name="panel_mas_solicitados">Más solicitados: %1$s</string>
+    <string name="panel_citas_hoy">Citas de hoy</string>
+
+    <!-- Chat -->
+    <string name="chat_titulo">Gota, tu asistente</string>
+    <string name="chat_bienvenida">¡Hola! Soy Gota 🩸. Te ayudo a responder urgencias, resolver dudas sobre requisitos y agendar tu cita. También estoy en WhatsApp.</string>
+    <string name="chat_escribe">Escribe tu mensaje</string>
+    <string name="chat_enviar">Enviar</string>
+    <string name="chat_hablar_con_gota">Hablar con Gota</string>
+    <string name="chat_opcion_1">Aceptar urgencia</string>
+    <string name="chat_opcion_2">Ver requisitos</string>
+    <string name="chat_opcion_3">Agendar cita</string>
+    <string name="chat_opcion_4">¿Puedo donar?</string>
+    <string name="accion_reintentar_envio">Reintentar envío</string>
+
+    <!-- Widget y ajustes -->
+    <string name="widget_nombre">Mi próxima donación</string>
+    <string name="widget_descripcion">Muestra si ya puedes donar o cuántos días faltan.</string>
+    <string name="widget_abre_la_app">Abre la app para ver si puedes donar</string>
+    <string name="widget_gracias">Gracias por estar listo</string>
+    <string name="ajustes_notificaciones">Notificaciones</string>
+    <string name="ajustes_recibir_urgencias">Recibir avisos de urgencias</string>
+    <string name="ajustes_recibir_urgencias_ayuda">Por notificación y WhatsApp, solo si eres compatible y estás cerca.</string>
+    <string name="ajustes_eliminar_cuenta">Eliminar mi cuenta</string>
+    <string name="ajustes_eliminar_titulo">¿Eliminar tu cuenta?</string>
+    <string name="ajustes_eliminar_texto">Se borrarán tu cuenta, tu perfil, tu conversación con Gota y tus citas pendientes. Las donaciones ya confirmadas quedan en el banco de sangre sin tus datos personales. No se puede deshacer.</string>
+    <string name="ajustes_eliminar_confirmar">Eliminar</string>
 </resources>

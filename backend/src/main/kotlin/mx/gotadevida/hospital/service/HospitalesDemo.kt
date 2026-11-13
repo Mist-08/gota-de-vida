@@ -14,22 +14,22 @@ object HospitalesDemo {
             direccion = "Centro, Torreón",
             municipio = "Torreón",
             latitud = 25.5428,
-            longitud = -103.4068,
+            longitud = -103.4068
         ),
         CrearHospitalSolicitud(
             nombre = "Hospital General de Gómez Palacio",
             direccion = "Centro, Gómez Palacio",
             municipio = "Gómez Palacio",
             latitud = 25.5617,
-            longitud = -103.4980,
+            longitud = -103.4980
         ),
         CrearHospitalSolicitud(
             nombre = "Cruz Roja Torreón",
             direccion = "Torreón",
             municipio = "Torreón",
             latitud = 25.5560,
-            longitud = -103.4300,
-        ),
+            longitud = -103.4300
+        )
     )
 
     suspend fun cargarSiFaltan(servicio: HospitalService) {

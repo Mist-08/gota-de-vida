@@ -14,7 +14,7 @@ data class Hospital(
     val ubicacion: PuntoGeo,
     val creadoEn: String,
     val telefono: String? = null,
-    val esDemostracion: Boolean = false,
+    val esDemostracion: Boolean = false
 )
 
 @Serializable
@@ -24,7 +24,7 @@ data class CrearHospitalSolicitud(
     val municipio: String,
     val latitud: Double,
     val longitud: Double,
-    val telefono: String? = null,
+    val telefono: String? = null
 )
 
 @Serializable
@@ -36,7 +36,7 @@ data class HospitalRespuesta(
     val latitud: Double,
     val longitud: Double,
     val telefono: String? = null,
-    val esDemostracion: Boolean,
+    val esDemostracion: Boolean
 )
 
 fun Hospital.aRespuesta() = HospitalRespuesta(
@@ -47,5 +47,5 @@ fun Hospital.aRespuesta() = HospitalRespuesta(
     latitud = ubicacion.latitud,
     longitud = ubicacion.longitud,
     telefono = telefono,
-    esDemostracion = esDemostracion,
+    esDemostracion = esDemostracion
 )

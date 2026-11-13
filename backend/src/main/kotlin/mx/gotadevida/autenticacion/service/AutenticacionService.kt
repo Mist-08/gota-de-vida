@@ -1,5 +1,7 @@
 package mx.gotadevida.autenticacion.service
 
+import java.time.Clock
+import java.util.UUID
 import mx.gotadevida.autenticacion.entity.GoogleSolicitud
 import mx.gotadevida.autenticacion.entity.LoginSolicitud
 import mx.gotadevida.autenticacion.entity.RefrescoSolicitud
@@ -10,11 +12,12 @@ import mx.gotadevida.autenticacion.entity.UsuarioHospitalSolicitud
 import mx.gotadevida.autenticacion.entity.UsuarioPublico
 import mx.gotadevida.autenticacion.entity.aPublico
 import mx.gotadevida.autenticacion.repository.UsuarioRepository
+import mx.gotadevida.core.dominio.DirectorioUsuarios
 import mx.gotadevida.core.errores.Conflicto
 import mx.gotadevida.core.errores.DatosInvalidos
 import mx.gotadevida.core.errores.NoAutorizado
+import mx.gotadevida.core.errores.Prohibido
 import mx.gotadevida.core.errores.validar
-import mx.gotadevida.core.dominio.DirectorioUsuarios
 import mx.gotadevida.core.seguridad.HasherContrasenas
 import mx.gotadevida.core.seguridad.JwtServicio
 import mx.gotadevida.core.seguridad.Rol
@@ -22,8 +25,6 @@ import mx.gotadevida.core.validacion.Validaciones.normalizarEmail
 import mx.gotadevida.core.validacion.Validaciones.normalizarTelefono
 import mx.gotadevida.core.validacion.Validaciones.validarContrasena
 import mx.gotadevida.core.validacion.Validaciones.validarNombre
-import java.time.Clock
-import java.util.UUID
 
 /**
  * Registro e inicio de sesión. Al registrar un donador también se crea su perfil
@@ -35,7 +36,7 @@ class AutenticacionService(
     private val hasher: HasherContrasenas,
     private val verificadorGoogle: VerificadorGoogle?,
     private val crearPerfilDonador: suspend (usuarioId: String, nombre: String, telefono: String?) -> Unit,
-    private val reloj: Clock = Clock.systemUTC(),
+    private val reloj: Clock = Clock.systemUTC()
 ) : DirectorioUsuarios {
 
     suspend fun registrarDonador(solicitud: RegistroSolicitud): SesionRespuesta {
@@ -52,7 +53,7 @@ class AutenticacionService(
             nombre = nombre,
             rol = Rol.DONADOR,
             creadoEn = reloj.instant().toString(),
-            passwordHash = hasher.hashear(solicitud.password),
+            passwordHash = hasher.hashear(solicitud.password)
         )
         usuarios.crear(usuario)
         crearPerfilDonador(usuario.id, nombre, telefono)
@@ -89,7 +90,7 @@ class AutenticacionService(
             nombre = cuenta.nombre,
             rol = Rol.DONADOR,
             creadoEn = reloj.instant().toString(),
-            googleId = cuenta.googleId,
+            googleId = cuenta.googleId
         )
         usuarios.crear(nuevo)
         crearPerfilDonador(nuevo.id, nuevo.nombre, null)
@@ -113,7 +114,7 @@ class AutenticacionService(
             rol = Rol.HOSPITAL,
             creadoEn = reloj.instant().toString(),
             passwordHash = hasher.hashear(solicitud.password),
-            hospitalId = hospitalId,
+            hospitalId = hospitalId
         )
         usuarios.crear(usuario)
         return usuario.aPublico()
@@ -130,8 +131,8 @@ class AutenticacionService(
                 nombre = "Administración Gota de Vida",
                 rol = Rol.ADMIN,
                 creadoEn = reloj.instant().toString(),
-                passwordHash = hasher.hashear(password),
-            ),
+                passwordHash = hasher.hashear(password)
+            )
         )
     }
 
@@ -148,12 +149,26 @@ class AutenticacionService(
         usuarios.actualizar(usuario.copy(tokensFcm = (usuario.tokensFcm + limpio).takeLast(5)))
     }
 
+    /**
+     * Derecho de cancelación (ARCO): borra la cuenta del donador, su perfil, su conversación
+     * y sus citas pendientes. Las donaciones ya confirmadas quedan solo con un id interno
+     * como registro del banco de sangre.
+     */
+    suspend fun eliminarCuenta(usuarioId: String, borrarDatosRelacionados: suspend (String) -> Unit) {
+        val usuario = usuarios.buscarPorId(usuarioId) ?: return
+        if (usuario.rol != Rol.DONADOR) throw Prohibido("Las cuentas de hospital las administra el ADMIN.")
+        borrarDatosRelacionados(usuarioId)
+        usuarios.borrar(usuarioId)
+    }
+
     suspend fun hospitalDe(usuarioId: String): String? = usuarios.buscarPorId(usuarioId)?.hospitalId
 
     override suspend fun tokensFcm(usuarioIds: Collection<String>): List<String> =
         if (usuarioIds.isEmpty()) emptyList() else usuarios.buscarPorIds(usuarioIds).flatMap { it.tokensFcm }.distinct()
 
-    override suspend fun usuariosDeHospital(hospitalId: String): List<String> = usuarios.deHospital(hospitalId).map { it.id }
+    override suspend fun usuariosDeHospital(hospitalId: String): List<String> = usuarios.deHospital(hospitalId).map {
+        it.id
+    }
 
     override suspend fun quitarTokenFcm(token: String) {
         usuarios.conTokenFcm(token).forEach { usuarios.actualizar(it.copy(tokensFcm = it.tokensFcm - token)) }
@@ -161,6 +176,6 @@ class AutenticacionService(
 
     private fun sesion(usuario: Usuario) = SesionRespuesta(
         usuario = usuario.aPublico(),
-        tokens = jwt.crearTokens(usuario.id, usuario.rol),
+        tokens = jwt.crearTokens(usuario.id, usuario.rol)
     )
 }

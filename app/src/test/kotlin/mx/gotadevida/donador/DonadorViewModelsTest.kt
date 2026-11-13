@@ -1,6 +1,9 @@
 package mx.gotadevida.donador
 
 import app.cash.turbine.test
+import java.time.Clock
+import java.time.LocalDate
+import java.time.ZoneOffset
 import kotlinx.coroutines.test.runTest
 import mx.gotadevida.core.network.FalloApp
 import mx.gotadevida.core.network.Resultado
@@ -22,9 +25,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.Clock
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class DonadorViewModelsTest {
     @get:Rule val regla = ReglaDespachadorPrincipal()
@@ -96,7 +96,7 @@ class DonadorViewModelsTest {
     fun `inicio muestra nombre corto tipo de sangre y estado`() = runTest {
         val repo = DonadorFalso(
             perfil = perfilDePrueba(),
-            elegibilidad = Elegibilidad(true, false, emptyList(), aviso = ""),
+            elegibilidad = Elegibilidad(true, false, emptyList(), aviso = "")
         )
         val vm = InicioViewModel(repo)
         vm.estado.test {
@@ -114,8 +114,15 @@ class DonadorViewModelsTest {
     fun `inicio sin conexion avisa y sigue mostrando lo guardado`() = runTest {
         val repo = DonadorFalso(
             perfil = perfilDePrueba(),
-            elegibilidad = Elegibilidad(false, false, emptyList(), aviso = "", proximaFechaElegible = "2026-12-01", diasParaVolverADonar = 20),
-            respuestaRefresco = Resultado.Fallo(FalloApp.SinConexion),
+            elegibilidad = Elegibilidad(
+                false,
+                false,
+                emptyList(),
+                aviso = "",
+                proximaFechaElegible = "2026-12-01",
+                diasParaVolverADonar = 20
+            ),
+            respuestaRefresco = Resultado.Fallo(FalloApp.SinConexion)
         )
         val vm = InicioViewModel(repo)
         vm.estado.test {

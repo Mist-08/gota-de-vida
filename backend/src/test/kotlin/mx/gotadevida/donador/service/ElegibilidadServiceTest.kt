@@ -1,16 +1,16 @@
 package mx.gotadevida.donador.service
 
-import mx.gotadevida.core.dominio.PuntoGeo
-import mx.gotadevida.core.dominio.TipoSangre
-import mx.gotadevida.donador.entity.Donador
-import mx.gotadevida.donador.entity.SexoParaCriteriosMedicos
-import mx.gotadevida.reglas.entity.ReglasElegibilidad
 import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import mx.gotadevida.core.dominio.PuntoGeo
+import mx.gotadevida.core.dominio.TipoSangre
+import mx.gotadevida.donador.entity.Donador
+import mx.gotadevida.donador.entity.SexoParaCriteriosMedicos
+import mx.gotadevida.reglas.entity.ReglasElegibilidad
 
 class ElegibilidadServiceTest {
 
@@ -24,7 +24,7 @@ class ElegibilidadServiceTest {
         sexo: SexoParaCriteriosMedicos? = SexoParaCriteriosMedicos.FEMENINO,
         donaciones: List<String> = emptyList(),
         tatuaje: String? = null,
-        tipo: TipoSangre? = TipoSangre.O_NEGATIVO,
+        tipo: TipoSangre? = TipoSangre.O_NEGATIVO
     ) = Donador(
         id = "d1",
         nombre = "Mariana",
@@ -37,7 +37,7 @@ class ElegibilidadServiceTest {
         pesoKg = peso,
         sexoParaCriteriosMedicos = sexo,
         ubicacion = PuntoGeo.de(25.54, -103.41),
-        fechaUltimoTatuaje = tatuaje,
+        fechaUltimoTatuaje = tatuaje
     )
 
     @Test
@@ -98,7 +98,7 @@ class ElegibilidadServiceTest {
         val resultado = servicio.evaluar(
             donador(donaciones = donaciones, sexo = SexoParaCriteriosMedicos.MASCULINO),
             reglas,
-            hoy,
+            hoy
         )
 
         assertTrue(resultado.elegible)

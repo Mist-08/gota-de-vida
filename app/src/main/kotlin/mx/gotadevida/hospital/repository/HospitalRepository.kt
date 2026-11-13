@@ -1,9 +1,13 @@
 package mx.gotadevida.hospital.repository
 
+import javax.inject.Inject
 import mx.gotadevida.core.network.Resultado
 import mx.gotadevida.core.network.llamarApi
 import mx.gotadevida.hospital.entity.CambiarEstadoPeticion
+import mx.gotadevida.hospital.entity.CheckinPeticion
+import mx.gotadevida.hospital.entity.CitaDelDia
 import mx.gotadevida.hospital.entity.CrearUrgenciaPeticion
+import mx.gotadevida.hospital.entity.Estadisticas
 import mx.gotadevida.hospital.entity.EstadoUrgenciaHospital
 import mx.gotadevida.hospital.entity.UrgenciaHospital
 import retrofit2.http.Body
@@ -11,7 +15,6 @@ import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
-import javax.inject.Inject
 
 interface HospitalApi {
     @GET("api/v1/hospitales/me/solicitudes")
@@ -22,6 +25,15 @@ interface HospitalApi {
 
     @GET("api/v1/solicitudes/{id}")
     suspend fun detalle(@Path("id") id: String): UrgenciaHospital
+
+    @GET("api/v1/hospitales/me/estadisticas")
+    suspend fun estadisticas(): Estadisticas
+
+    @GET("api/v1/hospitales/me/citas")
+    suspend fun citasDeHoy(): List<CitaDelDia>
+
+    @POST("api/v1/citas/checkin-qr")
+    suspend fun checkin(@Body peticion: CheckinPeticion): CitaDelDia
 
     @PATCH("api/v1/solicitudes/{id}/estado")
     suspend fun cambiarEstado(@Path("id") id: String, @Body peticion: CambiarEstadoPeticion): UrgenciaHospital
@@ -39,6 +51,13 @@ interface HospitalRepository {
     suspend fun detalle(id: String): Resultado<UrgenciaHospital>
 
     suspend fun cambiarEstado(id: String, estado: EstadoUrgenciaHospital): Resultado<UrgenciaHospital>
+
+    suspend fun estadisticas(): Resultado<Estadisticas>
+
+    suspend fun citasDeHoy(): Resultado<List<CitaDelDia>>
+
+    /** Confirma la donación con el contenido del QR (`gota:<cita>:<código>`). */
+    suspend fun checkin(contenidoQr: String): Resultado<CitaDelDia>
 }
 
 class HospitalRepositoryRed @Inject constructor(private val api: HospitalApi) : HospitalRepository {
@@ -50,4 +69,10 @@ class HospitalRepositoryRed @Inject constructor(private val api: HospitalApi) : 
 
     override suspend fun cambiarEstado(id: String, estado: EstadoUrgenciaHospital) =
         llamarApi { api.cambiarEstado(id, CambiarEstadoPeticion(estado)) }
+
+    override suspend fun estadisticas() = llamarApi { api.estadisticas() }
+
+    override suspend fun citasDeHoy() = llamarApi { api.citasDeHoy() }
+
+    override suspend fun checkin(contenidoQr: String) = llamarApi { api.checkin(CheckinPeticion(contenidoQr.trim())) }
 }

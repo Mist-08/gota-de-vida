@@ -16,6 +16,7 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,7 +25,6 @@ import mx.gotadevida.BuildConfig
 import mx.gotadevida.MainActivity
 import mx.gotadevida.R
 import mx.gotadevida.notificaciones.repository.DispositivoRepository
-import javax.inject.Inject
 
 /**
  * Firebase Cloud Messaging sin google-services.json: se inicializa con los datos de
@@ -53,10 +53,18 @@ object AvisosPush {
     private fun crearCanales(contexto: Context) {
         val gestor = contexto.getSystemService(NotificationManager::class.java) ?: return
         gestor.createNotificationChannel(
-            NotificationChannel(CANAL_URGENCIAS, contexto.getString(R.string.canal_urgencias), NotificationManager.IMPORTANCE_HIGH),
+            NotificationChannel(
+                CANAL_URGENCIAS,
+                contexto.getString(R.string.canal_urgencias),
+                NotificationManager.IMPORTANCE_HIGH
+            )
         )
         gestor.createNotificationChannel(
-            NotificationChannel(CANAL_HOSPITAL, contexto.getString(R.string.canal_respuestas), NotificationManager.IMPORTANCE_DEFAULT),
+            NotificationChannel(
+                CANAL_HOSPITAL,
+                contexto.getString(R.string.canal_respuestas),
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
         )
     }
 
@@ -65,15 +73,33 @@ object AvisosPush {
         val tipoSangre = datos["tipoSangre"].orEmpty()
         return when (datos["tipo"]) {
             "urgencia" -> contexto.getString(R.string.push_urgencia_titulo, tipoSangre) to
-                contexto.getString(R.string.push_urgencia_texto, datos["hospital"].orEmpty(), datos["distanciaKm"].orEmpty())
+                contexto.getString(
+                    R.string.push_urgencia_texto,
+                    datos["hospital"].orEmpty(),
+                    datos["distanciaKm"].orEmpty()
+                )
+
             "respuesta" -> contexto.getString(R.string.push_respuesta_titulo) to
-                contexto.getString(R.string.push_respuesta_texto, datos["comprometidas"].orEmpty(), datos["unidades"].orEmpty(), tipoSangre)
+                contexto.getString(
+                    R.string.push_respuesta_texto,
+                    datos["comprometidas"].orEmpty(),
+                    datos["unidades"].orEmpty(),
+                    tipoSangre
+                )
+
             "urgencia_cubierta" -> contexto.getString(R.string.push_cubierta_titulo) to
                 contexto.getString(R.string.push_cubierta_texto, datos["unidades"].orEmpty(), tipoSangre)
+
             "recordatorio_cita" -> contexto.getString(R.string.push_recordatorio_titulo) to
-                contexto.getString(R.string.push_recordatorio_texto, datos["hospital"].orEmpty(), datos["hora"].orEmpty())
+                contexto.getString(
+                    R.string.push_recordatorio_texto,
+                    datos["hospital"].orEmpty(),
+                    datos["hora"].orEmpty()
+                )
+
             "donacion_confirmada" -> contexto.getString(R.string.push_gracias_titulo) to
                 contexto.getString(R.string.push_gracias_texto)
+
             else -> null
         }
     }
@@ -81,7 +107,8 @@ object AvisosPush {
     fun mostrar(contexto: Context, datos: Map<String, String>) {
         val (titulo, texto) = textos(contexto, datos) ?: return
         if (Build.VERSION.SDK_INT >= 33 &&
-            ContextCompat.checkSelfPermission(contexto, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(contexto, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
@@ -90,7 +117,10 @@ object AvisosPush {
             datos["solicitudId"]?.let { putExtra(EXTRA_SOLICITUD, it) }
         }
         val pendiente = PendingIntent.getActivity(
-            contexto, datos.hashCode(), abrir, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            contexto,
+            datos.hashCode(),
+            abrir,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         val canal = if (datos["tipo"] == "urgencia") CANAL_URGENCIAS else CANAL_HOSPITAL
         val notificacion = NotificationCompat.Builder(contexto, canal)
@@ -101,7 +131,15 @@ object AvisosPush {
             .setColor(ContextCompat.getColor(contexto, R.color.icono_fondo))
             .setAutoCancel(true)
             .setContentIntent(pendiente)
-            .setPriority(if (canal == CANAL_URGENCIAS) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(
+                if (canal ==
+                    CANAL_URGENCIAS
+                ) {
+                    NotificationCompat.PRIORITY_HIGH
+                } else {
+                    NotificationCompat.PRIORITY_DEFAULT
+                }
+            )
             .build()
         NotificationManagerCompat.from(contexto).notify(datos.hashCode(), notificacion)
     }
