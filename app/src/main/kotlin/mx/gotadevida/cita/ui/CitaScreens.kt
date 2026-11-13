@@ -38,13 +38,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import mx.gotadevida.R
 import mx.gotadevida.cita.entity.Cita
 import mx.gotadevida.cita.service.CodigoQr
@@ -62,10 +61,9 @@ import mx.gotadevida.core.designsystem.componentes.BotonTexto
 import mx.gotadevida.core.designsystem.componentes.EstadoVacio
 import mx.gotadevida.core.designsystem.componentes.Icono
 import mx.gotadevida.core.designsystem.componentes.MensajeError
+import mx.gotadevida.core.designsystem.componentes.formatoFechaHora
+import mx.gotadevida.core.designsystem.componentes.formatoPatron
 import mx.gotadevida.core.designsystem.componentes.texto
-
-private val formatoDia = DateTimeFormatter.ofPattern("EEE d")
-private val formatoLargo = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -100,7 +98,7 @@ fun AgendarScreen(alRegresar: () -> Unit, alAgendar: () -> Unit, viewModel: Agen
                     FilterChip(
                         selected = dia == estado.dia,
                         onClick = { viewModel.onDia(dia) },
-                        label = { Text(dia.format(formatoDia)) },
+                        label = { Text(dia.format(formatoPatron("EEE d"))) },
                         shape = Radio.completo,
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = colores.sangre,
@@ -197,7 +195,7 @@ fun TarjetaMiCita(alAbrir: () -> Unit, viewModel: MiCitaViewModel = hiltViewMode
                     color = colores.onVidaSoft
                 )
                 Text(
-                    "${LocalDateTime.parse(cita.fechaHora).format(formatoLargo)} · ${cita.hospitalNombre}",
+                    "${LocalDateTime.parse(cita.fechaHora).format(formatoFechaHora())} · ${cita.hospitalNombre}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = colores.onVidaSoft
                 )
@@ -245,12 +243,22 @@ fun MiCitaScreen(alRegresar: () -> Unit, viewModel: MiCitaViewModel = hiltViewMo
             Text(
                 cita.hospitalNombre,
                 style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.semantics {
                     heading()
                 }
             )
-            Text(LocalDateTime.parse(cita.fechaHora).format(formatoLargo), style = MaterialTheme.typography.titleMedium)
-            Text(cita.hospitalDireccion, style = MaterialTheme.typography.bodyMedium, color = colores.inkMuted)
+            Text(
+                LocalDateTime.parse(cita.fechaHora).format(formatoFechaHora()),
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                cita.hospitalDireccion,
+                style = MaterialTheme.typography.bodyMedium,
+                color = colores.inkMuted,
+                textAlign = TextAlign.Center
+            )
             BotonSecundario(stringResource(R.string.cita_agregar_calendario), alPulsar = {
                 val intento = Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI)
                     .putExtra(CalendarContract.Events.TITLE, tituloEvento)
