@@ -33,8 +33,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import mx.gotadevida.R
 import mx.gotadevida.core.designsystem.Espacio
 import mx.gotadevida.core.designsystem.GotaTema
@@ -45,6 +43,7 @@ import mx.gotadevida.core.designsystem.componentes.BotonPrincipal
 import mx.gotadevida.core.designsystem.componentes.BotonSecundario
 import mx.gotadevida.core.designsystem.componentes.ChipTipoSangre
 import mx.gotadevida.core.designsystem.componentes.Icono
+import mx.gotadevida.core.designsystem.componentes.formatoFecha
 import mx.gotadevida.donador.service.EstadoDonacion
 import mx.gotadevida.donador.viewmodel.InicioViewModel
 
@@ -137,7 +136,7 @@ fun InicioScreen(
 @Composable
 private fun TarjetaEstado(estado: EstadoDonacion, alCompletarPerfil: () -> Unit) {
     val colores = GotaTema.colores
-    val formato = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG) }
+    val formato = formatoFecha()
     when (estado) {
         EstadoDonacion.Cargando -> Tarjeta(colores.surfaceSunken) {
             Row(
