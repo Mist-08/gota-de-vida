@@ -14,8 +14,8 @@ info:
 servers:
   - url: http://localhost:8080
     description: Local
-  - url: https://SU-SERVICIO.onrender.com
-    description: Render (cambien SU-SERVICIO por el nombre de su servicio)
+  - url: https://gota-de-vida-backend.onrender.com
+    description: Render
 tags:
   - name: Salud
   - name: Autenticación

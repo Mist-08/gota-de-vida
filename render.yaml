@@ -8,8 +8,11 @@ services:
     dockerContext: ./backend
     dockerfilePath: ./backend/Dockerfile
     healthCheckPath: /health
-    # Despliega solo cuando GitHub Actions llama al deploy hook (después del CI).
-    autoDeploy: false
+    # Despliega solo cuando el CI de GitHub pasa, y solo si cambió el backend.
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - backend/**
     envVars:
       - key: MONGODB_URI
         sync: false
