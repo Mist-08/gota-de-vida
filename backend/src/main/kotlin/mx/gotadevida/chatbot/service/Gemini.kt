@@ -13,11 +13,11 @@ import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
@@ -43,10 +43,7 @@ interface ClienteGemini {
  * Gemini API (Google AI Studio, nivel gratuito) con function calling.
  * La llave vive solo en el backend (variable GEMINI_API_KEY).
  */
-class ClienteGeminiHttp(
-    private val llave: String,
-    private val modelo: String,
-) : ClienteGemini {
+class ClienteGeminiHttp(private val llave: String, private val modelo: String) : ClienteGemini {
     private val json = Json { ignoreUnknownKeys = true }
     private val cliente = HttpClient(CIO) { install(HttpTimeout) { requestTimeoutMillis = 30_000 } }
 
@@ -54,7 +51,12 @@ class ClienteGeminiHttp(
         val cuerpo = buildJsonObject {
             putJsonObject("systemInstruction") { putJsonArray("parts") { addJsonObject { put("text", sistema) } } }
             putJsonArray("contents") {
-                turnos.forEach { t -> addJsonObject { put("role", t.rol); put("parts", t.partes) } }
+                turnos.forEach { t ->
+                    addJsonObject {
+                        put("role", t.rol)
+                        put("parts", t.partes)
+                    }
+                }
             }
             putJsonArray("tools") { addJsonObject { put("functionDeclarations", herramientas) } }
             putJsonObject("generationConfig") {
@@ -81,7 +83,11 @@ class ClienteGeminiHttp(
         return if (llamadas.isNotEmpty()) {
             RespuestaGemini.Funciones(partes, llamadas)
         } else {
-            RespuestaGemini.Texto(partes.mapNotNull { it.jsonObject["text"]?.jsonPrimitive?.content }.joinToString("").trim())
+            RespuestaGemini.Texto(
+                partes.mapNotNull {
+                    it.jsonObject["text"]?.jsonPrimitive?.content
+                }.joinToString("").trim()
+            )
         }
     }
 }

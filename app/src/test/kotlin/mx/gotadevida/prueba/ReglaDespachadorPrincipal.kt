@@ -11,9 +11,7 @@ import org.junit.runner.Description
 
 /** Cambia Dispatchers.Main por uno de prueba para poder probar ViewModels. */
 @OptIn(ExperimentalCoroutinesApi::class)
-class ReglaDespachadorPrincipal(
-    val despachador: TestDispatcher = UnconfinedTestDispatcher(),
-) : TestWatcher() {
+class ReglaDespachadorPrincipal(val despachador: TestDispatcher = UnconfinedTestDispatcher()) : TestWatcher() {
     override fun starting(description: Description) = Dispatchers.setMain(despachador)
 
     override fun finished(description: Description) = Dispatchers.resetMain()

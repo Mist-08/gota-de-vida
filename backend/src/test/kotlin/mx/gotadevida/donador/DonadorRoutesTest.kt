@@ -7,6 +7,10 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import mx.gotadevida.core.dominio.TipoSangre
 import mx.gotadevida.donador.entity.ActualizarPerfilSolicitud
 import mx.gotadevida.donador.entity.Elegibilidad
@@ -16,10 +20,6 @@ import mx.gotadevida.soporte.conToken
 import mx.gotadevida.soporte.iniciarComoAdmin
 import mx.gotadevida.soporte.probarApi
 import mx.gotadevida.soporte.registrar
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class DonadorRoutesTest {
 
@@ -57,8 +57,8 @@ class DonadorRoutesTest {
                     latitud = 25.541234,
                     longitud = -103.406789,
                     zona = "Torreón Jardín, Torreón",
-                    fechaUltimaDonacion = "2026-01-12",
-                ),
+                    fechaUltimaDonacion = "2026-01-12"
+                )
             )
         }
         val perfil = respuesta.body<PerfilDonadorRespuesta>()

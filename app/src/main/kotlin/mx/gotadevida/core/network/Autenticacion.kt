@@ -43,7 +43,7 @@ class RenovadorSesion(
     private val almacen: AlmacenSesion,
     private val urlBase: String,
     private val json: Json,
-    private val cliente: OkHttpClient = OkHttpClient(),
+    private val cliente: OkHttpClient = OkHttpClient()
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {

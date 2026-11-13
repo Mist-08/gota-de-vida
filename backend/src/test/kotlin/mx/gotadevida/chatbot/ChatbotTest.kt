@@ -9,13 +9,17 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.putJsonObject
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import mx.gotadevida.chatbot.entity.HistorialChat
 import mx.gotadevida.chatbot.entity.MensajePeticion
 import mx.gotadevida.chatbot.entity.RespuestaChat
@@ -29,20 +33,21 @@ import mx.gotadevida.soporte.SECRETO_META
 import mx.gotadevida.soporte.conToken
 import mx.gotadevida.soporte.probarApi
 import mx.gotadevida.whatsapp.service.FirmaMeta
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class ChatbotTest {
     private val escenario = SolicitudRoutesTest()
 
     private suspend fun io.ktor.client.HttpClient.chat(token: String, texto: String) = post("/api/v1/chat/mensajes") {
-        conToken(token); contentType(ContentType.Application.Json); setBody(MensajePeticion(texto))
+        conToken(token)
+        contentType(ContentType.Application.Json)
+        setBody(MensajePeticion(texto))
     }.body<RespuestaChat>()
 
     @Test
-    fun `las preguntas frecuentes se contestan sin gastar cuota y con las reglas vigentes`() = probarApi { cliente, entorno ->
+    fun `las preguntas frecuentes se contestan sin gastar cuota y con las reglas vigentes`() = probarApi {
+            cliente,
+            entorno
+        ->
         val (_, donador) = with(escenario) { cliente.donador("oneg@correo.mx", TipoSangre.O_NEGATIVO, 3.0) }
         val r = cliente.chat(donador, "¿Tengo que ir en ayunas?")
         assertEquals("PREGUNTA_FRECUENTE", r.origen)
@@ -82,10 +87,12 @@ class ChatbotTest {
         with(escenario) { cliente.publicar(hospital, TipoSangre.O_NEGATIVO, 2) }
         val gemini = GeminiDePrueba(
             RespuestaGemini.Funciones(
-                buildJsonArray { addJsonObject { putJsonObject("functionCall") { put("name", "buscar_urgencias_activas") } } },
-                listOf("buscar_urgencias_activas" to JsonObject(emptyMap())),
+                buildJsonArray {
+                    addJsonObject { putJsonObject("functionCall") { put("name", "buscar_urgencias_activas") } }
+                },
+                listOf("buscar_urgencias_activas" to JsonObject(emptyMap()))
             ),
-            RespuestaGemini.Texto("Hay una urgencia O− en el Hospital Universitario, a 3 km. ¿Puedes ir?"),
+            RespuestaGemini.Texto("Hay una urgencia O− en el Hospital Universitario, a 3 km. ¿Puedes ir?")
         )
         entorno.gemini = gemini
 
@@ -109,7 +116,9 @@ class ChatbotTest {
         // La urgencia también salió por WhatsApp con la plantilla.
         assertTrue(entorno.whatsapp.enviados.any { it.second.startsWith("urgencia_donacion(O−") })
 
-        val reto = cliente.get("/api/v1/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=verificacion-de-prueba&hub.challenge=12345")
+        val reto = cliente.get(
+            "/api/v1/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=verificacion-de-prueba&hub.challenge=12345"
+        )
         assertEquals("12345", reto.bodyAsText())
         val malo = cliente.get("/api/v1/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=otro&hub.challenge=1")
         assertEquals(HttpStatusCode.Forbidden, malo.status)
@@ -142,5 +151,4 @@ class ChatbotTest {
         }
         assertTrue(entorno.whatsapp.enviados.last().second.contains("Regístrate"))
     }
-
 }

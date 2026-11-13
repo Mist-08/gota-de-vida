@@ -1,13 +1,13 @@
 package mx.gotadevida.core.mensajeria
 
-import com.mongodb.MongoWriteException
 import com.mongodb.ErrorCategory
+import com.mongodb.MongoWriteException
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import java.time.Clock
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import mx.gotadevida.core.db.Colecciones
-import java.time.Clock
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Idempotencia: RabbitMQ puede entregar un mensaje más de una vez.
@@ -22,10 +22,7 @@ interface EventosProcesados {
 }
 
 @Serializable
-private data class EventoProcesado(
-    @SerialName("_id") val id: String,
-    val procesadoEn: String,
-)
+private data class EventoProcesado(@SerialName("_id") val id: String, val procesadoEn: String)
 
 class MongoEventosProcesados(db: MongoDatabase, private val reloj: Clock = Clock.systemUTC()) : EventosProcesados {
     private val coleccion = db.getCollection<EventoProcesado>(Colecciones.EVENTOS_PROCESADOS)

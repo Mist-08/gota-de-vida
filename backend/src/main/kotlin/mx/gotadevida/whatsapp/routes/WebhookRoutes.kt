@@ -32,7 +32,9 @@ fun Route.webhookRoutes(tokenVerificacion: String?, secretoApp: String?, bus: Bu
         route("/api/v1/webhooks/whatsapp") {
             get {
                 val p = call.request.queryParameters
-                if (tokenVerificacion != null && p["hub.mode"] == "subscribe" && p["hub.verify_token"] == tokenVerificacion) {
+                if (tokenVerificacion != null && p["hub.mode"] == "subscribe" &&
+                    p["hub.verify_token"] == tokenVerificacion
+                ) {
                     call.respondText(p["hub.challenge"].orEmpty())
                 } else {
                     call.respond(HttpStatusCode.Forbidden)
@@ -40,7 +42,9 @@ fun Route.webhookRoutes(tokenVerificacion: String?, secretoApp: String?, bus: Bu
             }
             post {
                 val cuerpo = call.receiveText()
-                if (secretoApp == null || !FirmaMeta.valida(cuerpo, call.request.header("X-Hub-Signature-256"), secretoApp)) {
+                if (secretoApp == null ||
+                    !FirmaMeta.valida(cuerpo, call.request.header("X-Hub-Signature-256"), secretoApp)
+                ) {
                     call.respond(HttpStatusCode.Unauthorized)
                     return@post
                 }
@@ -52,7 +56,7 @@ fun Route.webhookRoutes(tokenVerificacion: String?, secretoApp: String?, bus: Bu
                             put("mensajeId", m.mensajeId)
                             put("telefono", m.telefono)
                             put("texto", m.texto)
-                        },
+                        }
                     )
                 }
                 call.respond(HttpStatusCode.OK)

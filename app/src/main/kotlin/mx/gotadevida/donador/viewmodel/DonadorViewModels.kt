@@ -3,6 +3,8 @@ package mx.gotadevida.donador.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDate
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +23,7 @@ import mx.gotadevida.donador.entity.PerfilDonador
 import mx.gotadevida.donador.entity.SexoParaCriteriosMedicos
 import mx.gotadevida.donador.entity.TipoSangre
 import mx.gotadevida.donador.repository.DonadorRepository
+import mx.gotadevida.donador.service.ActualizadorWidget
 import mx.gotadevida.donador.service.CalculadorEstado
 import mx.gotadevida.donador.service.CampoPerfil
 import mx.gotadevida.donador.service.DatosPerfil
@@ -28,8 +31,6 @@ import mx.gotadevida.donador.service.ErrorPerfil
 import mx.gotadevida.donador.service.EstadoDonacion
 import mx.gotadevida.donador.service.ValidadorPerfil
 import mx.gotadevida.donador.service.Zona
-import java.time.LocalDate
-import javax.inject.Inject
 
 data class PerfilUiState(
     val datos: DatosPerfil = DatosPerfil(),
@@ -38,14 +39,11 @@ data class PerfilUiState(
     val errores: Map<CampoPerfil, ErrorPerfil> = emptyMap(),
     val guardando: Boolean = false,
     val fallo: FalloApp? = null,
-    val guardado: Boolean = false,
+    val guardado: Boolean = false
 )
 
 @HiltViewModel
-class PerfilViewModel @Inject constructor(
-    private val repositorio: DonadorRepository,
-    private val calendario: Calendario,
-) : ViewModel() {
+class PerfilViewModel @Inject constructor(private val repositorio: DonadorRepository, private val calendario: Calendario) : ViewModel() {
 
     private val _estado = MutableStateFlow(PerfilUiState())
     val estado: StateFlow<PerfilUiState> = _estado.asStateFlow()
@@ -64,7 +62,14 @@ class PerfilViewModel @Inject constructor(
 
     fun onNacimiento(fecha: LocalDate) = cambiar(CampoPerfil.NACIMIENTO) { copy(fechaNacimiento = fecha) }
 
-    fun onPeso(texto: String) = cambiar(CampoPerfil.PESO) { copy(peso = texto.filter { it.isDigit() || it == '.' || it == ',' }.take(6)) }
+    fun onPeso(texto: String) = cambiar(CampoPerfil.PESO) {
+        copy(
+            peso = texto.filter {
+                it.isDigit() || it == '.' ||
+                    it == ','
+            }.take(6)
+        )
+    }
 
     fun onSexo(sexo: SexoParaCriteriosMedicos) = cambiar(CampoPerfil.SEXO) { copy(sexo = sexo) }
 
@@ -101,7 +106,7 @@ class PerfilViewModel @Inject constructor(
             latitud = d.latitud,
             longitud = d.longitud,
             zona = actual.zona,
-            fechaUltimaDonacion = if (d.haDonado == true) d.fechaUltimaDonacion?.toString() else null,
+            fechaUltimaDonacion = if (d.haDonado == true) d.fechaUltimaDonacion?.toString() else null
         )
         _estado.update { it.copy(guardando = true, fallo = null) }
         viewModelScope.launch {
@@ -124,7 +129,7 @@ class PerfilViewModel @Inject constructor(
         latitud = latitud,
         longitud = longitud,
         haDonado = if (perfilCompleto) totalDonaciones > 0 else null,
-        fechaUltimaDonacion = ultimaDonacion?.let(LocalDate::parse),
+        fechaUltimaDonacion = ultimaDonacion?.let(LocalDate::parse)
     )
 }
 
@@ -133,12 +138,13 @@ data class InicioUiState(
     val etiquetaTipoSangre: String? = null,
     val estadoDonacion: EstadoDonacion = EstadoDonacion.Cargando,
     val actualizando: Boolean = false,
-    val sinConexion: Boolean = false,
+    val sinConexion: Boolean = false
 )
 
 @HiltViewModel
 class InicioViewModel @Inject constructor(
     private val repositorio: DonadorRepository,
+    private val widget: ActualizadorWidget = ActualizadorWidget { }
 ) : ViewModel() {
 
     private val refresco = MutableStateFlow(EstadoRefresco())
@@ -148,7 +154,7 @@ class InicioViewModel @Inject constructor(
     val estado: StateFlow<InicioUiState> = combine(
         repositorio.observarPerfil(),
         repositorio.observarElegibilidad(),
-        refresco,
+        refresco
     ) { perfil, elegibilidad, r ->
         InicioUiState(
             nombre = perfil?.nombre?.substringBefore(' ').orEmpty(),
@@ -159,7 +165,7 @@ class InicioViewModel @Inject constructor(
                 CalculadorEstado.calcular(perfil, elegibilidad)
             },
             actualizando = r.actualizando,
-            sinConexion = r.sinConexion,
+            sinConexion = r.sinConexion
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InicioUiState())
 
@@ -174,6 +180,7 @@ class InicioViewModel @Inject constructor(
             val r = repositorio.refrescar()
             val sinConexion = r is Resultado.Fallo && r.fallo == FalloApp.SinConexion
             refresco.value = EstadoRefresco(actualizando = false, sinConexion = sinConexion)
+            if (r is Resultado.Exito) runCatching { widget.actualizar() }
         }
     }
 }

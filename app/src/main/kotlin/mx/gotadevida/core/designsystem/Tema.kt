@@ -32,24 +32,21 @@ private val FormasGota = Shapes(
     small = RoundedCornerShape(8.dp),
     medium = RoundedCornerShape(16.dp),
     large = RoundedCornerShape(28.dp),
-    extraLarge = RoundedCornerShape(28.dp),
+    extraLarge = RoundedCornerShape(28.dp)
 )
 
 /**
  * Tema de la app. Sin color dinámico de Material You: la marca se ve igual en todos los teléfonos.
  */
 @Composable
-fun GotaDeVidaTema(
-    oscuro: Boolean = isSystemInDarkTheme(),
-    contenido: @Composable () -> Unit,
-) {
+fun GotaDeVidaTema(oscuro: Boolean = isSystemInDarkTheme(), contenido: @Composable () -> Unit) {
     val colores = if (oscuro) ColoresOscuros else ColoresClaros
     CompositionLocalProvider(LocalColoresGota provides colores) {
         MaterialTheme(
             colorScheme = colores.aEsquemaMaterial(),
             typography = TipografiaGota,
             shapes = FormasGota,
-            content = contenido,
+            content = contenido
         )
     }
 }

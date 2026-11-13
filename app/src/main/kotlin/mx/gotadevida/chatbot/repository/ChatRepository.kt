@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import java.time.Instant
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import mx.gotadevida.chatbot.entity.Autor
@@ -17,8 +19,6 @@ import mx.gotadevida.core.network.llamarApi
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import java.time.Instant
-import javax.inject.Inject
 
 interface ChatApi {
     @GET("api/v1/chat/mensajes")
@@ -55,14 +55,20 @@ interface ChatRepository {
     suspend fun enviar(texto: String): Resultado<RespuestaChat>
 }
 
-class ChatRepositoryLocalYRed @Inject constructor(
-    private val api: ChatApi,
-    private val dao: ChatDao,
-) : ChatRepository {
-    override fun observarMensajes() = dao.observar().map { lista -> lista.map { MensajeChat(Autor.valueOf(it.autor), it.texto, it.en) } }
+class ChatRepositoryLocalYRed @Inject constructor(private val api: ChatApi, private val dao: ChatDao) : ChatRepository {
+    override fun observarMensajes() = dao.observar().map { lista ->
+        lista.map { MensajeChat(Autor.valueOf(it.autor), it.texto, it.en) }
+    }
 
     override suspend fun refrescar(): Resultado<Unit> = when (val r = llamarApi { api.historial() }) {
-        is Resultado.Exito -> Resultado.Exito(dao.reemplazar(r.valor.mensajes.map { MensajeEntity(autor = it.autor.name, texto = it.texto, en = it.en) }))
+        is Resultado.Exito -> Resultado.Exito(
+            dao.reemplazar(
+                r.valor.mensajes.map {
+                    MensajeEntity(autor = it.autor.name, texto = it.texto, en = it.en)
+                }
+            )
+        )
+
         is Resultado.Fallo -> r
     }
 
@@ -73,8 +79,8 @@ class ChatRepositoryLocalYRed @Inject constructor(
             dao.agregar(
                 listOf(
                     MensajeEntity(autor = Autor.DONADOR.name, texto = texto, en = ahora),
-                    MensajeEntity(autor = Autor.GOTA.name, texto = r.valor.respuesta, en = ahora),
-                ),
+                    MensajeEntity(autor = Autor.GOTA.name, texto = r.valor.respuesta, en = ahora)
+                )
             )
         }
         return r
