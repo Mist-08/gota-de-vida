@@ -18,6 +18,7 @@ import mx.gotadevida.cita.routes.citaRoutes
 import mx.gotadevida.core.config.Configuracion
 import mx.gotadevida.core.di.Dependencias
 import mx.gotadevida.core.errores.configurarErrores
+import mx.gotadevida.core.privacidad.privacidadRoutes
 import mx.gotadevida.core.salud.saludRoutes
 import mx.gotadevida.core.seguridad.configurarSeguridad
 import mx.gotadevida.donacion.routes.donacionRoutes
@@ -59,6 +60,7 @@ fun Application.module(dependencias: Dependencias) {
 
     routing {
         saludRoutes()
+        privacidadRoutes()
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         autenticacionRoutes(dependencias.autenticacion, existeHospital = dependencias.hospitales::existe) { id ->
             dependencias.citas.cancelarPendientesDe(id)

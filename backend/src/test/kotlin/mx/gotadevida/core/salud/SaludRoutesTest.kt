@@ -22,4 +22,12 @@ class SaludRoutesTest {
     fun `swagger esta disponible`() = probarApi { cliente, _ ->
         assertEquals(HttpStatusCode.OK, cliente.get("/swagger").status)
     }
+
+    @Test
+    fun `aviso de privacidad es publico`() = probarApi { cliente, _ ->
+        val respuesta = cliente.get("/privacidad")
+
+        assertEquals(HttpStatusCode.OK, respuesta.status)
+        assertTrue(respuesta.bodyAsText().contains("Aviso de privacidad"))
+    }
 }
