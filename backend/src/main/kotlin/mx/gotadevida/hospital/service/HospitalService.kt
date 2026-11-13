@@ -1,5 +1,9 @@
 package mx.gotadevida.hospital.service
 
+import java.time.Clock
+import java.util.UUID
+import mx.gotadevida.core.dominio.DirectorioHospitales
+import mx.gotadevida.core.dominio.HospitalResumen
 import mx.gotadevida.core.dominio.PuntoGeo
 import mx.gotadevida.core.errores.NoEncontrado
 import mx.gotadevida.core.errores.validar
@@ -8,13 +12,9 @@ import mx.gotadevida.hospital.entity.Hospital
 import mx.gotadevida.hospital.entity.HospitalRespuesta
 import mx.gotadevida.hospital.entity.aRespuesta
 import mx.gotadevida.hospital.repository.HospitalRepository
-import java.time.Clock
-import java.util.UUID
 
-class HospitalService(
-    private val repositorio: HospitalRepository,
-    private val reloj: Clock = Clock.systemUTC(),
-) {
+class HospitalService(private val repositorio: HospitalRepository, private val reloj: Clock = Clock.systemUTC()) :
+    DirectorioHospitales {
     suspend fun crear(solicitud: CrearHospitalSolicitud, esDemostracion: Boolean = false): HospitalRespuesta {
         val nombre = solicitud.nombre.trim()
         val direccion = solicitud.direccion.trim()
@@ -31,7 +31,7 @@ class HospitalService(
             ubicacion = PuntoGeo.de(solicitud.latitud, solicitud.longitud),
             creadoEn = reloj.instant().toString(),
             telefono = solicitud.telefono?.trim()?.takeIf { it.isNotEmpty() },
-            esDemostracion = esDemostracion,
+            esDemostracion = esDemostracion
         )
         repositorio.crear(hospital)
         return hospital.aRespuesta()
@@ -45,4 +45,8 @@ class HospitalService(
     suspend fun hayHospitales(): Boolean = repositorio.contar() > 0
 
     suspend fun existe(id: String): Boolean = repositorio.buscarPorId(id) != null
+
+    override suspend fun resumen(id: String): HospitalResumen? = repositorio.buscarPorId(id)?.let {
+        HospitalResumen(it.id, it.nombre, it.direccion, it.ubicacion, it.telefono)
+    }
 }

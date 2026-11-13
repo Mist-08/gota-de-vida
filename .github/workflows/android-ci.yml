@@ -1,0 +1,61 @@
+name: Android CI
+
+# Corre en cada Pull Request (sin filtro de rutas, para que la protección de main
+# siempre encuentre este check) y en cada push a main.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compilar y probar la app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # compileSdk 37: se instala explícito por si la imagen del runner aún no lo trae.
+      - name: SDK de Android 37
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;37.0.0" > /dev/null
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Estilo de código (ktlint)
+        run: |
+          curl -sSfL -o /tmp/ktlint.jar https://repo.maven.apache.org/maven2/com/pinterest/ktlint/ktlint-cli/1.8.0/ktlint-cli-1.8.0-all.jar
+          java -jar /tmp/ktlint.jar "src/**/*.kt"
+
+      - name: Lint, pruebas y APK de depuración
+        run: |
+          chmod +x gradlew
+          ./gradlew lintDebug testDebugUnitTest assembleDebug
+
+      - name: Subir APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: gota-de-vida-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Subir reportes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes-android
+          path: |
+            app/build/reports/
+            app/build/test-results/
+          if-no-files-found: ignore

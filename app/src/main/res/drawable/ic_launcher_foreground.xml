@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícono de la app: gota blanca sobre rojo sangre (zona segura de 66 dp al centro). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,30C54,30 70,47 70,58A16,16 0,0 1,38 58C38,47 54,30 54,30Z" />
+</vector>
