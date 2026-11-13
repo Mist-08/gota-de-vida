@@ -30,10 +30,7 @@ class AutenticacionFalsa(var respuesta: Resultado<UsuarioPublico> = Resultado.Ex
     override suspend fun iniciarConGoogle(idToken: String): Resultado<UsuarioPublico> = respuesta
 }
 
-fun perfilDePrueba(
-    completo: Boolean = true,
-    ultimaDonacion: String? = null,
-) = PerfilDonador(
+fun perfilDePrueba(completo: Boolean = true, ultimaDonacion: String? = null) = PerfilDonador(
     id = "u1",
     nombre = "Ana López",
     notificacionesActivas = true,
@@ -48,14 +45,14 @@ fun perfilDePrueba(
     latitud = if (completo) 25.54 else null,
     longitud = if (completo) -103.406 else null,
     zona = if (completo) "Torreón" else null,
-    ultimaDonacion = ultimaDonacion,
+    ultimaDonacion = ultimaDonacion
 )
 
 class DonadorFalso(
     perfil: PerfilDonador? = null,
     elegibilidad: Elegibilidad? = null,
     var respuestaRefresco: Resultado<Unit> = Resultado.Exito(Unit),
-    var respuestaActualizar: Resultado<PerfilDonador>? = null,
+    var respuestaActualizar: Resultado<PerfilDonador>? = null
 ) : DonadorRepository {
     val perfil = MutableStateFlow(perfil)
     val elegibilidad = MutableStateFlow(elegibilidad)

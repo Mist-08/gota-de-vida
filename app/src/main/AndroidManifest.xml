@@ -5,6 +5,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Solo ubicación aproximada: el servidor además la redondea a ~100 m. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Android 13+: permiso para mostrar avisos de urgencias. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Solo la cuenta del hospital la usa, para escanear el QR de la cita. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- allowBackup en false: la app guarda datos de salud (tipo de sangre).
          Eso basta en Android 8–11; dataExtractionRules lo repite para Android 12+. -->
@@ -31,6 +36,40 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Widget "Podrás volver a donar en N días" (Jetpack Glance). -->
+        <receiver
+            android:name=".donador.ui.ReceptorWidgetElegibilidad"
+            android:exported="true"
+            android:label="@string/widget_nombre">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_elegibilidad" />
+        </receiver>
+
+        <!-- Avisos de Firebase Cloud Messaging. -->
+        <service
+            android:name=".notificaciones.service.GotaMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- WorkManager se inicia desde GotaDeVidaApp (con Hilt), no automáticamente. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
 
         <!-- Guarda el idioma elegido en Ajustes en Android 12 o anterior. -->
         <service

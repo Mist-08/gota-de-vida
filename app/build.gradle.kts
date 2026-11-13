@@ -26,14 +26,19 @@ android {
         applicationId = "mx.gotadevida"
         minSdk = 26
         targetSdk = 37
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 6
+        versionName = "0.6.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // En el emulador, localhost de la computadora es 10.0.2.2.
         buildConfigField("String", "API_BASE_URL", "\"${propiedad("API_BASE_URL", "http://10.0.2.2:8080/")}\"")
         // ID de cliente WEB de OAuth (Google Cloud Console). Vacío = se oculta "Continuar con Google".
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${propiedad("GOOGLE_WEB_CLIENT_ID", "")}\"")
+        // Firebase Cloud Messaging sin google-services.json: los datos van en local.properties.
+        // Vacíos = la app funciona igual, solo no recibe avisos push.
+        listOf("FIREBASE_APP_ID", "FIREBASE_API_KEY", "FIREBASE_PROJECT_ID", "FIREBASE_SENDER_ID").forEach {
+            buildConfigField("String", it, "\"${propiedad(it, "")}\"")
+        }
     }
 
     buildTypes {
@@ -100,6 +105,19 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services)
     implementation(libs.google.id)
+
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+    implementation(libs.osmdroid)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.mlkit.barcode)
+    implementation(libs.zxing.core)
+    implementation(libs.androidx.glance.appwidget)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

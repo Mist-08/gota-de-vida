@@ -16,6 +16,16 @@ data class Configuracion(
     val adminEmail: String?,
     val adminPassword: String?,
     val cargarDatosDemo: Boolean,
+    val rabbitMqUrl: String? = null,
+    val firebaseCredenciales: String? = null,
+    val minutosEntreOleadas: Long = 15,
+    val demoPassword: String? = null,
+    val geminiLlave: String? = null,
+    val geminiModelo: String = "gemini-3.5-flash-lite",
+    val whatsappToken: String? = null,
+    val whatsappIdNumero: String? = null,
+    val whatsappTokenVerificacion: String? = null,
+    val whatsappSecretoApp: String? = null
 ) {
     companion object {
         fun cargar(): Configuracion {
@@ -38,6 +48,16 @@ data class Configuracion(
                 adminEmail = texto("ADMIN_EMAIL"),
                 adminPassword = texto("ADMIN_PASSWORD"),
                 cargarDatosDemo = texto("CARGAR_DATOS_DEMO")?.lowercase() != "false",
+                rabbitMqUrl = texto("RABBITMQ_URL"),
+                firebaseCredenciales = texto("FIREBASE_CREDENCIALES_JSON"),
+                minutosEntreOleadas = texto("MINUTOS_ENTRE_OLEADAS")?.toLongOrNull() ?: 15,
+                demoPassword = texto("DEMO_PASSWORD"),
+                geminiLlave = texto("GEMINI_API_KEY"),
+                geminiModelo = texto("GEMINI_MODEL") ?: "gemini-3.5-flash-lite",
+                whatsappToken = texto("WHATSAPP_TOKEN"),
+                whatsappIdNumero = texto("WHATSAPP_PHONE_NUMBER_ID"),
+                whatsappTokenVerificacion = texto("WHATSAPP_VERIFY_TOKEN"),
+                whatsappSecretoApp = texto("WHATSAPP_APP_SECRET")
             )
         }
 

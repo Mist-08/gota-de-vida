@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 enum class Rol {
     DONADOR,
     HOSPITAL,
-    ADMIN,
+    ADMIN
 }

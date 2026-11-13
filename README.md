@@ -58,8 +58,8 @@ Base de datos y despliegue del backend: `docs/DESPLIEGUE.md`.
 - [x] Fase B: estructura del repositorio
 - [x] Fase 1: backend base (falta desplegar en Render, ver docs/DESPLIEGUE.md)
 - [x] Fase 2: app base (falta revisarla en un emulador)
-- [ ] Fase 3: urgencias
-- [ ] Fase 4: citas
-- [ ] Fase 5: chatbot
-- [ ] Fase 6: pulido
-- [ ] Fase 7: presentación
+- [x] Fase 3: urgencias (falta conectar CloudAMQP y Firebase, ver docs/DESPLIEGUE.md)
+- [x] Fase 4: citas
+- [x] Fase 5: chatbot (falta crear la llave de Gemini y la plantilla de WhatsApp)
+- [x] Fase 6: pulido (falta el ensayo de la demo en teléfonos)
+- [x] Fase 7: presentación (guion en docs/presentacion/GUION_DEMO.md; falta el ensayo cronometrado)
